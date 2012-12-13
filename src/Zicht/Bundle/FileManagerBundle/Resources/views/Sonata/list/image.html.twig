@@ -1,0 +1,8 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+    {% if field_description.options.imagine_filter is defined %}
+        <img src="{{ file_url(object, 'file')|imagine_filter(field_description.options.imagine_filter) }}">
+    {% else %}
+        <img src="{{ asset(file_url(object, 'file')) }}">
+    {% endif %}
+{% endblock %}

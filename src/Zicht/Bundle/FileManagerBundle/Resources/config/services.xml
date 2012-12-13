@@ -1,0 +1,32 @@
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="zicht_filemanager.filemanager.class">Zicht\Bundle\FileManagerBundle\FileManager\FileManager</parameter>
+        <parameter key="zicht_filemanager.root">%kernel.root_dir%/../web/media</parameter>
+        <parameter key="zicht_filemanager.http_root">media</parameter>
+        <parameter key="zicht_filemanager.metadata_factory.class">Metadata\MetadataFactory</parameter>
+        <parameter key="zicht_filemanager.metadata.annotation_driver.class">Zicht\Bundle\FileManagerBundle\Metadata\Driver\AnnotationDriver</parameter>
+    </parameters>
+    <services>
+        <service id="zicht_filemanager.subscribe" class="Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber">
+            <argument type="service" id="zicht_filemanager.filemanager" />
+            <argument type="service" id="zicht_filemanager.metadata_factory" />
+            <tag name="doctrine.event_subscriber" connection="default"/>
+        </service>
+        <service id="zicht_filemanager.filemanager" class="%zicht_filemanager.filemanager.class%">
+            <argument>%zicht_filemanager.root%</argument>
+            <argument>%zicht_filemanager.http_root%</argument>
+        </service>
+        <service id="zicht_filemanager.twig_extension" class="Zicht\Bundle\FileManagerBundle\Twig\FileManagerExtension">
+            <argument type="service" id="zicht_filemanager.filemanager" />
+            <tag name="twig.extension" />
+        </service>
+        <service id="zicht_filemanager.metadata.annotation_driver" class="%zicht_filemanager.metadata.annotation_driver.class%" public="false">
+            <argument type="service" id="annotation_reader" />
+        </service>
+        <service id="zicht_filemanager.metadata_factory" class="%zicht_filemanager.metadata_factory.class%">
+            <argument type="service" id="zicht_filemanager.metadata.annotation_driver" />
+        </service>
+   </services>
+</container>
