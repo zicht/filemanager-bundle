@@ -102,6 +102,18 @@ class FileManager {
         return null;
     }
 
+    /**
+     * @param $entity       Entity that holds the file property
+     * @param $property     Name of file property
+     * @param $name         Name of file on filesystem
+     * @return null|string  Path to the file on filesystem
+     */
+    function getFileUrlByFilename($entity, $property, $name){
+        if ($entity) {
+            return ltrim($this->httpRoot . '/' . $this->getRelativePath($entity, $property) . '/' . $name, '/');
+        }
+        return null;
+    }
 
     function getFilePath($entity, $name) {
         if ($entity && ($fileName = $entity->{'get' . ucfirst($name)}())) {

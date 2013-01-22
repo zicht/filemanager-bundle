@@ -14,23 +14,26 @@ class FileManagerExtension extends \Twig_Extension
         $this->fm = $fm;
     }
 
-
-
     function getFunctions() {
         return array(
             'file_url' => new \Twig_Function_Method(
                 $this,
                 'getFileUrl'
+            ),
+            'file_url2' => new \Twig_Function_Method(
+                $this,
+                'getFileUrl2'
             )
         );
     }
-
-
 
     function getFileUrl($entity, $field) {
         return $this->fm->getFileUrl($entity, $field);
     }
 
+    function getFileUrlByFilename($entity, $field, $value){
+        return $this->fm->getFileUrlByFilename($entity, $field, $value);
+    }
 
 
     function getName() {
