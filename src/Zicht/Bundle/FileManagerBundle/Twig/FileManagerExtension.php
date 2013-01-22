@@ -20,9 +20,9 @@ class FileManagerExtension extends \Twig_Extension
                 $this,
                 'getFileUrl'
             ),
-            'file_url2' => new \Twig_Function_Method(
+            'file_url_by_filename' => new \Twig_Function_Method(
                 $this,
-                'getFileUrl2'
+                'getFileUrlByFilename'
             )
         );
     }
