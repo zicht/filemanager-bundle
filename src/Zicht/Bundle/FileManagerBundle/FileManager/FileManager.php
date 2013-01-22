@@ -7,6 +7,7 @@
 namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
 use Symfony\Component\HttpFoundation\File\File;
+use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 
 /**
  * Storage layer for files.
@@ -96,7 +97,7 @@ class FileManager {
 
 
     function getFileUrl($entity, $name) {
-        if ($entity && ($fileName = $entity->{'get' . ucfirst($name)}())) {
+        if ($entity && ($fileName = PropertyHelper::getValue($entity, $name))) {
             return ltrim($this->httpRoot . '/' . $this->getRelativePath($entity, $name) . '/' . $fileName, '/');
         }
         return null;
@@ -116,7 +117,7 @@ class FileManager {
     }
 
     function getFilePath($entity, $name) {
-        if ($entity && ($fileName = $entity->{'get' . ucfirst($name)}())) {
+        if ($entity && ($fileName = $entity->{PropertyHelper::getValue($entity, $name)}())) {
             return $this->getDir($entity, $name) . '/' . $fileName;
         }
         return null;
