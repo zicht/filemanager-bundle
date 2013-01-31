@@ -3,7 +3,6 @@
 
 {% block field_widget %}
     {% if type is defined and type == 'file' %}
-        {# TODO this should only be done for images! #}
         {% if sonata_admin.value is defined and sonata_admin.value is not empty %}
             <p>
             {% if sonata_admin.value|lower[-3:] in ['jpg', 'png', 'gif'] %}
