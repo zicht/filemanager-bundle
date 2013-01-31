@@ -98,6 +98,9 @@ class FileManager {
 
     function getFileUrl($entity, $name) {
         if ($entity && ($fileName = PropertyHelper::getValue($entity, $name))) {
+            if ($fileName instanceof File) {
+                $fileName = $fileName->getBasename();
+            }
             return ltrim($this->httpRoot . '/' . $this->getRelativePath($entity, $name) . '/' . $fileName, '/');
         }
         return null;
@@ -117,7 +120,10 @@ class FileManager {
     }
 
     function getFilePath($entity, $name) {
-        if ($entity && ($fileName = $entity->{PropertyHelper::getValue($entity, $name)}())) {
+        if ($entity && ($fileName = PropertyHelper::getValue($entity, $name))) {
+            if ($fileName instanceof File) {
+                $fileName = $fileName->getBasename();
+            }
             return $this->getDir($entity, $name) . '/' . $fileName;
         }
         return null;

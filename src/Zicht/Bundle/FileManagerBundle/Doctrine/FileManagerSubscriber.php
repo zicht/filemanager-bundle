@@ -75,6 +75,11 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
         foreach ($classMetaData->propertyMetadata as $property => $metadata) {
             if (isset($metadata->fileManager)) {
                 $entity->{$property . '_delete'} = false;
+
+                $filePath = $this->fileManager->getFilePath($entity, $property);
+                if ($filePath) {
+                    PropertyHelper::setValue($entity, $property, new File($filePath));
+                }
             }
         }
     }
