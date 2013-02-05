@@ -77,7 +77,7 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
                 $entity->{$property . '_delete'} = false;
 
                 $filePath = $this->fileManager->getFilePath($entity, $property);
-                if ($filePath) {
+                if ($filePath && file_exists($filePath)) {
                     PropertyHelper::setValue($entity, $property, new File($filePath));
                 }
             }
