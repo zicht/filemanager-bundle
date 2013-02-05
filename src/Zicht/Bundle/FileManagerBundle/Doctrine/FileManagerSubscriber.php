@@ -21,6 +21,7 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     function __construct($fileManager, MetadataFactory $metadataFactory) {
         $this->fileManager = $fileManager;
         $this->metadataFactory = $metadataFactory;
+        $this->scheduledForDelete = array();
     }
 
 
@@ -30,6 +31,7 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
         return array(
             \Doctrine\ORM\Events::prePersist,
             \Doctrine\ORM\Events::preUpdate,
+            \Doctrine\ORM\Events::preRemove,
             \Doctrine\ORM\Events::postRemove,
             \Doctrine\ORM\Events::postLoad,
         );
@@ -53,7 +55,12 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     }
 
 
-    function postRemove($eventArgs)
+    /**
+     * Schedule files for deletion
+     *
+     * @param $eventArgs
+     */
+    function preRemove($eventArgs)
     {
         $entity = $eventArgs->getEntity();
         $classMetaData = $this->metadataFactory->getMetadataForClass(get_class($eventArgs->getEntity()));
@@ -61,12 +68,30 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
         /** @var \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata $metadata */
         foreach ($classMetaData->propertyMetadata as $property => $metadata) {
             if (isset($metadata->fileManager)) {
-                $this->fileManager->remove($entity, $property);
+                $this->scheduledForDelete[] = $this->fileManager->getFilePath($entity, $property);
             }
         }
     }
 
 
+    /**
+     * Remove all files that are scheduled for deletion.
+     *
+     * @param LifecycleEventArgs $eventArgs
+     */
+    function postRemove($eventArgs)
+    {
+        foreach ($this->scheduledForDelete as $file) {
+            $this->fileManager->delete($file);
+        }
+    }
+
+
+    /**
+     *
+     *
+     * @param $eventArgs
+     */
     function postLoad($eventArgs) {
         $entity = $eventArgs->getEntity();
         $classMetaData = $this->metadataFactory->getMetadataForClass(get_class($entity));
@@ -84,6 +109,11 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
         }
     }
 
+    /**
+     * Process a 'save' action (persist or update)
+     *
+     * @param $eventArgs
+     */
     public function process($eventArgs) {
         $entity = $eventArgs->getEntity();
         $classMetaData = $this->metadataFactory->getMetadataForClass(get_class($entity));

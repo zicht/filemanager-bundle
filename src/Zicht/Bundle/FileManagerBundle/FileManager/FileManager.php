@@ -48,12 +48,19 @@ class FileManager {
     }
 
 
-    function remove($entity, $name) {
-        $path = $this->getFilePath($entity, $name);
-        if (is_file($path)) {
-            return unlink($path);
+
+    public function delete($filePath)
+    {
+        if (is_file($filePath)) {
+            return unlink($filePath);
         }
         return false;
+    }
+
+
+    function remove($entity, $name)
+    {
+        return $this->delete($this->getFilePath($entity, $name));
     }
 
 
