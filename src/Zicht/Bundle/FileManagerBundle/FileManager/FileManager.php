@@ -126,6 +126,13 @@ class FileManager {
         return null;
     }
 
+    /**
+     * Returns the file path for the given entity / property combination
+     *
+     * @param $entity
+     * @param $name
+     * @return null|string
+     */
     function getFilePath($entity, $name) {
         if ($entity && ($fileName = PropertyHelper::getValue($entity, $name))) {
             if ($fileName instanceof File) {
