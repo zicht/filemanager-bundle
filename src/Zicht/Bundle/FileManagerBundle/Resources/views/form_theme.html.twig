@@ -1,5 +1,3 @@
-{% extends 'SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig' %}
-
 {% block field_widget %}
     {% if type is defined and type == 'file' %}
         {% if sonata_admin.value is defined and sonata_admin.value is not empty %}
@@ -19,3 +17,4 @@
         {{ block('form_widget_simple') }}
     {% endif %}
 {% endblock %}
+
