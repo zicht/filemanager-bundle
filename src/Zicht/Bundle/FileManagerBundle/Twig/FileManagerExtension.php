@@ -27,8 +27,8 @@ class FileManagerExtension extends \Twig_Extension
         );
     }
 
-    function getFileUrl($entity, $field) {
-        return $this->fm->getFileUrl($entity, $field);
+    function getFileUrl($entity, $field, $value = null) {
+        return $this->fm->getFileUrl($entity, $field, $value);
     }
 
     function getFileUrlByFilename($entity, $field, $value){

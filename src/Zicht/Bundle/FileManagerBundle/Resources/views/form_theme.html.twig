@@ -3,7 +3,7 @@
         {% if sonata_admin.value is defined and sonata_admin.value is not empty %}
             <p>
             {% if sonata_admin.value|lower[-3:] in ['jpg', 'png', 'gif'] %}
-                <a href="{{ asset(file_url(sonata_admin.admin.subject, sonata_admin.name)) }}"><img title="(Current: {{ sonata_admin.value }})" alt="" src="{{ file_url(sonata_admin.admin.subject, sonata_admin.name)|imagine_filter('cms') }}"></a>
+                <a href="{{ asset(file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value)) }}"><img title="(Current: {{ sonata_admin.value }})" alt="" src="{{ file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value)|imagine_filter('cms') }}"></a>
             {% endif %}
             </p>
             {{ block('form_widget_simple') }}

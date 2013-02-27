@@ -103,12 +103,20 @@ class FileManager {
     }
 
 
-    function getFileUrl($entity, $name) {
-        if ($entity && ($fileName = PropertyHelper::getValue($entity, $name))) {
-            if ($fileName instanceof File) {
-                $fileName = $fileName->getBasename();
+    function getFileUrl($entity, $name, $value = null) {
+        if (null === $value) {
+            if ($entity && ($fileName = PropertyHelper::getValue($entity, $name))) {
+                if ($fileName instanceof File) {
+                    $fileName = $fileName->getBasename();
+                }
+                $value = $fileName;
             }
-            return ltrim($this->httpRoot . '/' . $this->getRelativePath($entity, $name) . '/' . $fileName, '/');
+        } else {
+            $value = basename($value);
+        }
+
+        if ($value) {
+            return ltrim($this->httpRoot . '/' . $this->getRelativePath($entity, $name) . '/' . $value, '/');
         }
         return null;
     }
