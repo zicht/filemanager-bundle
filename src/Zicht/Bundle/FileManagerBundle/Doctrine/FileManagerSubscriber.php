@@ -99,11 +99,11 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
         /** @var \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata $metadata */
         foreach ($classMetaData->propertyMetadata as $property => $metadata) {
             if (isset($metadata->fileManager)) {
-                $entity->{$property . '_delete'} = false;
-
                 $filePath = $this->fileManager->getFilePath($entity, $property);
                 if ($filePath && file_exists($filePath)) {
                     PropertyHelper::setValue($entity, $property, new File($filePath));
+                } else {
+                    PropertyHelper::setValue($entity, $property, null);
                 }
             }
         }
@@ -134,7 +134,7 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
                 } else {
                     if ($eventArgs instanceof \Doctrine\ORM\Event\PreUpdateEventArgs) {
                         // keep the original value, don't overwrite.
-                        if (empty($entity->{$property . '_delete'}) && $eventArgs->hasChangedField($property)) {
+                        if ($eventArgs->hasChangedField($property)) {
                             $eventArgs->setNewValue($property, $eventArgs->getOldValue($property));
                         }
                     }
