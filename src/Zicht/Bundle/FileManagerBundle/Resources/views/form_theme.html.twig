@@ -2,9 +2,13 @@
     {% if type is defined and type == 'file' %}
         {% if sonata_admin.value is defined and sonata_admin.value is not empty %}
             <p>
-            {% if sonata_admin.value|lower[-3:] in ['jpg', 'png', 'gif'] %}
-                <a href="{{ asset(file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value)) }}"><img title="(Current: {{ sonata_admin.value }})" alt="" src="{{ file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value)|imagine_filter('cms') }}"></a>
-            {% endif %}
+                <a href="{{ asset(file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value)) }}">
+                {% if sonata_admin.value|lower[-3:] in ['jpg', 'png', 'gif'] %}
+                    <img title="(Current: {{ sonata_admin.value }})" alt="" src="{{ file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value)|imagine_filter('cms') }}">
+                {% else %}
+                    {{ file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value) }}
+                {% endif %}
+                </a>
             </p>
             {{ block('form_widget_simple') }}
             <p>
