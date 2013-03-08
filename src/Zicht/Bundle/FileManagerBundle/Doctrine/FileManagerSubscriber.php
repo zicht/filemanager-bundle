@@ -11,6 +11,7 @@ use Doctrine\Common\EventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\HttpFoundation\File\File;
 use Metadata\MetadataFactory;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 
 class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
 {
@@ -21,136 +22,163 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     function __construct($fileManager, MetadataFactory $metadataFactory) {
         $this->fileManager = $fileManager;
         $this->metadataFactory = $metadataFactory;
-        $this->scheduledForDelete = array();
+        $this->managedFields = array();
+        $this->unitOfWork = array();
     }
 
+
+    protected function getManagedFields($entity)
+    {
+        $class = get_class($entity);
+
+        if (!isset($this->managedFields[$class])) {
+            $metadata = $this->metadataFactory->getMetadataForClass(get_class($entity));
+            $this->managedFields[$class] = array();
+            foreach ($metadata->propertyMetadata as $field => $metadata) {
+                if (isset($metadata->fileManager)) {
+                    $this->managedFields[$class][] =$field;
+                }
+            }
+        }
+        return $this->managedFields[$class];
+    }
+
+
+    protected function isManaged($entity)
+    {
+        return count($this->getManagedFields($entity)) > 0;
+    }
 
 
     public function getSubscribedEvents()
     {
         return array(
-            \Doctrine\ORM\Events::prePersist,
             \Doctrine\ORM\Events::preUpdate,
             \Doctrine\ORM\Events::preRemove,
-            \Doctrine\ORM\Events::postRemove,
             \Doctrine\ORM\Events::postLoad,
+            \Doctrine\ORM\Events::prePersist,
+            \Doctrine\ORM\Events::postPersist,
+            \Doctrine\ORM\Events::postUpdate,
+            \Doctrine\ORM\Events::postRemove,
         );
     }
 
 
     /**
-     * @param LifecycleEventArgs $eventArgs
-     */
-    function prePersist($eventArgs)
-    {
-        $this->process($eventArgs);
-    }
-
-    /**
-     * @param LifecycleEventArgs $eventArgs
+     * @param \Doctrine\ORM\Event\PreUpdateEventArgs $eventArgs
      */
     function preUpdate($eventArgs)
     {
-        $this->process($eventArgs);
+        $entity = $eventArgs->getEntity();
+        $changeset = $eventArgs->getEntityChangeSet();
+
+        foreach ($this->getManagedFields($entity) as $field) {
+            if (isset($changeset[$field])) {
+                list($old, $new) = $changeset[$field];
+
+                if ($new === null) {
+                    $eventArgs->setNewValue($field, $old);
+                } else {
+                    if ($old) {
+                        $filepath = $this->fileManager->getFilePath($entity, $field, $old);
+                        $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] = function(FileManager $fm) use($filepath) {
+                            $fm->delete($filepath);
+                        };
+                    }
+                    $eventArgs->setNewValue($field, $this->scheduleForUpload($new, $entity, $field));
+                }
+            }
+        }
     }
 
 
     /**
-     * Schedule files for deletion
-     *
-     * @param $eventArgs
+     * @param LifeCycleEventArgs
      */
     function preRemove($eventArgs)
     {
-        $entity = $eventArgs->getEntity();
-        $classMetaData = $this->metadataFactory->getMetadataForClass(get_class($eventArgs->getEntity()));
+        foreach ($this->getManagedFields($eventArgs->getEntity()) as $field) {
+            $file = PropertyHelper::getValue($eventArgs->getEntity(), $field);
 
-        /** @var \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata $metadata */
-        foreach ($classMetaData->propertyMetadata as $property => $metadata) {
-            if (isset($metadata->fileManager)) {
-                $this->scheduledForDelete[] = $this->fileManager->getFilePath($entity, $property);
+            if ($file) {
+                $this->unitOfWork[]= function(FileManager $fm) use($file) {
+                    $fm->delete($file);
+                };
             }
         }
     }
 
 
-    /**
-     * Remove all files that are scheduled for deletion.
-     *
-     * @param LifecycleEventArgs $eventArgs
-     */
-    function postRemove($eventArgs)
+    function prePersist($eventArgs)
     {
-        foreach ($this->scheduledForDelete as $file) {
-            $this->fileManager->delete($file);
-        }
-    }
-
-
-    /**
-     *
-     *
-     * @param $eventArgs
-     */
-    function postLoad($eventArgs) {
         $entity = $eventArgs->getEntity();
-        $classMetaData = $this->metadataFactory->getMetadataForClass(get_class($entity));
 
-        /** @var \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata $metadata */
-        foreach ($classMetaData->propertyMetadata as $property => $metadata) {
-            if (isset($metadata->fileManager)) {
-                $filePath = $this->fileManager->getFilePath($entity, $property);
-                if ($filePath && file_exists($filePath)) {
-                    PropertyHelper::setValue($entity, $property, new File($filePath));
-                } else {
-                    PropertyHelper::setValue($entity, $property, null);
-                }
-            }
-        }
-    }
-
-    /**
-     * Process a 'save' action (persist or update)
-     *
-     * @param $eventArgs
-     */
-    public function process($eventArgs) {
-        $entity = $eventArgs->getEntity();
-        $classMetaData = $this->metadataFactory->getMetadataForClass(get_class($entity));
-
-        /** @var \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata $metadata */
-        foreach ($classMetaData->propertyMetadata as $property => $metadata) {
-            if (isset($metadata->fileManager)) {
-                $newValue = $this->handle($metadata, $property, $entity);
-                if ($newValue) {
-                    if ($eventArgs instanceof \Doctrine\ORM\Event\PreUpdateEventArgs) {
-                        $tmp = clone $entity;
-                        PropertyHelper::setValue($tmp, $property, $eventArgs->getOldValue($property));
-                        $this->fileManager->remove($tmp, $property);
-                        $eventArgs->setNewValue($property, $newValue);
-                    } else {
-                        PropertyHelper::setValue($entity, $property, $newValue);
-                    }
-                } else {
-                    if ($eventArgs instanceof \Doctrine\ORM\Event\PreUpdateEventArgs) {
-                        // keep the original value, don't overwrite.
-                        if ($eventArgs->hasChangedField($property)) {
-                            $eventArgs->setNewValue($property, $eventArgs->getOldValue($property));
-                        }
-                    }
-                }
+        foreach ($this->getManagedFields($entity) as $field) {
+            $value = PropertyHelper::getValue($entity, $field);
+            if (null !== $value) {
+                $this->scheduleForUpload($value, $entity, $field);
             }
         }
     }
 
 
-    protected function handle($metadata, $property, $entity) {
-        $value = PropertyHelper::getValue($entity, $property);
-
+    public function scheduleForUpload($value, $entity, $field)
+    {
         if ($value instanceof File) {
-            return $this->fileManager->save($value, $entity, $property);
+            $path = $this->fileManager->prepare($value, $entity, $field);
+            $fileName = basename($path);
+            PropertyHelper::setValue($entity, $field, $fileName);
+            $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function($fm) use($value, $path) {
+                $fm->save($value, $path);
+            };
+            return $fileName;
+        } else {
+            throw new \InvalidArgumentException("Invalid argument to scheduleForUpload(): " . gettype($value));
         }
-        return null;
     }
 
+
+    function postLoad($eventArgs)
+    {
+        $entity = $eventArgs->getEntity();
+
+        foreach ($this->getManagedFields($entity) as $field) {
+            $filePath = $this->fileManager->getFilePath($entity, $field);
+            if ($filePath && file_exists($filePath)) {
+                PropertyHelper::setValue($entity, $field, new File($filePath));
+            } else {
+                PropertyHelper::setValue($entity, $field, null);
+            }
+        }
+    }
+
+
+    function postUpdate()
+    {
+        $this->doFlush();
+    }
+
+
+    function postPersist()
+    {
+        $this->doFlush();
+    }
+
+
+    function postRemove ()
+    {
+        $this->doFlush();
+    }
+
+
+    public function doFlush()
+    {
+        while ($unit = array_shift($this->unitOfWork)) {
+            while ($operations = array_shift($unit)) {
+                while ($callback = array_shift($operations)) {
+                    call_user_func($callback, $this->fileManager);
+                }
+            }
+        }
+    }
 }
