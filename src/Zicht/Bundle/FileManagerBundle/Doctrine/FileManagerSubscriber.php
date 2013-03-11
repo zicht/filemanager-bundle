@@ -12,54 +12,32 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\HttpFoundation\File\File;
 use Metadata\MetadataFactory;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Doctrine\ORM\Events;
 
 class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
 {
     /**
      * @param \Zicht\Bundle\FileManagerBundle\FileManager\FileManager $fileManager
-     * @param $metadataFactory
+     * @param $metadata
      */
-    function __construct($fileManager, MetadataFactory $metadataFactory) {
+    function __construct($fileManager, MetadataRegistry $metadata) {
         $this->fileManager = $fileManager;
-        $this->metadataFactory = $metadataFactory;
+        $this->metadata = $metadata;
         $this->managedFields = array();
         $this->unitOfWork = array();
-    }
-
-
-    protected function getManagedFields($entity)
-    {
-        $class = get_class($entity);
-
-        if (!isset($this->managedFields[$class])) {
-            $metadata = $this->metadataFactory->getMetadataForClass(get_class($entity));
-            $this->managedFields[$class] = array();
-            foreach ($metadata->propertyMetadata as $field => $metadata) {
-                if (isset($metadata->fileManager)) {
-                    $this->managedFields[$class][] =$field;
-                }
-            }
-        }
-        return $this->managedFields[$class];
-    }
-
-
-    protected function isManaged($entity)
-    {
-        return count($this->getManagedFields($entity)) > 0;
     }
 
 
     public function getSubscribedEvents()
     {
         return array(
-            \Doctrine\ORM\Events::preUpdate,
-            \Doctrine\ORM\Events::preRemove,
-            \Doctrine\ORM\Events::postLoad,
-            \Doctrine\ORM\Events::prePersist,
-            \Doctrine\ORM\Events::postPersist,
-            \Doctrine\ORM\Events::postUpdate,
-            \Doctrine\ORM\Events::postRemove,
+            Events::preUpdate,
+            Events::preRemove,
+            Events::postLoad,
+            Events::prePersist,
+            Events::postPersist,
+            Events::postUpdate,
+            Events::postRemove,
         );
     }
 
@@ -72,7 +50,7 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
         $entity = $eventArgs->getEntity();
         $changeset = $eventArgs->getEntityChangeSet();
 
-        foreach ($this->getManagedFields($entity) as $field) {
+        foreach ($this->metadata->getManagedFields($entity) as $field) {
             if (isset($changeset[$field])) {
                 list($old, $new) = $changeset[$field];
 
@@ -97,7 +75,7 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
      */
     function preRemove($eventArgs)
     {
-        foreach ($this->getManagedFields($eventArgs->getEntity()) as $field) {
+        foreach ($this->metadata->getManagedFields($eventArgs->getEntity()) as $field) {
             $file = PropertyHelper::getValue($eventArgs->getEntity(), $field);
 
             if ($file) {
@@ -113,7 +91,7 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     {
         $entity = $eventArgs->getEntity();
 
-        foreach ($this->getManagedFields($entity) as $field) {
+        foreach ($this->metadata->getManagedFields($entity) as $field) {
             $value = PropertyHelper::getValue($entity, $field);
             if (null !== $value) {
                 $this->scheduleForUpload($value, $entity, $field);
@@ -142,7 +120,7 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     {
         $entity = $eventArgs->getEntity();
 
-        foreach ($this->getManagedFields($entity) as $field) {
+        foreach ($this->metadata->getManagedFields($entity) as $field) {
             $filePath = $this->fileManager->getFilePath($entity, $field);
             if ($filePath && file_exists($filePath)) {
                 PropertyHelper::setValue($entity, $field, new File($filePath));

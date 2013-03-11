@@ -6,12 +6,13 @@
         <parameter key="zicht_filemanager.root">%kernel.root_dir%/../web/media</parameter>
         <parameter key="zicht_filemanager.http_root">media</parameter>
         <parameter key="zicht_filemanager.metadata_factory.class">Metadata\MetadataFactory</parameter>
+        <parameter key="zicht_filemanager.metadata.class">Zicht\Bundle\FileManagerBundle\Doctrine\MetadataRegistry</parameter>
         <parameter key="zicht_filemanager.metadata.annotation_driver.class">Zicht\Bundle\FileManagerBundle\Metadata\Driver\AnnotationDriver</parameter>
     </parameters>
     <services>
         <service id="zicht_filemanager.subscribe" class="Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber">
             <argument type="service" id="zicht_filemanager.filemanager" />
-            <argument type="service" id="zicht_filemanager.metadata_factory" />
+            <argument type="service" id="zicht_filemanager.metadata" />
             <tag name="doctrine.event_subscriber" connection="default"/>
         </service>
         <service id="zicht_filemanager.filemanager" class="%zicht_filemanager.filemanager.class%">
@@ -24,6 +25,9 @@
         </service>
         <service id="zicht_filemanager.metadata.annotation_driver" class="%zicht_filemanager.metadata.annotation_driver.class%" public="false">
             <argument type="service" id="annotation_reader" />
+        </service>
+        <service id="zicht_filemanager.metadata" class="%zicht_filemanager.metadata.class%">
+            <argument type="service" id="zicht_filemanager.metadata_factory"/>
         </service>
         <service id="zicht_filemanager.metadata_factory" class="%zicht_filemanager.metadata_factory.class%">
             <argument type="service" id="zicht_filemanager.metadata.annotation_driver" />
