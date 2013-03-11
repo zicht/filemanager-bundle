@@ -122,11 +122,8 @@ class FileManager {
 
 
     function getFileUrl($entity, $name, $value = null) {
-        if (func_num_args() < 3) {
+        if (null === $value) {
             if ($entity && ($fileName = PropertyHelper::getValue($entity, $name))) {
-                if ($fileName instanceof File) {
-                    $fileName = $fileName->getBasename();
-                }
                 $value = $fileName;
             }
         } else {
