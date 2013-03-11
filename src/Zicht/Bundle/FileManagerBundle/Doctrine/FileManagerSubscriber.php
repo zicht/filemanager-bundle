@@ -75,11 +75,12 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
      */
     function preRemove($eventArgs)
     {
-        foreach ($this->metadata->getManagedFields($eventArgs->getEntity()) as $field) {
-            $file = PropertyHelper::getValue($eventArgs->getEntity(), $field);
+        $entity = $eventArgs->getEntity();
+        foreach ($this->metadata->getManagedFields($entity) as $field) {
+            $file = PropertyHelper::getValue($entity, $field);
 
             if ($file) {
-                $this->unitOfWork[]= function(FileManager $fm) use($file) {
+                $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] = function(FileManager $fm) use($file) {
                     $fm->delete($file);
                 };
             }
