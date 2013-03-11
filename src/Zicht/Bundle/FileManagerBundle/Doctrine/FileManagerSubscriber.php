@@ -103,17 +103,13 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     public function scheduleForUpload($value, $entity, $field)
     {
         if ($value instanceof File) {
-            if ($value instanceof UploadedFile && !$value->getError()) {
-                $path = $this->fileManager->prepare($value, $entity, $field);
-                $fileName = basename($path);
-                PropertyHelper::setValue($entity, $field, $fileName);
-                $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function($fm) use($value, $path) {
-                    $fm->save($value, $path);
-                };
-                return $fileName;
-            } else {
-                return $value->getBasename();
-            }
+            $path = $this->fileManager->prepare($value, $entity, $field);
+            $fileName = basename($path);
+            PropertyHelper::setValue($entity, $field, $fileName);
+            $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function($fm) use($value, $path) {
+                $fm->save($value, $path);
+            };
+            return $fileName;
         } else {
             throw new \InvalidArgumentException("Invalid argument to scheduleForUpload(): " . gettype($value));
         }
