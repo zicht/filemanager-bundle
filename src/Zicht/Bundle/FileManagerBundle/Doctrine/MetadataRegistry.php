@@ -5,7 +5,7 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use \Metadata\MetadataFactory;
+use \Metadata\MetadataFactoryInterface;
 
 /**
  * Contains all the metadata that is needed for the subscriber.
@@ -17,7 +17,7 @@ class MetadataRegistry
      *
      * @param \Metadata\MetadataFactory $metadataFactory
      */
-    public function __construct(MetadataFactory $metadataFactory)
+    public function __construct(MetadataFactoryInterface $metadataFactory)
     {
         $this->metadataFactory = $metadataFactory;
         $this->managedFields = array();

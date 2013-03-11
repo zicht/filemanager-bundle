@@ -8,13 +8,22 @@
             "email": "gerard@zicht.nl"
         }
     ],
+    "repositories": [
+        {
+            "type": "svn",
+            "url": "svn://zon/projecten/zicht-libraries/ZichtUtil"
+        }
+    ],
     "require": {
         "php": ">=5.3",
-        "symfony/symfony": "2.1.*"
+        "symfony/symfony": "2.1.*",
+        "jms/metadata": "*",
+        "zicht/util": "*"
     },
     "require-dev": {
         "doctrine/orm": ">=2.2.3,<2.4-dev",
-        "doctrine/doctrine-bundle": "1.0.*"
+        "doctrine/doctrine-bundle": "1.0.*",
+        "jms/metadata": "*"
     },
     "autoload": {
         "psr-0": { "": ["src/", "tests/"] }

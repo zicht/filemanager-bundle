@@ -5,11 +5,9 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle\Doctrine;
 
-class MyEntity
-{
-    public $myField = null;
-}
-
+/**
+ * @covers Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber
+ */
 class FileManagerSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     protected $fmSubscriber;
