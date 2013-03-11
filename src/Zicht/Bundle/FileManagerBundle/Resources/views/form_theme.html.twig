@@ -1,22 +1,18 @@
-{% block field_widget %}
-    {% if type is defined and type == 'file' %}
-        {% if sonata_admin.value is defined and sonata_admin.value is not empty %}
-            <p>
-                <a href="{{ asset(file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value)) }}">
-                {% if sonata_admin.value|lower[-3:] in ['jpg', 'png', 'gif'] %}
-                    <img title="(Current: {{ sonata_admin.value }})" alt="" src="{{ file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value)|imagine_filter('cms') }}">
+{% block zicht_file_widget %}
+    {% if value %}
+        <p>
+            <a href="{{ asset(file_url(entity, property, value)) }}">
+                {% if value|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] %}
+                    <img title="(Current: {{ value }})" alt="" src="{{ file_url(entity, property, value)|imagine_filter('cms') }}">
                 {% else %}
-                    {{ file_url(sonata_admin.admin.class, sonata_admin.name, sonata_admin.value) }}
+                    {{ file_url(entity, property, value) }}
                 {% endif %}
-                </a>
-            </p>
-            {{ block('form_widget_simple') }}
-            <p>
-                <small>Selecting a file will replace the current file</small>
-            </p>
-        {% else %}
-            {{ block('form_widget_simple') }}
-        {% endif %}
+            </a>
+        </p>
+        {{ block('form_widget_simple') }}
+        <p>
+            <small>Selecting a file will replace the current file</small>
+        </p>
     {% else %}
         {{ block('form_widget_simple') }}
     {% endif %}

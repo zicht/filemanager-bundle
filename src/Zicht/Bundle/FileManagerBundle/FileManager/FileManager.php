@@ -48,7 +48,7 @@ class FileManager {
             throw new \RuntimeException("{$preparedPath} is not prepared by the filemanager");
         }
         unset($this->preparedPaths[$i]);
-        unlink($preparedPath);
+        @unlink($preparedPath);
         $file->move(dirname($preparedPath), basename($preparedPath));
     }
 

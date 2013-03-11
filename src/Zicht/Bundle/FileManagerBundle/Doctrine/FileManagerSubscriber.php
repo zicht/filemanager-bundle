@@ -34,7 +34,6 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
         return array(
             Events::preUpdate,
             Events::preRemove,
-            Events::postLoad,
             Events::prePersist,
             Events::postPersist,
             Events::postUpdate,
@@ -104,33 +103,19 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     public function scheduleForUpload($value, $entity, $field)
     {
         if ($value instanceof File) {
-            if ( ($value instanceof UploadedFile) && $value->getError()) {
-                return null;
+            if ($value instanceof UploadedFile && !$value->getError()) {
+                $path = $this->fileManager->prepare($value, $entity, $field);
+                $fileName = basename($path);
+                PropertyHelper::setValue($entity, $field, $fileName);
+                $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function($fm) use($value, $path) {
+                    $fm->save($value, $path);
+                };
+                return $fileName;
+            } else {
+                return $value->getBasename();
             }
-            $path = $this->fileManager->prepare($value, $entity, $field);
-            $fileName = basename($path);
-            PropertyHelper::setValue($entity, $field, $fileName);
-            $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function($fm) use($value, $path) {
-                $fm->save($value, $path);
-            };
-            return $fileName;
         } else {
             throw new \InvalidArgumentException("Invalid argument to scheduleForUpload(): " . gettype($value));
-        }
-    }
-
-
-    function postLoad($eventArgs)
-    {
-        $entity = $eventArgs->getEntity();
-
-        foreach ($this->metadata->getManagedFields($entity) as $field) {
-            $filePath = $this->fileManager->getFilePath($entity, $field);
-            if ($filePath && file_exists($filePath)) {
-                PropertyHelper::setValue($entity, $field, new File($filePath));
-            } else {
-                PropertyHelper::setValue($entity, $field, null);
-            }
         }
     }
 
