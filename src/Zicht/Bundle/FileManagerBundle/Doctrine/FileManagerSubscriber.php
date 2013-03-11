@@ -10,6 +10,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\EventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Metadata\MetadataFactory;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use Doctrine\ORM\Events;
@@ -103,6 +104,9 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     public function scheduleForUpload($value, $entity, $field)
     {
         if ($value instanceof File) {
+            if ( ($value instanceof UploadedFile) && $value->getError()) {
+                return null;
+            }
             $path = $this->fileManager->prepare($value, $entity, $field);
             $fileName = basename($path);
             PropertyHelper::setValue($entity, $field, $fileName);
