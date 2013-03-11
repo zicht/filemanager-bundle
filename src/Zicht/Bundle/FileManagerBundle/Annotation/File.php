@@ -6,13 +6,20 @@
 namespace Zicht\Bundle\FileManagerBundle\Annotation;
 
 /**
+ * Annotation class for the FileManager's @File annotation.
+ *
  * @Annotation
  */
 class File
 {
     public $settings = null;
 
-    function __construct(array $data)
+    /**
+     * Constructor.
+     *
+     * @param array $data
+     */
+    public function __construct(array $data)
     {
         $this->settings = $data;
     }

@@ -6,15 +6,21 @@
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
 use \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
- 
+use \Symfony\Component\Console\Input\InputArgument;
+use \Symfony\Component\Console\Input\InputOption;
+use \Symfony\Component\Console\Input\InputInterface;
+use \Symfony\Component\Console\Output\OutputInterface;
+use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+
+/**
+ * A command to check if the files in the database are in sync with the files on disk or vice versa.
+ */
 class FileCheckCommand extends ContainerAwareCommand
 {
-    function configure()
+    /**
+     * @{inheritDoc}
+     */
+    public function configure()
     {
         $this
             ->setName('zicht:filemanager:check')
@@ -24,6 +30,10 @@ class FileCheckCommand extends ContainerAwareCommand
         ;
     }
 
+
+    /**
+     * @{inheritDoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $doctrine = $this->getContainer()->get('doctrine');

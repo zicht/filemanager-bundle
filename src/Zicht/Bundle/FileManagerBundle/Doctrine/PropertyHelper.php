@@ -6,25 +6,50 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use Symfony\Component\Form\Util\PropertyPath;
+use \Symfony\Component\Form\Util\PropertyPath;
+use \Zicht\Util\Str;
 
 // TODO do proper inflection and detection of setters/getters
 // (PropertyAccess / Symfony 2.2?)
+/**
+ * Utility classes to access properties on an entity
+ */
 class PropertyHelper
 {
+    /**
+     * Camelcase a
+     *
+     * @param string $name
+     * @return mixed
+     */
     public static function camelize($name)
     {
-        return preg_replace_callback('/_([a-z])/', function($m) { return ucfirst($m[1]); }, $name);
+        return Str::camel($name);
     }
 
 
-    static function setValue($entity, $field, $value)
+    /**
+     * Calls a setter in the entity with the specified value
+     *
+     * @param object $entity
+     * @param string $field
+     * @param mixed $value
+     * @return void
+     */
+    public static function setValue($entity, $field, $value)
     {
         $entity->{'set' . ucfirst(self::camelize($field))}($value);
     }
 
 
-    static function getValue($entity, $field)
+    /**
+     * Calls a getter in the entity
+     *
+     * @param object $entity
+     * @param string $field
+     * @return mixed
+     */
+    public static function getValue($entity, $field)
     {
         return $entity->{'get' . ucfirst(self::camelize($field))}();
     }

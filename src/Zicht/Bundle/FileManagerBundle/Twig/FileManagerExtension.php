@@ -6,39 +6,58 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Twig;
 
-use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 
+/**
+ * The twig extension providing the 'file_url' twig function.
+ */
 class FileManagerExtension extends \Twig_Extension
 {
-    function __construct(FileManager $fm) {
+    /**
+     * Constructor.
+     *
+     * @param \Zicht\Bundle\FileManagerBundle\FileManager\FileManager $fm
+     */
+    public function __construct(FileManager $fm)
+    {
         $this->fm = $fm;
     }
 
-    function getFunctions() {
+
+    /**
+     * @{inheritDoc}
+     */
+    public function getFunctions()
+    {
         return array(
             'file_url' => new \Twig_Function_Method(
                 $this,
                 'getFileUrl'
-            ),
-            'file_url_by_filename' => new \Twig_Function_Method(
-                $this,
-                'getFileUrlByFilename'
             )
         );
     }
 
-    function getFileUrl($entity, $field, $value = null)
+
+    /**
+     * Returns the file url for the specified entity/field combination. If the value is also provided, it is
+     * used in stead of the entity's value for the passed field.
+     *
+     * @param mixed $entity
+     * @param string $field
+     * @param mixed $value
+     * @return string|null
+     */
+    public function getFileUrl($entity, $field, $value = null)
     {
-        return $this->fm->getFileUrl($entity, $field, $value);
+        return call_user_func(array($this->fm, 'getFileUrl'), func_get_args());
     }
 
-    function getFileUrlByFilename($entity, $field, $value)
+
+    /**
+     * @{inheritDoc}
+     */
+    public function getName()
     {
-        return $this->fm->getFileUrlByFilename($entity, $field, $value);
-    }
-
-
-    function getName() {
-        return 'filemanager';
+        return 'zicht_filemanager';
     }
 }

@@ -5,25 +5,22 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\DependencyInjection;
 
-use Symfony\Component\HttpKernel\DependencyInjection\Extension as DIExtension;
+use \Symfony\Component\HttpKernel\DependencyInjection\Extension as DIExtension;
+use \Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use \Symfony\Component\Config\FileLocator;
+use \Symfony\Component\DependencyInjection\ContainerBuilder;
+use \Symfony\Component\DependencyInjection\Definition;
 
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
-
-class ZichtFileManagerExtension extends DIExtension {
+/**
+ * Loads the DI extension for the ZichtFileManagerBundle
+ */
+class ZichtFileManagerExtension extends DIExtension
+{
     /**
-     * Loads a specific configuration.
-     *
-     * @param array            $config    An array of configuration values
-     * @param ContainerBuilder $container A ContainerBuilder instance
-     *
-     * @throws InvalidArgumentException When provided tag is not defined in this extension
-     *
-     * @api
+     * @{inheritDoc}
      */
-    function load(array $config, ContainerBuilder $container) {
+    public function load(array $config, ContainerBuilder $container)
+    {
         $loader = new XmlFileLoader($container, new FileLocator(array(__DIR__.'/../Resources/config/')));
         $loader->load('services.xml');
     }

@@ -7,6 +7,9 @@
 namespace Zicht\Bundle\FileManagerBundle;
 use \Symfony\Component\HttpKernel\Bundle\Bundle;
 
+/**
+ * Bundle entry point.
+ */
 class ZichtFileManagerBundle extends Bundle
 {
 }

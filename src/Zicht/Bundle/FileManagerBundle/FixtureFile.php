@@ -6,14 +6,14 @@
 
 namespace Zicht\Bundle\FileManagerBundle;
 
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\File;
+use \Symfony\Component\HttpFoundation\File\Exception\FileException;
+use \Symfony\Component\HttpFoundation\File\File;
 
 /**
  * A "fixture" file acts as an uploaded file, but it does not move the file to the moved location,
  * but rather copies it, so the original fixture stays in tact.
  */
-class FixtureFile extends \Symfony\Component\HttpFoundation\File\File
+class FixtureFile extends File
 {
     /**
      * Overrides default behaviour only to copy the file in stead of moving it.
@@ -23,7 +23,8 @@ class FixtureFile extends \Symfony\Component\HttpFoundation\File\File
      * @return \Symfony\Component\HttpFoundation\File\File
      * @throws \Symfony\Component\HttpFoundation\File\Exception\FileException
      */
-    public function move($directory, $name = null) {
+    public function move($directory, $name = null)
+    {
         if (!is_dir($directory)) {
             if (false === @mkdir($directory, 0777, true)) {
                 throw new FileException(sprintf('Unable to create the "%s" directory', $directory));
@@ -36,7 +37,14 @@ class FixtureFile extends \Symfony\Component\HttpFoundation\File\File
 
         if (!@copy($this->getPathname(), $target)) {
             $error = error_get_last();
-            throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s)', $this->getPathname(), $target, strip_tags($error['message'])));
+            throw new FileException(
+                sprintf(
+                    'Could not move the file "%s" to "%s" (%s)',
+                    $this->getPathname(),
+                    $target,
+                    strip_tags($error['message'])
+                )
+            );
         }
 
         @chmod($target, 0666 & ~umask());

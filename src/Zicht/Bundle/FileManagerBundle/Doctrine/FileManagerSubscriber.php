@@ -5,23 +5,31 @@
  */
 
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
-use Doctrine\Common\EventSubscriber;
 
-use Doctrine\Common\EventArgs;
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Metadata\MetadataFactory;
-use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use Doctrine\ORM\Events;
+use \Doctrine\Common\EventArgs;
+use \Doctrine\Common\EventSubscriber;
+use \Doctrine\ORM\Events;
+use \Doctrine\ORM\Event\LifecycleEventArgs;
+use \Doctrine\ORM\Event\PreUpdateEventArgs;
 
-class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
+use \Symfony\Component\HttpFoundation\File\File;
+use \Symfony\Component\HttpFoundation\File\UploadedFile;
+
+use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+
+/**
+ * The subscriber that manages updates, persists and deletes of managed file properties.
+ */
+class FileManagerSubscriber implements EventSubscriber
 {
     /**
-     * @param \Zicht\Bundle\FileManagerBundle\FileManager\FileManager $fileManager
-     * @param $metadata
+     * Constructor.
+     *
+     * @param FileManager $fileManager
+     * @param MetadataRegistry $metadata
      */
-    function __construct($fileManager, MetadataRegistry $metadata) {
+    public function __construct($fileManager, MetadataRegistry $metadata)
+    {
         $this->fileManager = $fileManager;
         $this->metadata = $metadata;
         $this->managedFields = array();
@@ -29,6 +37,11 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     }
 
 
+    /**
+     * Returns the subscribed events for this listener.
+     *
+     * @return array
+     */
     public function getSubscribedEvents()
     {
         return array(
@@ -43,9 +56,12 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
 
 
     /**
-     * @param \Doctrine\ORM\Event\PreUpdateEventArgs $eventArgs
+     * Replaces a file value and removes the old file.
+     *
+     * @param PreUpdateEventArgs $eventArgs
+     * @return void
      */
-    function preUpdate($eventArgs)
+    public function preUpdate($eventArgs)
     {
         $entity = $eventArgs->getEntity();
         $changeset = $eventArgs->getEntityChangeSet();
@@ -59,9 +75,10 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
                 } else {
                     if ($old) {
                         $filepath = $this->fileManager->getFilePath($entity, $field, $old);
-                        $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] = function(FileManager $fm) use($filepath) {
-                            $fm->delete($filepath);
-                        };
+                        $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] =
+                            function(FileManager $fm) use($filepath) {
+                                $fm->delete($filepath);
+                            };
                     }
                     $eventArgs->setNewValue($field, $this->scheduleForUpload($new, $entity, $field));
                 }
@@ -71,9 +88,12 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
 
 
     /**
-     * @param LifeCycleEventArgs
+     * Removes the files attached to the entity
+     *
+     * @param LifeCycleEventArgs $eventArgs
+     * @return void
      */
-    function preRemove($eventArgs)
+    public function preRemove($eventArgs)
     {
         $entity = $eventArgs->getEntity();
         foreach ($this->metadata->getManagedFields($entity) as $field) {
@@ -88,7 +108,13 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     }
 
 
-    function prePersist($eventArgs)
+    /**
+     * Saves the file(s) to disk
+     *
+     * @param LifecycleEventArgs $eventArgs
+     * @return void
+     */
+    public function prePersist($eventArgs)
     {
         $entity = $eventArgs->getEntity();
 
@@ -101,6 +127,16 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     }
 
 
+    /**
+     * Puts the upload in the unit of work to be executed when the flush is done.
+     *
+     * @param mixed $value
+     * @param mixed $entity
+     * @param string $field
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
     public function scheduleForUpload($value, $entity, $field)
     {
         if ($value instanceof File) {
@@ -117,24 +153,44 @@ class FileManagerSubscriber implements \Doctrine\Common\EventSubscriber
     }
 
 
-    function postUpdate()
+    /**
+     * Trigger the unit of work to be executed.
+     *
+     * @return void
+     */
+    public function postUpdate()
     {
         $this->doFlush();
     }
 
 
-    function postPersist()
+    /**
+     * Trigger the unit of work to be executed.
+     *
+     * @return void
+     */
+    public function postPersist()
     {
         $this->doFlush();
     }
 
 
-    function postRemove ()
+    /**
+     * Trigger the unit of work to be executed.
+     *
+     * @return void
+     */
+    public function postRemove ()
     {
         $this->doFlush();
     }
 
 
+    /**
+     * Executes all scheduled callbacks in the unit of work.
+     *
+     * @return void
+     */
     public function doFlush()
     {
         while ($unit = array_shift($this->unitOfWork)) {

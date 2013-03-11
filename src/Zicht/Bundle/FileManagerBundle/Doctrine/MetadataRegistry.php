@@ -5,10 +5,18 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use Metadata\MetadataFactory;
+use \Metadata\MetadataFactory;
 
+/**
+ * Contains all the metadata that is needed for the subscriber.
+ */
 class MetadataRegistry
 {
+    /**
+     * Constructor.
+     *
+     * @param \Metadata\MetadataFactory $metadataFactory
+     */
     public function __construct(MetadataFactory $metadataFactory)
     {
         $this->metadataFactory = $metadataFactory;
@@ -16,6 +24,12 @@ class MetadataRegistry
     }
 
 
+    /**
+     * Returns all field names that are managed
+     *
+     * @param mixed $entity
+     * @return array
+     */
     public function getManagedFields($entity)
     {
         $class = get_class($entity);
@@ -33,6 +47,12 @@ class MetadataRegistry
     }
 
 
+    /**
+     * Checks if the specified entity has any managed properties.
+     *
+     * @param mixed $entity
+     * @return bool
+     */
     public function isManaged($entity)
     {
         return count($this->getManagedFields($entity)) > 0;
