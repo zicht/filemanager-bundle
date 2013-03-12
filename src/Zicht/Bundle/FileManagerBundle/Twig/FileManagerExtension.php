@@ -49,7 +49,7 @@ class FileManagerExtension extends \Twig_Extension
      */
     public function getFileUrl($entity, $field, $value = null)
     {
-        return call_user_func(array($this->fm, 'getFileUrl'), func_get_args());
+        return call_user_func_array(array($this->fm, 'getFileUrl'), func_get_args());
     }
 
 
