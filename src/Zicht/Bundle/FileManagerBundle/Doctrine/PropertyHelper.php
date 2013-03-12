@@ -17,18 +17,6 @@ use \Zicht\Util\Str;
 class PropertyHelper
 {
     /**
-     * Camelcase a
-     *
-     * @param string $name
-     * @return mixed
-     */
-    public static function camelize($name)
-    {
-        return Str::camel($name);
-    }
-
-
-    /**
      * Calls a setter in the entity with the specified value
      *
      * @param object $entity
@@ -38,7 +26,7 @@ class PropertyHelper
      */
     public static function setValue($entity, $field, $value)
     {
-        $entity->{'set' . ucfirst(self::camelize($field))}($value);
+        $entity->{'set' . ucfirst(Str::camel($field))}($value);
     }
 
 
@@ -51,6 +39,6 @@ class PropertyHelper
      */
     public static function getValue($entity, $field)
     {
-        return $entity->{'get' . ucfirst(self::camelize($field))}();
+        return $entity->{'get' . ucfirst(Str::camel($field))}();
     }
 }
