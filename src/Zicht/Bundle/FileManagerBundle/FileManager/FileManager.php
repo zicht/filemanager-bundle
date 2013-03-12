@@ -168,7 +168,7 @@ class FileManager {
      */
     public function getFileUrl($entity, $field, $fileName = null)
     {
-        if (func_get_args() < 3) {
+        if (func_num_args() < 3) {
             if ($entity) {
                 $fileName = PropertyHelper::getValue($entity, $field);
             }
