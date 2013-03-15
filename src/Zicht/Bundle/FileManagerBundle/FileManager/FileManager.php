@@ -49,6 +49,9 @@ class FileManager {
             $f = $this->proposeFilename($file, $i ++);
             $pathname = $dir . '/' . $f;
         } while ($noclobber && is_file($pathname));
+        if (!is_dir(dirname($pathname))) {
+            mkdir(dirname($pathname), 0777 & ~umask(), true);
+        }
         touch($pathname);
         $this->preparedPaths[]= $pathname;
         return $pathname;
