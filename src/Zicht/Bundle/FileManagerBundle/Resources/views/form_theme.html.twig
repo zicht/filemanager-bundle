@@ -1,5 +1,5 @@
 {% block zicht_file_widget %}
-    {% if value %}
+    {% if value and show_current_file  %}
         <p>
             <a href="{{ asset(file_url(entity, property, value)) }}">
                 {% if value|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] %}

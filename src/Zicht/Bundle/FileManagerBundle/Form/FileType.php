@@ -46,7 +46,8 @@ class FileType extends AbstractType
                 'data_class' => 'Symfony\Component\HttpFoundation\File\File',
                 'empty_data' => null,
                 'entity' => null,
-                'property' => null
+                'property' => null,
+                'show_current_file' => true
             )
         );
     }
@@ -83,6 +84,7 @@ class FileType extends AbstractType
     {
         $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
+        $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
         $view->vars['multipart'] = true;
         $view->vars['type'] = 'file';
     }
