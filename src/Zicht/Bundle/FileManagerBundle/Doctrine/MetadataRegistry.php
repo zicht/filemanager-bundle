@@ -15,7 +15,7 @@ class MetadataRegistry
     /**
      * Constructor.
      *
-     * @param \Metadata\MetadataFactory $metadataFactory
+     * @param \Metadata\MetadataFactoryInterface $metadataFactory
      */
     public function __construct(MetadataFactoryInterface $metadataFactory)
     {
