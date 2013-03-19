@@ -175,6 +175,8 @@ class FileManager {
             if ($entity) {
                 $fileName = PropertyHelper::getValue($entity, $field);
             }
+        } elseif ($fileName instanceof File) {
+            $fileName = $fileName->getBasename();
         }
 
         if ($fileName) {
@@ -198,6 +200,8 @@ class FileManager {
             if ($entity) {
                 $fileName = PropertyHelper::getValue($entity, $field);
             }
+        } elseif ($fileName instanceof File) {
+            $fileName = $fileName->getBasename();
         }
 
         if ($fileName) {
