@@ -45,12 +45,12 @@ class FileManagerSubscriber implements EventSubscriber
     public function getSubscribedEvents()
     {
         return array(
-            Events::preUpdate,
-            Events::preRemove,
-            Events::prePersist,
-            Events::postPersist,
-            Events::postUpdate,
-            Events::postRemove,
+            'preUpdate',
+            'preRemove',
+            'prePersist',
+            'postPersist',
+            'postUpdate',
+            'postRemove',
         );
     }
 
