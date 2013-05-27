@@ -6,6 +6,8 @@
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
 use \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Zicht\Bundle\FileManagerBundle\Doctrine\EntityHelper;
+use Zicht\Util\Str;
 use \Symfony\Component\Console\Input\InputArgument;
 use \Symfony\Component\Console\Input\InputOption;
 use \Symfony\Component\Console\Input\InputInterface;
@@ -24,9 +26,16 @@ class FileCheckCommand extends ContainerAwareCommand
     {
         $this
             ->setName('zicht:filemanager:check')
-            ->addArgument('entity', InputArgument::REQUIRED, 'The entity to check.')
+            ->addArgument('entity', InputArgument::OPTIONAL, 'The entity to check.', null)
             ->addOption('purge', '', InputOption::VALUE_NONE, 'Purge the values that do not exist')
             ->addOption('inverse', '', InputOption::VALUE_NONE, 'Inverse the check: check files against database')
+            ->setDescription("Checks if all managed files in the database exist on disk or vice versa.")
+            ->setHelp(
+                "Checks all of the values in the database and checks if the file exists on disk.\n\n"
+                . "Pass the --purge to reset the values to NULL in the database\n"
+                . "Pass --inverse to check if all files on disk are actually present in the database.\n"
+                . "Passing both --inverse and --purge will delete all files that are not present in the database"
+             )
         ;
     }
 
@@ -38,60 +47,77 @@ class FileCheckCommand extends ContainerAwareCommand
     {
         $doctrine = $this->getContainer()->get('doctrine');
         /** @var $repos \Doctrine\ORM\EntityRepository */
-        $repos = $doctrine->getRepository($input->getArgument('entity'));
-
         $metadataFactory = $this->getContainer()->get('zicht_filemanager.metadata_factory');
         $fileManager  = $this->getContainer()->get('zicht_filemanager.filemanager');
-        $className = $repos->getClassName();
-        $classMetaData = $metadataFactory->getMetadataForClass($className);
 
-        if ($input->getOption('inverse')) {
-            $fileNames = array();
-            $records = $repos->findAll();
-            foreach ($classMetaData->propertyMetadata as $property => $metadata) {
-                if (!isset($metadata->fileManager)) {
-                    continue;
-                }
-
-                // first gather all file property values
-                foreach ($records as $entity) {
-                    $value = PropertyHelper::getValue($entity, $property);
-                    if ($value) {
-                        $fileNames[]= $value;
-                    }
-                }
-
-                foreach (new \DirectoryIterator($fileManager->getDir($className, $property)) as $file) {
-                    if (!$file->isFile()) {
-                        continue;
-                    }
-                    $basename = $file->getBasename();
-                    if (!in_array($basename, $fileNames)) {
-                        $output->writeln("File <comment>{$basename}</comment> is not used");
-                        if ($input->getOption('purge')) {
-                            unlink($file->getPathname());
-                            $output->writeln("<info>{$basename}</info> deleted");
-                        }
-                    }
-                }
-            }
+        if ($entity = $input->getArgument('entity')) {
+            $entities = array($entity);
         } else {
-            foreach ($repos->findAll() as $entity) {
-                /** @var \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata $metadata */
+            $kernel = $this->getContainer()->get('kernel');
+            $helper = new EntityHelper($metadataFactory, $doctrine);
+            $entities = $helper->getManagedEntities($kernel->getBundles());
+        }
+
+        foreach ($entities as $entity) {
+            $repos = $doctrine->getRepository($entity);
+
+            $className = $repos->getClassName();
+            $classMetaData = $metadataFactory->getMetadataForClass($className);
+
+            $output->writeln("Checking entity {$entity}");
+            if ($input->getOption('inverse')) {
+                $fileNames = array();
+                $records = $repos->findAll();
                 foreach ($classMetaData->propertyMetadata as $property => $metadata) {
                     if (!isset($metadata->fileManager)) {
                         continue;
                     }
-                    $filePath = $fileManager->getFilePath($entity, $property);
 
-                    if ($filePath && !is_file($filePath)) {
-                        $output->writeln(sprintf('File <info>%s</info> does not exist', $filePath));
+                    // first gather all file property values
+                    foreach ($records as $entity) {
+                        $value = PropertyHelper::getValue($entity, $property);
+                        if ($value) {
+                            $fileNames[]= $value;
+                        }
+                    }
 
-                        if ($input->getOption('purge')) {
-                            PropertyHelper::setValue($entity, $property, null);
-                            $entity->{$property . '_delete'} = true;
-                            $doctrine->getManager()->persist($entity);
-                            $doctrine->getManager()->flush();
+                    $fileDir = $fileManager->getDir($className, $property);
+                    if (is_dir($fileDir)) {
+                        foreach (new \DirectoryIterator($fileDir) as $file) {
+                            if (!$file->isFile()) {
+                                continue;
+                            }
+                            $basename = $file->getBasename();
+                            if (!in_array($basename, $fileNames)) {
+                                if ($input->getOption('purge')) {
+                                    unlink($file->getPathname());
+                                    $output->writeln("Deleted: <info>{$basename}</info>");
+                                } else {
+                                    $output->writeln("Not used: <comment>{$basename}</comment>");
+                                }
+                            }
+                        }
+                    } else {
+                        $output->writeln("<error>Directory does not exist: {$fileDir}</error>");
+                    }
+                }
+            } else {
+                foreach ($repos->findAll() as $entity) {
+                    /** @var \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata $metadata */
+                    foreach ($classMetaData->propertyMetadata as $property => $metadata) {
+                        if (!isset($metadata->fileManager)) {
+                            continue;
+                        }
+                        $filePath = $fileManager->getFilePath($entity, $property);
+
+                        if ($filePath && !is_file($filePath)) {
+                            $output->writeln(sprintf('File <info>%s</info> does not exist', $filePath));
+
+                            if ($input->getOption('purge')) {
+                                PropertyHelper::setValue($entity, $property, null);
+                                $doctrine->getManager()->persist($entity);
+                                $doctrine->getManager()->flush();
+                            }
                         }
                     }
                 }
