@@ -11,18 +11,18 @@ entity's 'avatar' field would become web/media/user/avatar/thefile.jpg.
 * Add the bundle to your AppKernel
 * Use the annotation in your model and annotate your property with it:
 
-      use \Zicht\Bundle\FileManagerBundle\Annotation\File;
+        use \Zicht\Bundle\FileManagerBundle\Annotation\File;
 
-      // ....
-      /**
-       * @File
-       * @ORM\Column(type="string", nullable=true)
-       */
-      protected $file;
+        // ....
+        /**
+         * @File
+         * @ORM\Column(type="string", nullable=true)
+         */
+        protected $file;
 
 ## Doctrine ##
 
-In your entity, specify the @File annotation (Zicht\Bundle\FileManagerBundle\Doctrine\Annotation\File) for a field:
+In your entity, specify the @File annotation (`Zicht\Bundle\FileManagerBundle\Doctrine\Annotation\File`) for a field:
 
     // ...
     use Zicht\Bundle\FileManagerBundle\Doctrine\Annotation\File;
@@ -38,14 +38,15 @@ In your entity, specify the @File annotation (Zicht\Bundle\FileManagerBundle\Doc
 This will have the photo property be loaded as a File instance, and persisted as a basename of an uploaded file if an
 UploadedFile is bound to the property.
 
-# Twig #
+## Twig ##
 
 You can refer files with the file_url() function. This function ignores the base path of the file so you can easily add
 an imagine_filter. For regular files, you should an asset() function:
 
-    {{ asset(file_url(entity, field)) }}
-
-
+    <img src="{{ file_url(user, 'avatar')|imagine_filter("avatar") }}" width="50" height="50" class="avatar">
+    
+    <a href="{{ asset(file_url(document, 'file')) }}">Download this file</a>
+ 
 ## Using files as fixtures ##
 
 If you're using datafixtures, you can use files as fixtures by wrapping them in the FixtureFile object. This object
@@ -82,7 +83,7 @@ To check if there are files on disk that are not present in the database you pas
 
 To delete all files that are managed by the filemanager but are not present in the database, pass the --purge flag:
 
-    php app/console zicht:filemanager:check --inverse
+    php app/console zicht:filemanager:check --inverse --purge
 
 You can pass an optional entity alias to check only one specific repository. Otherwise, all entities with file
 annotations are checked.
@@ -97,4 +98,5 @@ come. The filemanager handles existing filenames by adding -1, -2, etc to the fi
 
 As soon as the manager gets flushed, the file is moved from it's original location into the location of the stub.
 If the flush isn't called, the stub is removed on destruction of the filemanager, i.e. at the end of the request.
+
 
