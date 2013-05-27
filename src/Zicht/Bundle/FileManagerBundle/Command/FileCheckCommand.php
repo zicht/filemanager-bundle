@@ -81,6 +81,10 @@ class FileCheckCommand extends ContainerAwareCommand
                         }
                     }
 
+                    if ($output->getVerbosity() > 1) {
+                        $output->writeln("-> found " . count($fileNames) . " values to check");
+                    }
+
                     $fileDir = $fileManager->getDir($className, $property);
                     if (is_dir($fileDir)) {
                         foreach (new \DirectoryIterator($fileDir) as $file) {
@@ -91,9 +95,13 @@ class FileCheckCommand extends ContainerAwareCommand
                             if (!in_array($basename, $fileNames)) {
                                 if ($input->getOption('purge')) {
                                     unlink($file->getPathname());
-                                    $output->writeln("Deleted: <info>{$basename}</info>");
+                                    $output->writeln("Deleted:  <info>{$basename}</info>");
                                 } else {
                                     $output->writeln("Not used: <comment>{$basename}</comment>");
+                                }
+                            } else {
+                                if ($output->getVerbosity() > 1) {
+                                    $output->writeln("Exists:   <info>{$basename}</info>");
                                 }
                             }
                         }
@@ -102,21 +110,29 @@ class FileCheckCommand extends ContainerAwareCommand
                     }
                 }
             } else {
-                foreach ($repos->findAll() as $entity) {
+                foreach ($repos->findAll() as $record) {
                     /** @var \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata $metadata */
                     foreach ($classMetaData->propertyMetadata as $property => $metadata) {
                         if (!isset($metadata->fileManager)) {
                             continue;
                         }
-                        $filePath = $fileManager->getFilePath($entity, $property);
+                        if (!PropertyHelper::getValue($record, $property)) {
+                            continue;
+                        }
+                        $filePath = $fileManager->getFilePath($record, $property);
 
                         if ($filePath && !is_file($filePath)) {
                             $output->writeln(sprintf('File <info>%s</info> does not exist', $filePath));
 
                             if ($input->getOption('purge')) {
-                                PropertyHelper::setValue($entity, $property, null);
+                                PropertyHelper::setValue($record, $property, '');
                                 $doctrine->getManager()->persist($entity);
                                 $doctrine->getManager()->flush();
+                            }
+                        } else {
+                            if ($output->getVerbosity() > 1) {
+                                $basename = basename($filePath);
+                                $output->writeln("File exists: <info>{$basename}</info>");
                             }
                         }
                     }
