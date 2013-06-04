@@ -38,6 +38,19 @@ In your entity, specify the @File annotation (`Zicht\Bundle\FileManagerBundle\Do
 This will have the photo property be loaded as a File instance, and persisted as a basename of an uploaded file if an
 UploadedFile is bound to the property.
 
+## Config ##
+
+For your admin screens to work correctly, you need to tell which template to use. Form_theme template shows the allready uploaded
+image (file). SO you can choose to change it.
+
+Add the following to your config.yml:
+
+# Twig Configuration
+twig:
+    form:
+        resources:
+            - 'ZichtFileManagerBundle::form_theme.html.twig'
+
 ## Twig ##
 
 You can refer files with the file_url() function. This function ignores the base path of the file so you can easily add
