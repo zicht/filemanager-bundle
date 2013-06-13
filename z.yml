@@ -1,19 +1,6 @@
 plugins: ['ci']
 
-docs:
-    name: "ZichtFileManagerBundle"
-
 tasks:
     ci.phpunit: 
-        pre: "composer install --dev"
+        pre: "composer install --dev --no-scripts"
     
-    docs: 
-        pre: mkdir -p build/docs
-        do:  
-            - sass --update res/doc/screen.scss:build/docs/screen.css --no-cache
-            - pandoc --toc --section-divs res/doc/README.md -o build/docs/README.html --template=res/doc/template
-
-    publish:
-        pre: @docs
-        do:  rsync -ruv --delete ./build/docs/ zichter@dev3:/var/www/dev/docs/default/public/ZichtFileManagerBundle/
-
