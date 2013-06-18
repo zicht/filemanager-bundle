@@ -8,12 +8,6 @@
             "email": "gerard@zicht.nl"
         }
     ],
-    "repositories": [
-        {
-            "type": "svn",
-            "url": "svn://zon/projecten/zicht-libraries/ZichtUtil"
-        }
-    ],
     "require": {
         "php": ">=5.3",
         "symfony/symfony": ">=2.1",
