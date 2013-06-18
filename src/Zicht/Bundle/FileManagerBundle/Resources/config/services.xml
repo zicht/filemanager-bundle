@@ -11,6 +11,7 @@
         <parameter key="zicht_filemanager.form.file_type.class">Zicht\Bundle\FileManagerBundle\Form\FileType</parameter>
         <parameter key="zicht_filemanager.integrity_checker.database.class">Zicht\Bundle\FileManagerBundle\Integrity\DatabaseChecker</parameter>
         <parameter key="zicht_filemanager.integrity_checker.filesystem.class">Zicht\Bundle\FileManagerBundle\Integrity\FilesystemChecker</parameter>
+        <parameter key="zicht_filemanager.entity_helper.class">Zicht\Bundle\FileManagerBundle\Doctrine\EntityHelper</parameter>
     </parameters>
     <services>
         <service id="zicht_filemanager.subscribe" class="Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber">
@@ -49,7 +50,7 @@
             <argument type="service" id="zicht_filemanager.metadata_factory.class" />
             <argument type="service" id="doctrine" />
         </service>
-        <service id="zicht_filemanager.entity_helper" class="%zicht_filemanager.entity_helper%">
+        <service id="zicht_filemanager.entity_helper" class="%zicht_filemanager.entity_helper.class%">
             <argument type="service" id="zicht_filemanager.metadata_factory.class" />
             <argument type="service" id="doctrine" />
         </service>
