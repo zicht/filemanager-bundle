@@ -12,10 +12,10 @@
         "php": ">=5.3",
         "symfony/symfony": ">=2.1",
         "jms/metadata": "*",
-        "zicht/util": "*"
+        "zicht/util": "*",
+        "doctrine/orm": ">=2.2.3,<2.4-dev"
     },
     "require-dev": {
-        "doctrine/orm": ">=2.2.3,<2.4-dev",
         "doctrine/doctrine-bundle": "1.0.*",
         "jms/metadata": "*"
     },
