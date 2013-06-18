@@ -80,10 +80,10 @@ class FileManagerSubscriber implements EventSubscriber
                                 $fm->delete($filepath);
                             };
                     }
-                    if ($new) {
-                        $eventArgs->setNewValue($field, $this->scheduleForUpload($new, $entity, $field));
-                    } else {
+                    if (is_string($new)) {
                         $eventArgs->setNewValue($field, $new);
+                    } else {
+                        $eventArgs->setNewValue($field, $this->scheduleForUpload($new, $entity, $field));
                     }
                 }
             }
