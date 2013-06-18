@@ -42,16 +42,16 @@
         </service>
         <service id="zicht_filemanager.integrity_checker.database" class="%zicht_filemanager.integrity_checker.database.class%">
             <argument type="service" id="zicht_filemanager.filemanager" />
-            <argument type="service" id="zicht_filemanager.metadata_factory.class" />
+            <argument type="service" id="zicht_filemanager.metadata_factory" />
             <argument type="service" id="doctrine" />
         </service>
         <service id="zicht_filemanager.integrity_checker.filesystem" class="%zicht_filemanager.integrity_checker.filesystem.class%">
             <argument type="service" id="zicht_filemanager.filemanager" />
-            <argument type="service" id="zicht_filemanager.metadata_factory.class" />
+            <argument type="service" id="zicht_filemanager.metadata_factory" />
             <argument type="service" id="doctrine" />
         </service>
         <service id="zicht_filemanager.entity_helper" class="%zicht_filemanager.entity_helper.class%">
-            <argument type="service" id="zicht_filemanager.metadata_factory.class" />
+            <argument type="service" id="zicht_filemanager.metadata_factory" />
             <argument type="service" id="doctrine" />
         </service>
    </services>
