@@ -63,8 +63,8 @@ class FileCheckCommand extends ContainerAwareCommand
         }
 
         $checker->setPurge($input->getOption('purge'));
-        $checker->setLoggingCallback(function($str) use($output) {
-            if ($output->getVerbosity() > 0) {
+        $checker->setLoggingCallback(function($str, $verbosity) use($output) {
+            if ($output->getVerbosity() > $verbosity) {
                 $output->writeln($str);
             }
         });

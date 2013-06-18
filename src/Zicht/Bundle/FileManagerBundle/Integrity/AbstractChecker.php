@@ -49,7 +49,7 @@ abstract class AbstractChecker implements CheckerInterface
     protected function setEntity($entityClass)
     {
         $this->repos = $this->doctrine->getRepository($entityClass);
-        $this->className = $this->doctrine->getClassName();
+        $this->className = $this->repos->getClassName();
         $this->classMetaData = $this->metadataFactory->getMetadataForClass($this->className);
     }
 

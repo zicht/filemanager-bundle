@@ -35,7 +35,7 @@ class FilesystemChecker extends AbstractChecker
                     }
                 } else {
                     $basename = basename($filePath);
-                    $this->log("File exists: <info>{$basename}</info>");
+                    $this->log("File exists: <info>{$basename}</info>", 1);
                 }
             }
         }
