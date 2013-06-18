@@ -45,99 +45,32 @@ class FileCheckCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $doctrine = $this->getContainer()->get('doctrine');
-        /** @var $repos \Doctrine\ORM\EntityRepository */
-        $metadataFactory = $this->getContainer()->get('zicht_filemanager.metadata_factory');
-        $fileManager  = $this->getContainer()->get('zicht_filemanager.filemanager');
+        /** @var $checker \Zicht\Bundle\FileManagerBundle\Integrity\CheckerInterface */
+        $container = $this->getContainer();
 
-        if ($entity = $input->getArgument('entity')) {
-            $entities = array($entity);
+        if ($input->getOption('inverse')) {
+            $checker = $container->get('zicht_filemanager.integrity_checker.database');
         } else {
-            $kernel = $this->getContainer()->get('kernel');
-            $helper = new EntityHelper($metadataFactory, $doctrine);
-            $entities = $helper->getManagedEntities($kernel->getBundles());
+            $checker = $container->get('zicht_filemanager.integrity_checker.filesystem');
         }
 
-        foreach ($entities as $entity) {
-            $repos = $doctrine->getRepository($entity);
+        if ($entityClass = $input->getArgument('entity')) {
+            $entityClasses = array($entityClass);
+        } else {
+            $entityClasses = $container->get('zicht_filemanager.entity_helper')->getManagedEntities(
+                $container->get('kernel')->getBundles()
+            );
+        }
 
-            $className = $repos->getClassName();
-            $classMetaData = $metadataFactory->getMetadataForClass($className);
-
-            $output->writeln("Checking entity {$entity}");
-            if ($input->getOption('inverse')) {
-                $fileNames = array();
-                $records = $repos->findAll();
-                foreach ($classMetaData->propertyMetadata as $property => $metadata) {
-                    if (!isset($metadata->fileManager)) {
-                        continue;
-                    }
-
-                    // first gather all file property values
-                    foreach ($records as $entity) {
-                        $value = PropertyHelper::getValue($entity, $property);
-                        if ($value) {
-                            $fileNames[]= $value;
-                        }
-                    }
-
-                    if ($output->getVerbosity() > 1) {
-                        $output->writeln("-> found " . count($fileNames) . " values to check");
-                    }
-
-                    $fileDir = $fileManager->getDir($className, $property);
-                    if (is_dir($fileDir)) {
-                        foreach (new \DirectoryIterator($fileDir) as $file) {
-                            if (!$file->isFile()) {
-                                continue;
-                            }
-                            $basename = $file->getBasename();
-                            if (!in_array($basename, $fileNames)) {
-                                if ($input->getOption('purge')) {
-                                    unlink($file->getPathname());
-                                    $output->writeln("Deleted:  <info>{$basename}</info>");
-                                } else {
-                                    $output->writeln("Not used: <comment>{$basename}</comment>");
-                                }
-                            } else {
-                                if ($output->getVerbosity() > 1) {
-                                    $output->writeln("Exists:   <info>{$basename}</info>");
-                                }
-                            }
-                        }
-                    } else {
-                        $output->writeln("<error>Directory does not exist: {$fileDir}</error>");
-                    }
-                }
-            } else {
-                foreach ($repos->findAll() as $record) {
-                    /** @var \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata $metadata */
-                    foreach ($classMetaData->propertyMetadata as $property => $metadata) {
-                        if (!isset($metadata->fileManager)) {
-                            continue;
-                        }
-                        if (!PropertyHelper::getValue($record, $property)) {
-                            continue;
-                        }
-                        $filePath = $fileManager->getFilePath($record, $property);
-
-                        if ($filePath && !is_file($filePath)) {
-                            $output->writeln(sprintf('File <info>%s</info> does not exist', $filePath));
-
-                            if ($input->getOption('purge')) {
-                                PropertyHelper::setValue($record, $property, '');
-                                $doctrine->getManager()->persist($entity);
-                                $doctrine->getManager()->flush();
-                            }
-                        } else {
-                            if ($output->getVerbosity() > 1) {
-                                $basename = basename($filePath);
-                                $output->writeln("File exists: <info>{$basename}</info>");
-                            }
-                        }
-                    }
-                }
+        $checker->setPurge($input->getOption('purge'));
+        $checker->setLoggingCallback(function($str) use($output) {
+            if ($output->getVerbosity() > 0) {
+                $output->writeln($str);
             }
+        });
+        foreach ($entityClasses as $entityClass) {
+            $output->writeln("Checking entity {$entityClass}");
+            $checker->check($entityClass);
         }
     }
 }
