@@ -83,8 +83,10 @@ class FileManager {
      */
     public function __destruct()
     {
-        foreach ($this->preparedPaths as $file) {
-            unlink($file);
+        if (!empty($this->preparedPaths)) {
+            foreach ($this->preparedPaths as $file) {
+                unlink($file);
+            }
         }
     }
 
