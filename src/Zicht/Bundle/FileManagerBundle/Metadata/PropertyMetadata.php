@@ -12,5 +12,5 @@ use \Metadata\PropertyMetadata as BasePropertyMetaData;
  */
 class PropertyMetadata extends BasePropertyMetaData
 {
-    public $fileManager;
+    public $fileManager = null;
 }
