@@ -10,17 +10,18 @@ use Zicht\Util\Str;
 
 class EntityHelper
 {
-    public function __construct(MetadataFactory $registry, \Doctrine\Bundle\DoctrineBundle\Registry $doctrine)
+    public function __construct(MetadataFactory $registry, \Doctrine\Bundle\DoctrineBundle\Registry $doctrine, $kernel)
     {
         $this->metadata = $registry;
         $this->doctrine = $doctrine;
+        $this->kernel = $kernel;
     }
 
 
-    public function getManagedEntities($bundles)
+    public function getManagedEntities()
     {
         $entities = array();
-        foreach ($bundles as $bundle) {
+        foreach ($this->kernel->getBundles() as $bundle) {
             $entityPath = $bundle->getPath() . '/Entity';
             if (is_dir($entityPath)) {
                 $iter = new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($entityPath)), '/\.php$/');

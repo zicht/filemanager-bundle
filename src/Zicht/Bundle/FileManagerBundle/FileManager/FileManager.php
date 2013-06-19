@@ -7,6 +7,7 @@
 namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
 use \Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Filesystem\Filesystem;
 use \Symfony\Component\HttpFoundation\File\UploadedFile;
 use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 
@@ -23,8 +24,9 @@ class FileManager {
      * @param string $root
      * @param string $httpRoot
      */
-    public function __construct($root, $httpRoot)
+    public function __construct(FileSystem $fs, $root, $httpRoot)
     {
+        $this->fs = $fs;
         $this->root = rtrim($root, '/');
         $this->httpRoot = rtrim($httpRoot, '/');
         $this->preparedPaths = array();
@@ -48,11 +50,9 @@ class FileManager {
         do {
             $f = $this->proposeFilename($file, $i ++);
             $pathname = $dir . '/' . $f;
-        } while ($noclobber && is_file($pathname));
-        if (!is_dir(dirname($pathname))) {
-            mkdir(dirname($pathname), 0777 & ~umask(), true);
-        }
-        touch($pathname);
+        } while ($noclobber && $this->fs->exists($pathname));
+        $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);
+        $this->fs->touch($pathname);
         $this->preparedPaths[]= $pathname;
         return $pathname;
     }
@@ -73,7 +73,7 @@ class FileManager {
             throw new \RuntimeException("{$preparedPath} is not prepared by the filemanager");
         }
         unset($this->preparedPaths[$i]);
-        @unlink($preparedPath);
+        @$this->fs->remove($preparedPath);
         $file->move(dirname($preparedPath), basename($preparedPath));
     }
 
@@ -85,7 +85,7 @@ class FileManager {
     {
         if (!empty($this->preparedPaths)) {
             foreach ($this->preparedPaths as $file) {
-                unlink($file);
+                @$this->fs->remove($file);
             }
         }
     }
@@ -99,8 +99,13 @@ class FileManager {
      */
     public function delete($filePath)
     {
-        if (is_file($filePath)) {
-            return unlink($filePath);
+        $relativePath = $this->fs->makePathRelative($filePath, $this->root);
+        if (preg_match('!(^|/)\.\.!', $relativePath)) {
+            throw new \RuntimeException("{$relativePath} does not seem to be managed by the filemanager");
+        }
+        if ($this->fs->exists($filePath)) {
+            $this->fs->remove($filePath);
+            return true;
         }
         return false;
     }
@@ -144,7 +149,7 @@ class FileManager {
         if (is_object($entity)) {
             $entity = get_class($entity);
         }
-        $entity = strtolower(preg_replace('/(.*\\\\|^)([^\\\\]+)$/', '$2', $entity));;
+        $entity = strtolower(\Zicht\Util\Str::classname($entity));
 
         return $entity . '/' . $field;
     }
@@ -199,7 +204,7 @@ class FileManager {
     public function getFilePath($entity, $field, $fileName = null)
     {
         if (func_num_args() < 3) {
-            if ($entity) {
+            if (is_object($entity)) {
                 $fileName = PropertyHelper::getValue($entity, $field);
             }
         } elseif ($fileName instanceof File) {

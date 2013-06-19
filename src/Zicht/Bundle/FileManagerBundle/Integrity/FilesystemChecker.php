@@ -26,14 +26,14 @@ class FilesystemChecker extends AbstractChecker
                 $filePath = $this->fm->getFilePath($record, $property);
 
                 if ($filePath && !is_file($filePath)) {
-                    $this->log(sprintf('File <info>%s</info> does not exist', $filePath));
+                    $this->log(sprintf('File does not exist: <info>%s</info>', $filePath));
 
                     if ($this->isPurge()) {
                         PropertyHelper::setValue($record, $property, '');
                         $this->doctrine->getManager()->persist($record);
                         $this->doctrine->getManager()->flush();
                     }
-                } else {
+                } elseif($filePath) {
                     $basename = basename($filePath);
                     $this->log("File exists: <info>{$basename}</info>", 1);
                 }

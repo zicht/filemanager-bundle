@@ -57,12 +57,13 @@ class FileCheckCommand extends ContainerAwareCommand
         if ($entityClass = $input->getArgument('entity')) {
             $entityClasses = array($entityClass);
         } else {
-            $entityClasses = $container->get('zicht_filemanager.entity_helper')->getManagedEntities(
-                $container->get('kernel')->getBundles()
-            );
+            $entityClasses = $container->get('zicht_filemanager.entity_helper')->getManagedEntities();
         }
 
-        $checker->setPurge($input->getOption('purge'));
+        if ($input->getOption('purge')) {
+            $checker->setPurge(true);
+        }
+
         $checker->setLoggingCallback(function($str, $verbosity) use($output) {
             if ($output->getVerbosity() > $verbosity) {
                 $output->writeln($str);

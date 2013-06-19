@@ -3,6 +3,7 @@
  * @author Gerard van Helden <gerard@zicht.nl>
  * @copyright Zicht Online <http://zicht.nl>
  */
+
 namespace Zicht\Bundle\FileManagerBundle\Integrity;
 
 use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
