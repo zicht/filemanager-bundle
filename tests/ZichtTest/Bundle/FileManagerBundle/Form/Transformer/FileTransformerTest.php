@@ -6,13 +6,15 @@
 
 namespace ZichtTest\Bundle\FileManagerBundle\Form\Transformer;
 
+use \Zicht\Bundle\FileManagerBundle\Form\Transformer\FileTransformer;
+use \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 class FileTransformerTest extends \PHPUnit_Framework_TestCase
 {
     function testTransform()
     {
         $v = null;
-        $transformer = new \Zicht\Bundle\FileManagerBundle\Form\Transformer\FileTransformer(
+        $transformer = new FileTransformer(
             function($param) use(&$v) {
                 $v = $param;
             }
@@ -24,9 +26,9 @@ class FileTransformerTest extends \PHPUnit_Framework_TestCase
 
     function testTransformReturnsNullIfFileNotFound()
     {
-        $transformer = new \Zicht\Bundle\FileManagerBundle\Form\Transformer\FileTransformer(
-            function($param) use(&$v) {
-                throw new \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException('soz');
+        $transformer = new FileTransformer(
+            function() {
+                throw new FileNotFoundException('soz');
             }
         );
 
