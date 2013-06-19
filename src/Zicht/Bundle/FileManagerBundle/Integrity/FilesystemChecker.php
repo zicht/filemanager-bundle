@@ -5,10 +5,16 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Integrity;
 
-use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 
+/**
+ * Use the filesystem as source for checking the values (i.e., update the records if values aren't present on disk)
+ */
 class FilesystemChecker extends AbstractChecker
 {
+    /**
+     * @{inheritDoc}
+     */
     public function check($entityClass)
     {
         $this->setEntity($entityClass);
@@ -33,7 +39,7 @@ class FilesystemChecker extends AbstractChecker
                         $this->doctrine->getManager()->persist($record);
                         $this->doctrine->getManager()->flush();
                     }
-                } elseif($filePath) {
+                } elseif ($filePath) {
                     $basename = basename($filePath);
                     $this->log("File exists: <info>{$basename}</info>", 1);
                 }

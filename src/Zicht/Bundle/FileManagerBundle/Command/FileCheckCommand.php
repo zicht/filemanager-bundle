@@ -6,8 +6,8 @@
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
 use \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Zicht\Bundle\FileManagerBundle\Doctrine\EntityHelper;
-use Zicht\Util\Str;
+use \Zicht\Bundle\FileManagerBundle\Doctrine\EntityHelper;
+use \Zicht\Util\Str;
 use \Symfony\Component\Console\Input\InputArgument;
 use \Symfony\Component\Console\Input\InputOption;
 use \Symfony\Component\Console\Input\InputInterface;
@@ -64,11 +64,12 @@ class FileCheckCommand extends ContainerAwareCommand
             $checker->setPurge(true);
         }
 
-        $checker->setLoggingCallback(function($str, $verbosity) use($output) {
+        $fnLogger = function ($str, $verbosity) use ($output) {
             if ($output->getVerbosity() > $verbosity) {
                 $output->writeln($str);
             }
-        });
+        };
+        $checker->setLoggingCallback($fnLogger);
         foreach ($entityClasses as $entityClass) {
             $output->writeln("Checking entity {$entityClass}");
             $checker->check($entityClass);
