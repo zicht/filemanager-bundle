@@ -6,16 +6,22 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Integrity;
 
-use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 
+/**
+ * This checker checks if the values on disk are present in the database
+ */
 class DatabaseChecker extends AbstractChecker
 {
+    /**
+     * @{inheritDoc}
+     */
     public function check($entityClass)
     {
         $this->setEntity($entityClass);
 
         $fileNames = array();
-        $records = $this->repos->findAll();
+        $records   = $this->repos->findAll();
 
         foreach ($this->classMetaData->propertyMetadata as $property => $metadata) {
             if (!isset($metadata->fileManager)) {
@@ -26,7 +32,7 @@ class DatabaseChecker extends AbstractChecker
             foreach ($records as $entity) {
                 $value = PropertyHelper::getValue($entity, $property);
                 if ($value) {
-                    $fileNames[]= $value;
+                    $fileNames[] = $value;
                 }
             }
             $this->log("-> found " . count($fileNames) . " values to check", 1);

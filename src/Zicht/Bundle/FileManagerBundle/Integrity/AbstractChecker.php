@@ -32,6 +32,13 @@ abstract class AbstractChecker implements CheckerInterface
      */
     protected $classMetaData;
 
+    /**
+     * Constructor.
+     *
+     * @param \Zicht\Bundle\FileManagerBundle\FileManager\FileManager $fm
+     * @param \Metadata\MetadataFactoryInterface $metadataFactory
+     * @param \Doctrine\Bundle\DoctrineBundle\Registry $doctrine
+     */
     public function __construct(FileManager $fm, MetadataFactoryInterface $metadataFactory, Registry $doctrine)
     {
         $this->fm = $fm;
@@ -43,7 +50,7 @@ abstract class AbstractChecker implements CheckerInterface
     /**
      * Set the Entity being processed.
      *
-     * @param $entityClass
+     * @param string $entityClass
      * @return void
      */
     protected function setEntity($entityClass)
@@ -57,7 +64,7 @@ abstract class AbstractChecker implements CheckerInterface
      * Write a log to the logger
      *
      * @param string $str
-     * @param mixed $params
+     * @param int $logLevel
      * @return void
      */
     protected final function log($str, $logLevel = 0)

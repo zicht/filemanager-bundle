@@ -5,12 +5,23 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use Metadata\MetadataFactory;
-use Zicht\Util\Str;
+use \Doctrine\Bundle\DoctrineBundle\Registry;
+use \Metadata\MetadataFactory;
+use \Zicht\Util\Str;
 
+/**
+ * Helper to determine the relevant class names having File annotations
+ */
 class EntityHelper
 {
-    public function __construct(MetadataFactory $registry, \Doctrine\Bundle\DoctrineBundle\Registry $doctrine, $kernel)
+    /**
+     * Constructor.
+     *
+     * @param \Metadata\MetadataFactory $registry
+     * @param \Doctrine\Bundle\DoctrineBundle\Registry $doctrine
+     * @param \Symfony\Component\HttpKernel\KernelInterface $kernel
+     */
+    public function __construct(MetadataFactory $registry, Registry $doctrine, $kernel)
     {
         $this->metadata = $registry;
         $this->doctrine = $doctrine;
@@ -18,13 +29,24 @@ class EntityHelper
     }
 
 
+    /**
+     * Returns all entities having file annotations
+     *
+     * @return array
+     */
     public function getManagedEntities()
     {
         $entities = array();
+        /** @var \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle */
         foreach ($this->kernel->getBundles() as $bundle) {
             $entityPath = $bundle->getPath() . '/Entity';
             if (is_dir($entityPath)) {
-                $iter = new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($entityPath)), '/\.php$/');
+                $iter = new \RegexIterator(
+                    new \RecursiveIteratorIterator(
+                        new \RecursiveDirectoryIterator($entityPath)
+                    ),
+                    '/\.php$/'
+                );
 
                 foreach ($iter as $file) {
                     $entityName = substr(

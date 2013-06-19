@@ -7,9 +7,10 @@
 namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
 use \Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Filesystem\Filesystem;
+use \Symfony\Component\Filesystem\Filesystem;
 use \Symfony\Component\HttpFoundation\File\UploadedFile;
 use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use \Zicht\Util\Str;
 
 /**
  * Storage layer for files.
@@ -21,6 +22,7 @@ class FileManager {
     /**
      * Construct the filemanager.
      *
+     * @param \Symfony\Component\Filesystem\Filesystem $fs
      * @param string $root
      * @param string $httpRoot
      */
@@ -149,7 +151,7 @@ class FileManager {
         if (is_object($entity)) {
             $entity = get_class($entity);
         }
-        $entity = strtolower(\Zicht\Util\Str::classname($entity));
+        $entity = strtolower(Str::classname($entity));
 
         return $entity . '/' . $field;
     }

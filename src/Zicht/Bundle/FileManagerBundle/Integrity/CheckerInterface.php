@@ -29,8 +29,9 @@ interface CheckerInterface
 
 
     /**
-     * Perform the check
+     * Perform the check on the specified entity
      *
+     * @param string $entityClass
      * @return mixed
      */
     public function check($entityClass);
