@@ -16,6 +16,7 @@ use \Symfony\Component\Form\FormView;
 use \Symfony\Component\Form\FormInterface;
 
 use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use \Zicht\Bundle\FileManagerBundle\Form\FileTypeSubscriber;
 
 
 /**
@@ -66,15 +67,8 @@ class FileType extends AbstractType
         $builder->setAttribute('entity', $builder->getParent()->getDataClass());
         $builder->setAttribute('property', $builder->getName());
 
-        $currentFile = null;
-        $builder->addEventListener(FormEvents::PRE_BIND, function (FormEvent $e) use(&$currentFile) {
-            $e->getData();
-            // behoud oude waarde
-        });
-        $builder->addEventListener(FormEvents::BIND, function (FormEvent $e) use(&$currentFile) {
-            // restore oude waarde
-            $e->setData()
-        });
+        $fileTypeSubscriber = new FileTypeSubscriber($fm, $builder->getAttribute('entity'), $builder->getAttribute('property'));
+        $builder->addEventSubscriber($fileTypeSubscriber);
 
         $builder->addViewTransformer(
             new Transformer\FileTransformer(

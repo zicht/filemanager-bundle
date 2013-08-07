@@ -70,21 +70,25 @@ class FileManagerSubscriber implements EventSubscriber
             if (isset($changeset[$field])) {
                 list($old, $new) = $changeset[$field];
 
-                if ($new === null) {
-                    $eventArgs->setNewValue($field, $old);
-                } else {
-                    if ($old) {
+                if ($old) {
+                    if ($new && (string) $new == $this->fileManager->getFilePath($entity, $field, $old)) {
+                        /** @var File $new */
+                        // in this case the file was wrapped in a file object, but not actually changed.
+                        // We "unwrap" the value here.
+                        $new = $new->getBasename();
+                    } else {
                         $filepath = $this->fileManager->getFilePath($entity, $field, $old);
                         $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] =
                             function(FileManager $fm) use($filepath) {
                                 $fm->delete($filepath);
                             };
                     }
-                    if (is_string($new)) {
-                        $eventArgs->setNewValue($field, $new);
-                    } else {
-                        $eventArgs->setNewValue($field, $this->scheduleForUpload($new, $entity, $field));
-                    }
+                }
+
+                if (is_string($new)) {
+                    $eventArgs->setNewValue($field, $new);
+                } else {
+                    $eventArgs->setNewValue($field, $this->scheduleForUpload($new, $entity, $field));
                 }
             }
         }
