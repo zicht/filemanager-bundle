@@ -34,13 +34,13 @@ class FileTypeSubscriber implements EventSubscriberInterface
     /**
      * Just store the previous value, so we can check if in the bind function
      *
-     * @param event FormEvent
+     * @param $event FormEvent
      */
     public function preSetData(FormEvent $event)
     {
         $data = $event->getData();
 
-        if(!is_null($data) && is_string($data)) {
+        if(!is_null($data) && is_string($data) && ! empty($data)) {
 
             $path = $this->fileManager->getFilePath($this->entity, $this->field, $data);
 
@@ -50,7 +50,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param event FormEvent
+     * @param $event FormEvent
      */
     public function bind(FormEvent $event)
     {
