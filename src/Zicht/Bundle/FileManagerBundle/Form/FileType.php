@@ -7,13 +7,16 @@
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
 use \Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormEvent;
 use \Symfony\Component\Form\FormBuilderInterface;
 use \Symfony\Component\HttpFoundation\File\File;
 use \Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use \Symfony\Component\Form\FormEvents;
 use \Symfony\Component\Form\FormView;
 use \Symfony\Component\Form\FormInterface;
 
 use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use \Zicht\Bundle\FileManagerBundle\Form\FileTypeSubscriber;
 
 
 /**
@@ -63,6 +66,9 @@ class FileType extends AbstractType
         $fm = $this->fileManager;
         $builder->setAttribute('entity', $builder->getParent()->getDataClass());
         $builder->setAttribute('property', $builder->getName());
+
+        $fileTypeSubscriber = new FileTypeSubscriber($fm, $builder->getAttribute('entity'), $builder->getAttribute('property'));
+        $builder->addEventSubscriber($fileTypeSubscriber);
 
         $builder->addViewTransformer(
             new Transformer\FileTransformer(
