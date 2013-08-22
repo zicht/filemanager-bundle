@@ -108,8 +108,10 @@ class FileManagerSubscriber implements EventSubscriber
             $file = PropertyHelper::getValue($entity, $field);
 
             if ($file) {
-                $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] = function(FileManager $fm) use($file) {
-                    $fm->delete($file);
+                $filepath = $this->fileManager->getFilePath($entity, $field, $file);
+
+                $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] = function(FileManager $fm) use($filepath) {
+                    $fm->delete($filepath);
                 };
             }
         }
