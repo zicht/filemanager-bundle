@@ -23,5 +23,9 @@ class ZichtFileManagerExtension extends DIExtension
     {
         $loader = new XmlFileLoader($container, new FileLocator(array(__DIR__.'/../Resources/config/')));
         $loader->load('services.xml');
+
+        $formResources = $container->getParameter('twig.form.resources');
+        $formResources[]= 'ZichtFileManagerBundle::form_theme.html.twig';
+        $container->setParameter('twig.form.resources', $formResources);
     }
 }
