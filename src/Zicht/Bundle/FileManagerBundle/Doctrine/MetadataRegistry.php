@@ -35,13 +35,17 @@ class MetadataRegistry
         $class = get_class($entity);
 
         if (!isset($this->managedFields[$class])) {
-            $metadata = $this->metadataFactory->getMetadataForClass(get_class($entity));
+            $entityClass = get_class($entity);
             $this->managedFields[$class] = array();
-            foreach ($metadata->propertyMetadata as $field => $metadata) {
-                if (isset($metadata->fileManager)) {
-                    $this->managedFields[$class][] =$field;
+            do {
+                $metadata = $this->metadataFactory->getMetadataForClass($entityClass);
+                foreach ($metadata->propertyMetadata as $field => $metadata) {
+                    if (isset($metadata->fileManager)) {
+                        $this->managedFields[$class][] =$field;
+                    }
                 }
-            }
+            } while($entityClass = get_parent_class($entityClass));
+            $this->managedFields[$class] = array_unique($this->managedFields[$class]);
         }
         return $this->managedFields[$class];
     }
