@@ -6,6 +6,8 @@
 
 namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use \Symfony\Component\HttpFoundation\File\File;
 use \Symfony\Component\Filesystem\Filesystem;
 use \Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -76,7 +78,12 @@ class FileManager {
         }
         unset($this->preparedPaths[$i]);
         @$this->fs->remove($preparedPath);
-        $file->move(dirname($preparedPath), basename($preparedPath));
+
+        try{
+            $file->move(dirname($preparedPath), basename($preparedPath));
+        } catch(FileException $fileException) {
+            throw new FileException($fileException->getMessage() . "\n(hint: check the 'upload_max_filesize' in php.ini)", 0, $fileException);
+        }
     }
 
 
