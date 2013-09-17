@@ -88,7 +88,9 @@ class FileManagerSubscriber implements EventSubscriber
                 if (is_string($new)) {
                     $eventArgs->setNewValue($field, $new);
                 } else {
-                    $eventArgs->setNewValue($field, $this->scheduleForUpload($new, $entity, $field));
+                    if (null !== $new) {
+                        $eventArgs->setNewValue($field, $this->scheduleForUpload($new, $entity, $field));
+                    }
                 }
             }
         }
