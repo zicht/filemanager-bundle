@@ -16,6 +16,7 @@ class ZichtFileManagerExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $e = new ZichtFileManagerExtension();
         $builder = new \Symfony\Component\DependencyInjection\ContainerBuilder();
+        $builder->setParameter('twig.form.resources', array());
         $e->load(array(), $builder);
 
         $this->assertTrue($builder->hasDefinition('zicht_filemanager.filemanager'));

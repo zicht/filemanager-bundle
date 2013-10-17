@@ -71,7 +71,7 @@ class FileManagerSubscriber implements EventSubscriber
                 list($old, $new) = $changeset[$field];
 
                 if ($old) {
-                    if ($new && (string) $new == $this->fileManager->getFilePath($entity, $field, $old)) {
+                    if ($new && ((string) $new) && (string)$new == $this->fileManager->getFilePath($entity, $field, $old)) {
                         /** @var File $new */
                         // in this case the file was wrapped in a file object, but not actually changed.
                         // We "unwrap" the value here.

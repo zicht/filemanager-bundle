@@ -46,7 +46,7 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
         $type = new \Zicht\Bundle\FileManagerBundle\Form\FileType($this->fm);
 
         $builder = $this->getMockBuilder('Symfony\Component\Form\FormBuilder')
-            ->setMethods(array('getName', 'getParent', 'getAttribute', 'setAttribute', 'addViewTransformer'))
+            ->setMethods(array('getName', 'getParent', 'getAttribute', 'setAttribute', 'addViewTransformer', 'addEventSubscriber'))
             ->disableOriginalConstructor()
             ->getMock()
         ;
