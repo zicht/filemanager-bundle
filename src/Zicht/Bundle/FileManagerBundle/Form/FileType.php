@@ -67,7 +67,11 @@ class FileType extends AbstractType
         $builder->setAttribute('entity', $builder->getParent()->getDataClass());
         $builder->setAttribute('property', $builder->getName());
 
-        $fileTypeSubscriber = new FileTypeSubscriber($fm, $builder->getAttribute('entity'), $builder->getAttribute('property'));
+        $fileTypeSubscriber = new FileTypeSubscriber(
+            $fm,
+            $builder->getAttribute('entity'),
+            $builder->getAttribute('property')
+        );
         $builder->addEventSubscriber($fileTypeSubscriber);
 
         $builder->addViewTransformer(

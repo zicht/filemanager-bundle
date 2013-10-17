@@ -141,9 +141,9 @@ class FileManagerSubscriberTest extends \PHPUnit_Framework_TestCase
         $values = array('foo' => array($object->value, $file));
         $event = new \Doctrine\Common\Persistence\Event\PreUpdateEventArgs($object, $em, $values);
         $this->metadata->expects($this->once())->method('getManagedFields')->will($this->returnValue(array('foo')));
+
         $this->fm->expects($this->once())->method('prepare')->with($file)->will($this->returnValue('/tmp/foo/somefile.bar'));
         $subscriber->preUpdate($event);
-
 
         if ($withFlush) {
             $this->fm->expects($this->once())->method('delete');
