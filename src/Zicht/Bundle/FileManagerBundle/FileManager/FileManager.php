@@ -225,4 +225,39 @@ class FileManager {
         }
         return null;
     }
+
+    /**
+     * @return string
+     */
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
+    /**
+     *
+     * Overwrite the defined root
+     *
+     * @param string $root
+     */
+    public function setRoot($root)
+    {
+        $this->root = $root;
+    }
+
+    /**
+     * @param string $httpRoot
+     */
+    public function setHttpRoot($httpRoot)
+    {
+        $this->httpRoot = $httpRoot;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHttpRoot()
+    {
+        return $this->httpRoot;
+    }
 }
