@@ -97,8 +97,20 @@ class FileType extends AbstractType
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
         $view->vars['multipart'] = true;
         $view->vars['type'] = 'file';
-    }
 
+        if($view->vars['value']) {
+            $view->vars['file_url'] = $this->fileManager->getFileUrl($view->vars['entity'], $view->vars['property'], $view->vars['value']);
+        } else if ($form->getData() instanceof File) {
+            $purgatoryFileManager = clone $this->fileManager;
+            $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
+
+//            $view->vars['value'] = $form->getData();
+            $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($view->vars['entity'], $view->vars['property'], $form->getData());
+
+            $view->vars['plain_text_value'] = $form->getData()->getBaseName();
+            $view->vars['plain_text_hash'] = md5('abc');
+        }
+    }
 
     /**
      * Returns the name of this type.
