@@ -18,6 +18,7 @@ use \Symfony\Component\Form\FormInterface;
 use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use \Zicht\Bundle\FileManagerBundle\Form\FileTypeSubscriber;
+use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 
 
 /**
@@ -36,9 +37,6 @@ class FileType extends AbstractType
     public function __construct(FileManager $fileManager)
     {
         $this->fileManager = $fileManager;
-
-        $this->purgatoryFileManager = clone $this->fileManager;
-        $this->purgatoryFileManager->setHttpRoot($this->purgatoryFileManager->getHttpRoot() . '/purgatory');
     }
 
 
@@ -89,28 +87,6 @@ class FileType extends AbstractType
                 }
             )
         );
-
-        $builder->addEventListener(
-            FormEvents::POST_BIND,
-            function(FormEvent $event) {
-                $form = $event->getForm();
-
-                // this would be your entity, i.e. SportMeetup
-                $data = $event->getData();
-
-                $file = $form->getData();
-
-                var_dump($file->getPathName());
-
-                exit;
-
-//                $form->add('position', 'entity', array('choices' => $positions)); //hidden!
-            }
-        );
-
-//        $v = $this->purgatoryFileManager->getFilePath($builder->getAttribute('entity'), $builder->getAttribute('property'));
-//        var_dump($v);
-//        exit;
     }
 
     /**
@@ -120,18 +96,28 @@ class FileType extends AbstractType
     {
         $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
+
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
         $view->vars['multipart'] = true;
         $view->vars['type'] = 'file';
 
-        if($view->vars['value']) {
-            $view->vars['file_url'] = $this->fileManager->getFileUrl($view->vars['entity'], $view->vars['property'], $view->vars['value']);
-        } else if ($form->getData() instanceof File) {
-//            $view->vars['value'] = $form->getData();
-            $view->vars['file_url'] = $this->purgatoryFileManager->getFileUrl($view->vars['entity'], $view->vars['property'], $form->getData());
+        $entity = $view->vars['entity'];
+        $field  = $view->vars['property'];
 
-            $view->vars['plain_text_value'] = $form->getData()->getBaseName();
-            $view->vars['plain_text_hash'] = md5('abc');
+        if($view->vars['value']) {
+
+            $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value']);
+
+        } elseif (! is_null($form->getData()) && $form->getData() instanceof File) {
+
+            $purgatoryFileManager = clone $this->fileManager;
+            $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
+
+            $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($entity, $field, $form->getData());
+
+            $view->vars['purgatory_field_postfix'] = PurgatoryHelper::makePostFix($entity, $field);
+            $view->vars['purgatory_file_filename'] = $form->getData()->getBaseName();
+            $view->vars['purgatory_file_hash'] = PurgatoryHelper::makeHash($entity, $field, $view->vars['purgatory_file_filename']);
         }
     }
 

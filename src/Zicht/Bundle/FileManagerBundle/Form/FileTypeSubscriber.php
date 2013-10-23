@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 
 class FileTypeSubscriber implements EventSubscriberInterface
 {
@@ -42,7 +43,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
     {
         $data = $event->getData();
 
-        if(!is_null($data) && is_string($data) && ! empty($data)) {
+        if( ! is_null($data) && is_string($data) && ! empty($data)) {
 
             $path = $this->fileManager->getFilePath($this->entity, $this->field, $data);
 
@@ -58,25 +59,10 @@ class FileTypeSubscriber implements EventSubscriberInterface
     {
         $data = $event->getData();
 
-        $form = $event->getForm();
+        if( ! is_null($data) ) { //use the new uploaded file
 
-//        var_dump($form);exit;
-
-        if(is_null($data) )
-        {
-            //if hidden field
-            // if hidden field matches the hash
-
-            //else:
-            if(!is_null($this->previousData)) {
-                $event->setData($this->previousData);
-            }
-
-            //if we don't do this, the previous data will always overwrite the purgatory-data :S
-        }
-
-        if(!is_null($data)) {
             if ($data instanceof UploadedFile) {
+
                 $purgatoryFileManager = clone $this->fileManager;
                 $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
 
@@ -85,6 +71,28 @@ class FileTypeSubscriber implements EventSubscriberInterface
 
                 $event->setData(new File($path));
             }
+        } else { //no file uploaded
+
+            $postfix = PurgatoryHelper::makePostFix($this->entity, $this->field);
+            $file_hash = PurgatoryHelper::makeHash($this->entity, $this->field, $_POST['purgatory_file_filename_' . $postfix]);
+
+            //check if there was a purgatory file (and the file is not tampered with)
+            if( isset($_POST['purgatory_file_filename_' . $postfix])
+             && isset($_POST['purgatory_file_hash_' . $postfix])
+             && $file_hash === $_POST['purgatory_file_hash_' . $postfix]) {
+
+                $purgatoryFileManager = clone $this->fileManager;
+                $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
+
+                $file = new File($purgatoryFileManager->getFilePath($this->entity, $this->field, $_POST['purgatory_file_filename_' . $postfix]));
+                $event->setData($file);
+
+            }
+            elseif( !is_null($this->previousData) ) { //use the previously data - set in preSetData()
+
+                $event->setData($this->previousData);
+            }
+
         }
     }
 }

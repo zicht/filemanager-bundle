@@ -10,8 +10,14 @@
                 {% endif %}
             </a>
         </p>
-            {#<input name='purgatory_file_url' class='hidden' type='hidden' value='{{ plain_text_value }}'>#}
-            {#&#123;&#35;<input name='purgatory_file_hash' type='hidden' value='{{ plain_text_hash }}'>&#35;&#125;#}
+
+        {% if purgatory_file_filename is defined  %}
+            <input name='purgatory_file_filename_{{ purgatory_field_postfix }}'  type='hidden' class='hidden' value='{{ purgatory_file_filename }}'>
+        {% endif %}
+        {% if purgatory_file_hash is defined %}
+            <input name='purgatory_file_hash_{{ purgatory_field_postfix }}' type='hidden' class='hidden' value='{{ purgatory_file_hash }}'>
+        {% endif %}
+
         {{ block('form_widget_simple') }}
         <p>
             <small>{{ "Selecting a file will replace the current file"|trans }}</small>
