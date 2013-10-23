@@ -60,6 +60,8 @@ class FileTypeSubscriber implements EventSubscriberInterface
 
         $form = $event->getForm();
 
+//        var_dump($form);exit;
+
         if(is_null($data) )
         {
             //if hidden field
