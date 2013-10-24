@@ -5,6 +5,8 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle\Form\Transformer;
 
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+
 class FileTypeTestEntity
 {
     public $foo;
@@ -31,7 +33,6 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($opt['data_class'], 'Symfony\Component\HttpFoundation\File\File');
         $this->assertEquals($opt['show_current_file'], true);
-
 
         $this->assertEquals('zicht_file', $type->getName());
         $this->assertEquals('field', $type->getParent());
@@ -95,9 +96,9 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/tmp/baz', $transformed);
     }
 
-    private function setupForm(array $methods)
+    private function setupForm(array $methods, FileManager $fm)
     {
-        $type = new \Zicht\Bundle\FileManagerBundle\Form\FileType($this->fm);
+        $type = new \Zicht\Bundle\FileManagerBundle\Form\FileType($fm);
         $view = new \Symfony\Component\Form\FormView();
         $form = $this->getMockBuilder('Symfony\Component\Form\Form')
             ->disableOriginalConstructor()
@@ -125,7 +126,7 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
 
     function testFinishViewWithFormDataIsNull()
     {
-        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'));
+        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'), $this->fm);
 
         $form->expects($this->any())->method('getData')->will($this->returnValue(null));
         $type->finishView($view, $form, array());
@@ -135,6 +136,37 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($attr['property'], $view->vars['property']);
 
         $this->assertArrayNotHasKey('file_url', $view->vars);
+
+        $this->assertArrayNotHasKey('purgatory_field_postfix', $view->vars);
+        $this->assertArrayNotHasKey('purgatory_field_filename', $view->vars);
+        $this->assertArrayNotHasKey('purgatory_field_hash', $view->vars);
+    }
+
+    function testFinishViewWithAlreadyUploadedFile()
+    {
+        $fm = $this->getMockBuilder('Zicht\Bundle\FileManagerBundle\FileManager\FileManager')
+            ->setMethods(array('getFilePath', 'getFileUrl'))
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'), $fm);
+
+        $view->vars['value'] = 'foo.png';
+
+        $fm->expects($this->once())->method('getFileUrl')->with($attr['entity'], $attr['property'], $view->vars['value'])->will(
+            $this->returnValue('/entity/path/foo.png')
+        );
+
+        $form->expects($this->any())->method('getData')->will($this->returnValue(null));
+
+        $type->finishView($view, $form, array());
+
+        $this->assertEquals($opt['show_current_file'], $view->vars['show_current_file']);
+        $this->assertEquals($attr['entity'], $view->vars['entity']);
+        $this->assertEquals($attr['property'], $view->vars['property']);
+
+        $this->assertArrayHasKey('file_url', $view->vars);
+        $this->assertEquals('/entity/path/foo.png', $view->vars['file_url']);
 
         $this->assertArrayNotHasKey('purgatory_field_postfix', $view->vars);
         $this->assertArrayNotHasKey('purgatory_field_filename', $view->vars);
