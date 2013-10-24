@@ -95,14 +95,13 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/tmp/baz', $transformed);
     }
 
-
-    function testFinishView()
+    private function setupForm(array $methods)
     {
         $type = new \Zicht\Bundle\FileManagerBundle\Form\FileType($this->fm);
         $view = new \Symfony\Component\Form\FormView();
         $form = $this->getMockBuilder('Symfony\Component\Form\Form')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfig'))
+            ->setMethods(array_merge(array('getConfig'), $methods))
             ->getMock();
         $config = $this->getMock('\stdClass', array('getAttribute', 'getOption'));
         $attr = array(
@@ -113,16 +112,32 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
             'show_current_file' => rand(1, 100)
         );
         $config->expects($this->any())->method('getAttribute')->will($this->returnCallback(function($n) use($attr) {
-            return $attr[$n];
-        }));
+                    return $attr[$n];
+                }));
         $config->expects($this->any())->method('getOption')->will($this->returnCallback(function($n) use($opt) {
-            return $opt[$n];
-        }));
+                    return $opt[$n];
+                }));
+
         $form->expects($this->any())->method('getConfig')->will($this->returnValue($config));
+
+        return array($type, $view, $form, $config, $attr, $opt);
+    }
+
+    function testFinishViewWithFormDataIsNull()
+    {
+        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'));
+
+        $form->expects($this->any())->method('getData')->will($this->returnValue(null));
         $type->finishView($view, $form, array());
 
         $this->assertEquals($opt['show_current_file'], $view->vars['show_current_file']);
         $this->assertEquals($attr['entity'], $view->vars['entity']);
         $this->assertEquals($attr['property'], $view->vars['property']);
+
+        $this->assertArrayNotHasKey('file_url', $view->vars);
+
+        $this->assertArrayNotHasKey('purgatory_field_postfix', $view->vars);
+        $this->assertArrayNotHasKey('purgatory_field_filename', $view->vars);
+        $this->assertArrayNotHasKey('purgatory_field_hash', $view->vars);
     }
 }
