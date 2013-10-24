@@ -24,6 +24,6 @@ class PurgatoryHelper
 
     public static function makePostFix($entity, $field)
     {
-        return md5($entity.$field);
+        return md5($entity . $field);
     }
 } 

@@ -21,6 +21,7 @@ use \Zicht\Util\Str;
  * either a string or a classname, where the class name is mapped to the local classname and lowercased.
  */
 class FileManager {
+
     /**
      * Construct the filemanager.
      *

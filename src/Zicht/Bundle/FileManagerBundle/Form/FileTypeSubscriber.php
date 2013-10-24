@@ -74,12 +74,11 @@ class FileTypeSubscriber implements EventSubscriberInterface
         } else { //no file uploaded
 
             $postfix = PurgatoryHelper::makePostFix($this->entity, $this->field);
-            $file_hash = PurgatoryHelper::makeHash($this->entity, $this->field, $_POST['purgatory_file_filename_' . $postfix]);
 
             //check if there was a purgatory file (and the file is not tampered with)
             if( isset($_POST['purgatory_file_filename_' . $postfix])
              && isset($_POST['purgatory_file_hash_' . $postfix])
-             && $file_hash === $_POST['purgatory_file_hash_' . $postfix]) {
+             && PurgatoryHelper::makeHash($this->entity, $this->field, $_POST['purgatory_file_filename_' . $postfix]) === $_POST['purgatory_file_hash_' . $postfix]) {
 
                 $purgatoryFileManager = clone $this->fileManager;
                 $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
@@ -88,7 +87,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
                 $event->setData($file);
 
             }
-            elseif( !is_null($this->previousData) ) { //use the previously data - set in preSetData()
+            elseif( !is_null($this->previousData)) { //use the previously data - set in preSetData()
 
                 $event->setData($this->previousData);
             }
