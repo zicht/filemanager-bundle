@@ -22,6 +22,11 @@ use \Zicht\Util\Str;
  */
 class FileManager {
 
+    private $fs;
+    private $root;
+    private $httpRoot;
+    private $preparedPaths;
+
     /**
      * Construct the filemanager.
      *
