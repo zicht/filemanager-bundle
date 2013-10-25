@@ -1,14 +1,23 @@
 {% block zicht_file_widget %}
-    {% if value and show_current_file  %}
+
+    {% if file_url is defined and show_current_file %}
         <p>
-            <a href="{{ asset(file_url(entity, property, value)) }}">
-                {% if value|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] %}
-                    <img title="(Current: {{ value }})" alt="" src="{{ file_url(entity, property, value)|imagine_filter('cms') }}">
+            <a href="{{ asset(file_url) }}">
+                {% if file_url|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] %}
+                    <img title="(Current: {{ file_url }})" alt="" src="{{ file_url|imagine_filter('cms') }}">
                 {% else %}
-                    {{ file_url(entity, property, value) }}
+                    {{ file_url }}
                 {% endif %}
             </a>
         </p>
+
+        {% if purgatory_file_filename is defined  %}
+            <input name='purgatory_file_filename_{{ purgatory_field_postfix }}'  type='hidden' class='hidden' value='{{ purgatory_file_filename }}'>
+        {% endif %}
+        {% if purgatory_file_hash is defined %}
+            <input name='purgatory_file_hash_{{ purgatory_field_postfix }}' type='hidden' class='hidden' value='{{ purgatory_file_hash }}'>
+        {% endif %}
+
         {{ block('form_widget_simple') }}
         <p>
             <small>{{ "Selecting a file will replace the current file"|trans }}</small>

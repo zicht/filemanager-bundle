@@ -21,6 +21,12 @@ use \Zicht\Util\Str;
  * either a string or a classname, where the class name is mapped to the local classname and lowercased.
  */
 class FileManager {
+
+    private $fs;
+    private $root;
+    private $httpRoot;
+    private $preparedPaths;
+
     /**
      * Construct the filemanager.
      *
@@ -224,5 +230,40 @@ class FileManager {
             return $this->getDir($entity, $field) . '/' . $fileName;
         }
         return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
+    /**
+     *
+     * Overwrite the defined root
+     *
+     * @param string $root
+     */
+    public function setRoot($root)
+    {
+        $this->root = $root;
+    }
+
+    /**
+     * @param string $httpRoot
+     */
+    public function setHttpRoot($httpRoot)
+    {
+        $this->httpRoot = $httpRoot;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHttpRoot()
+    {
+        return $this->httpRoot;
     }
 }

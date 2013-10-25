@@ -5,6 +5,9 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle\Form\Transformer;
 
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
+
 class FileTypeTestEntity
 {
     public $foo;
@@ -31,7 +34,6 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($opt['data_class'], 'Symfony\Component\HttpFoundation\File\File');
         $this->assertEquals($opt['show_current_file'], true);
-
 
         $this->assertEquals('zicht_file', $type->getName());
         $this->assertEquals('field', $type->getParent());
@@ -95,14 +97,13 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/tmp/baz', $transformed);
     }
 
-
-    function testFinishView()
+    private function setupForm(array $methods, FileManager $fm)
     {
-        $type = new \Zicht\Bundle\FileManagerBundle\Form\FileType($this->fm);
+        $type = new \Zicht\Bundle\FileManagerBundle\Form\FileType($fm);
         $view = new \Symfony\Component\Form\FormView();
         $form = $this->getMockBuilder('Symfony\Component\Form\Form')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfig'))
+            ->setMethods(array_merge(array('getConfig'), $methods))
             ->getMock();
         $config = $this->getMock('\stdClass', array('getAttribute', 'getOption'));
         $attr = array(
@@ -113,16 +114,106 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
             'show_current_file' => rand(1, 100)
         );
         $config->expects($this->any())->method('getAttribute')->will($this->returnCallback(function($n) use($attr) {
-            return $attr[$n];
-        }));
+                    return $attr[$n];
+                }));
         $config->expects($this->any())->method('getOption')->will($this->returnCallback(function($n) use($opt) {
-            return $opt[$n];
-        }));
+                    return $opt[$n];
+                }));
+
         $form->expects($this->any())->method('getConfig')->will($this->returnValue($config));
+
+        return array($type, $view, $form, $config, $attr, $opt);
+    }
+
+    function testFinishViewWithFormDataIsNull()
+    {
+        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'), $this->fm);
+
+        $form->expects($this->any())->method('getData')->will($this->returnValue(null));
         $type->finishView($view, $form, array());
 
         $this->assertEquals($opt['show_current_file'], $view->vars['show_current_file']);
         $this->assertEquals($attr['entity'], $view->vars['entity']);
         $this->assertEquals($attr['property'], $view->vars['property']);
+
+        $this->assertArrayNotHasKey('file_url', $view->vars);
+
+        $this->assertArrayNotHasKey('purgatory_field_postfix', $view->vars);
+        $this->assertArrayNotHasKey('purgatory_file_filename', $view->vars);
+        $this->assertArrayNotHasKey('purgatory_file_hash', $view->vars);
+    }
+
+    function testFinishViewWithAlreadyUploadedFile()
+    {
+        $fm = $this->getMockBuilder('Zicht\Bundle\FileManagerBundle\FileManager\FileManager')
+            ->setMethods(array('getFilePath', 'getFileUrl'))
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'), $fm);
+
+        $expectedFileName = 'foo.png';
+        $expectedPath     = '/entity/path/' . $expectedFileName;
+
+        $view->vars['value'] = $expectedFileName;
+
+        $fm->expects($this->once())->method('getFileUrl')->with($attr['entity'], $attr['property'], $expectedFileName)->will(
+            $this->returnValue($expectedPath)
+        );
+
+        $form->expects($this->any())->method('getData')->will($this->returnValue(null));
+
+        $type->finishView($view, $form, array());
+
+        $this->assertEquals($opt['show_current_file'], $view->vars['show_current_file']);
+        $this->assertEquals($attr['entity'], $view->vars['entity']);
+        $this->assertEquals($attr['property'], $view->vars['property']);
+
+        $this->assertEquals($view->vars['file_url'], $expectedPath);
+
+        $this->assertArrayNotHasKey('purgatory_field_postfix', $view->vars);
+        $this->assertArrayNotHasKey('purgatory_file_filename', $view->vars);
+        $this->assertArrayNotHasKey('purgatory_file_hash', $view->vars);
+    }
+
+    function testFinishViewWithFormUploadedFile()
+    {
+        $expectedFileName = 'foo.png';
+        $expectedPath     = '/entity/path/' . $expectedFileName;
+        $httpRoot = 'www.example.com';
+
+        $fm = $this->getMockBuilder('Zicht\Bundle\FileManagerBundle\FileManager\FileManager')
+            ->setMethods(array('getFilePath', 'getFileUrl'))
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $fm->setHttpRoot($httpRoot);
+
+        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'), $fm);
+
+        $formData = $this->getMockBuilder('\Symfony\Component\HttpFoundation\File\UploadedFile')
+            ->setMethods(array('getBaseName'))
+            ->disableOriginalConstructor()
+            ->getMock();
+        $formData->expects($this->any())->method('getBaseName')->will($this->returnValue('foo.png'));
+        $form->expects($this->any())->method('getData')->will($this->returnValue($formData));
+
+        $fm->expects($this->any())->method('getFileUrl')->with($attr['entity'], $attr['property'], $formData)->will(
+            $this->returnValue($expectedPath)
+        );
+
+        $type->finishView($view, $form, array());
+
+        $this->assertEquals($opt['show_current_file'], $view->vars['show_current_file']);
+        $this->assertEquals($attr['entity'], $view->vars['entity']);
+        $this->assertEquals($attr['property'], $view->vars['property']);
+
+        $this->assertEquals($view->vars['file_url'], $expectedPath);
+
+        $this->assertEquals($view->vars['purgatory_field_postfix'], PurgatoryHelper::makePostFix($attr['entity'], $attr['property']));
+        $this->assertEquals($view->vars['purgatory_file_filename'], $expectedFileName);
+        $this->assertEquals($view->vars['purgatory_file_hash'], PurgatoryHelper::makeHash($attr['entity'], $attr['property'], $expectedFileName));
+
+        $this->assertEquals($fm->getHttpRoot(), $httpRoot);
     }
 }

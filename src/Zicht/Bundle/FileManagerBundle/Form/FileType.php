@@ -15,8 +15,10 @@ use \Symfony\Component\Form\FormEvents;
 use \Symfony\Component\Form\FormView;
 use \Symfony\Component\Form\FormInterface;
 
+use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use \Zicht\Bundle\FileManagerBundle\Form\FileTypeSubscriber;
+use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 
 
 /**
@@ -94,11 +96,30 @@ class FileType extends AbstractType
     {
         $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
+
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
         $view->vars['multipart'] = true;
         $view->vars['type'] = 'file';
-    }
 
+        $entity = $view->vars['entity'];
+        $field  = $view->vars['property'];
+
+        if($view->vars['value']) {
+
+            $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value']);
+
+        } elseif (! is_null($form->getData()) && $form->getData() instanceof File) {
+
+            $purgatoryFileManager = clone $this->fileManager;
+            $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
+
+            $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($entity, $field, $form->getData());
+
+            $view->vars['purgatory_field_postfix'] = PurgatoryHelper::makePostFix($entity, $field);
+            $view->vars['purgatory_file_filename'] = $form->getData()->getBaseName();
+            $view->vars['purgatory_file_hash'] = PurgatoryHelper::makeHash($entity, $field, $view->vars['purgatory_file_filename']);
+        }
+    }
 
     /**
      * Returns the name of this type.
