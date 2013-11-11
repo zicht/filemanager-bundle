@@ -61,8 +61,11 @@ class FileTypeSubscriber implements EventSubscriberInterface
 
             $path = $this->fileManager->getFilePath($this->entity, $this->field, $data);
 
-            $this->previousData = new File($path);
-            $event->setData($this->previousData);
+            try {
+                $this->previousData = new File($path);
+                $event->setData($this->previousData);
+            } catch (\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException $e) {
+            }
         }
     }
 
