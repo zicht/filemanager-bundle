@@ -10,15 +10,17 @@
             </a>
         </p>
 
-        {% if purgatory_file_filename is defined  %}
-            <input name='purgatory_file_filename_{{ purgatory_field_postfix }}'  type='hidden' class='hidden' value='{{ purgatory_file_filename }}'>
-            <input name='purgatory_file_hash_{{ purgatory_field_postfix }}' type='hidden' class='hidden' value='{{ purgatory_file_hash }}'>
-        {% endif %}
+        {#{{ dump(_context) }}#}
 
+        {#{% if purgatory_file_filename is defined  %}#}
+            {#<input name='purgatory_file_filename_{{ purgatory_field_postfix }}'  type='hidden' class='hidden' value='{{ purgatory_file_filename }}'>#}
+            {#<input name='purgatory_file_hash_{{ purgatory_field_postfix }}' type='hidden' class='hidden' value='{{ purgatory_file_hash }}'>#}
+        {#{% endif %}#}
 
-        {{ block('form_widget_simple') }}
+        {{ block('form_widget_compound') }}
+
         <p><small>{{ "Selecting a file will replace the current file"|trans }}</small></p>
     {% else %}
-        {{ block('form_widget_simple') }}
+        {{ block('form_widget_compound') }}
     {% endif %}
 {% endblock %}

@@ -1,44 +1,36 @@
 <?php
 /**
- * @author Gerard van Helden <gerard@zicht.nl>
+ * @author Oskar van Velden <oskar@zicht.nl>
  * @copyright Zicht Online <http://zicht.nl>
- */
+  */
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
-use \Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormEvent;
-use \Symfony\Component\Form\FormBuilderInterface;
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use \Symfony\Component\Form\FormEvents;
-use \Symfony\Component\Form\FormView;
-use \Symfony\Component\Form\FormInterface;
-
-use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
-use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use \Zicht\Bundle\FileManagerBundle\Form\FileTypeSubscriber;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 
-
-/**
- * Form type to use in conjunction with the @File annotated properties.
- *
- * The view contains the entity and property fields which can be used to render an url to file with the file_url()
- * function.
- */
 class FileType extends AbstractType
 {
+    const UPLOAD_FIELDNAME   = 'upload_file';
+    const HASH_FIELDNAME     = 'hash';
+    const FILENAME_FIELDNAME = 'filename';
+
     /**
      * Constructor.
      *
-     * @param \Zicht\Bundle\FileManagerBundle\FileManager\FileManager $fileManager
+     * @param FileManager $fileManager
      */
     public function __construct(FileManager $fileManager)
     {
         $this->fileManager = $fileManager;
     }
-
 
     /**
      * @{inheritDoc}
@@ -47,23 +39,23 @@ class FileType extends AbstractType
     {
         $resolver->setDefaults(
             array(
-                'compound'          => false,
-                'data_class'        => 'Symfony\Component\HttpFoundation\File\File',
-                'empty_data'        => null,
-                'entity'            => null,
-                'property'          => null,
+                'entity' => null,
+                'property' => null,
                 'show_current_file' => true
             )
         );
     }
 
-
-    /**
-     * @{inheritDoc}
-     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
+
+        $builder->add(self::UPLOAD_FIELDNAME, 'file');
+        $builder->add(self::HASH_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));*
+        $builder->add(self::FILENAME_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));
+
+//      TODO: show yes/no when option is set / or not
+//      $builder->add('remove', 'checkbox', array('label' => 'You wanna remove?'));
 
         $fm = $this->fileManager;
         $builder->setAttribute('entity', $builder->getParent()->getDataClass());
@@ -79,47 +71,57 @@ class FileType extends AbstractType
         $builder->addViewTransformer(
             new Transformer\FileTransformer(
                 function($value) use($fm, $builder) {
-                    return $fm->getFilePath(
-                        $builder->getAttribute('entity'),
-                        $builder->getAttribute('property'),
-                        $value
-                    );
+                    if(isset($value)) {
+                        return $fm->getFilePath(
+                            $builder->getAttribute('entity'),
+                            $builder->getAttribute('property'),
+                            $value[FileType::UPLOAD_FIELDNAME]
+                        );
+                    }
+
+                    return null;
                 }
             )
         );
     }
 
-    /**
-     * @{inheritDoc}
-     */
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
-        $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
-        $view->vars['property'] = $form->getConfig()->getAttribute('property');
+//        $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
+//        $view->vars['property'] = $form->getConfig()->getAttribute('property');
+//        $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
+//        $view->vars['multipart'] = true;
+//
+//        $entity = $view->vars['entity'];
+//        $field  = $view->vars['property'];
+//
+//        if($view->vars['value'] && is_string($view->vars['value'])) {
+//
+//            $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value']);
+//
+//        } else {
+//            $data = $form->getData();
+//
+//            if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof File) {
+//                $purgatoryFileManager = clone $this->fileManager;
+//                $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
+//
+//                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($entity, $field, $data[FileType::UPLOAD_FIELDNAME]);
+//            }
 
-        $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
+//            $view->vars['purgatory_field_postfix'] = PurgatoryHelper::makePostFix($entity, $field);
+//            $view->vars['purgatory_file_filename'] = $form->getData()->getBaseName();
+//            $view->vars['purgatory_file_hash'] = PurgatoryHelper::makeHash($entity, $field, $view->vars['purgatory_file_filename']);
 
-        $view->vars['multipart'] = true;
-        $view->vars['type'] = 'file';
-
-        $entity = $view->vars['entity'];
-        $field  = $view->vars['property'];
-
-        if($view->vars['value']) {
-
-            $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value']);
-
-        } elseif (! is_null($form->getData()) && $form->getData() instanceof File) {
-
-            $purgatoryFileManager = clone $this->fileManager;
-            $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
-
-            $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($entity, $field, $form->getData());
-
-            $view->vars['purgatory_field_postfix'] = PurgatoryHelper::makePostFix($entity, $field);
-            $view->vars['purgatory_file_filename'] = $form->getData()->getBaseName();
-            $view->vars['purgatory_file_hash'] = PurgatoryHelper::makeHash($entity, $field, $view->vars['purgatory_file_filename']);
-        }
+                /** @var FormFactoryInterface $factory */
+//            $factory = $form->getConfig()->getAttribute('factory');
+//
+//            $hashForm = $factory->create();
+//            $hashForm->add('hash', 'text', array('read_only' => true, 'data' => 'hash-1-2-3', 'mapped' => false));
+//            $hashForm->add('filename', 'text', array('read_only' => true, 'data' => 'filename-123    ', 'mapped' => false));
+//
+//            $view->children['hashForm'] = $hashForm->createView($view);
+//        }
     }
 
     /**
@@ -132,12 +134,10 @@ class FileType extends AbstractType
         return 'zicht_file';
     }
 
-
-    /**
-     * @{inheritDoc}
-     */
     public function getParent()
     {
-        return 'field';
+        //default is 'form' - so no need to overwrite it
+        //but overwritten to express that this is done on purpose
+        return parent::getParent();
     }
 }

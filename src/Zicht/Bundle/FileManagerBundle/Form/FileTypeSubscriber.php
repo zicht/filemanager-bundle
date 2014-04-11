@@ -6,6 +6,7 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
+use Symfony\Component\Form\Form;
 use \Symfony\Component\Form\FormEvent;
 use \Symfony\Component\Form\FormEvents;
 use \Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -42,8 +43,8 @@ class FileTypeSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            FormEvents::POST_SET_DATA => 'preSetData',
-            FormEvents::BIND          => 'bind',
+            FormEvents::POST_SET_DATA => 'postSetData',
+            FormEvents::PRE_BIND          => 'bind', //this did the trick - no idea (yet) why
         );
     }
 
@@ -53,7 +54,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
      * @param FormEvent $event
      * @return void
      */
-    public function preSetData(FormEvent $event)
+    public function postSetData(FormEvent $event)
     {
         $data = $event->getData();
 
@@ -79,24 +80,45 @@ class FileTypeSubscriber implements EventSubscriberInterface
     {
         $data = $event->getData();
 
-        if (null !== $data && $data instanceof UploadedFile) {
+        /** @var Form $form */
+        $form = $event->getForm();
+
+        if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
+
+            /** @var UploadedFile $uploadedFile */
+            $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
+
             $purgatoryFileManager = clone $this->fileManager;
             $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
 
-            $path = $purgatoryFileManager->prepare($data, $this->entity, $this->field);
-            $purgatoryFileManager->save($data, $path);
+            $path = $purgatoryFileManager->prepare($uploadedFile, $this->entity, $this->field);
+            $purgatoryFileManager->save($uploadedFile, $path);
 
-            $event->setData(new File($path));
+            $data[FileType::FILENAME_FIELDNAME] = $uploadedFile->getBasename();
+            $data[FileType::HASH_FIELDNAME] = PurgatoryHelper::makeHash($event->getForm()->getPropertyPath(), $data[FileType::FILENAME_FIELDNAME]);
+
+            $data[FileType::UPLOAD_FIELDNAME] = new File($path);
+
+            $event->setData($data);
+//            $form->getParent()->get('singlePhoto')->setData(new File($path));
+
         } else {
             // no file was uploaded
 
-            $postfix = PurgatoryHelper::makePostFix($this->entity, $this->field);
+            $hash = $form->get('hash')->getData();
+            $filename = $form->get('filename')->getData();
+
+            var_dump($hash);
+            var_dump($filename);
+
+            var_dump($data);
+            exit;
 
             // check if there was a purgatory file (and the file is not tampered with)
-            if (isset($_POST['purgatory_file_filename_' . $postfix])
-                && isset($_POST['purgatory_file_hash_' . $postfix])
-                && PurgatoryHelper::makeHash($this->entity, $this->field, $_POST['purgatory_file_filename_' . $postfix])
-                    === $_POST['purgatory_file_hash_' . $postfix]
+            if (!empty($hash)
+                && !empty($filename)
+                && PurgatoryHelper::makeHash($form->getPropertyPath(), $filename)
+                    === $hash
             ) {
                 $purgatoryFileManager = clone $this->fileManager;
                 $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
@@ -104,14 +126,22 @@ class FileTypeSubscriber implements EventSubscriberInterface
                 $filePath = $purgatoryFileManager->getFilePath(
                     $this->entity,
                     $this->field,
-                    $_POST['purgatory_file_filename_' . $postfix]
+                    $filename
                 );
 
-                $file = new File($filePath);
-                $event->setData($file);
+                $data['filename'] = 'poep';
+                $data['hash'] = 'hashendepoep';
+                $data[FileType::UPLOAD_FIELDNAME] = new File($filePath);
+
+                $event->setData($data);
             } elseif (null !== $this->previousData) {
                 // use the previously data - set in preSetData()
-                $event->setData($this->previousData);
+
+                $data['filename'] = 'poep';
+                $data['hash'] = 'hashendepoep';
+                $data[FileType::UPLOAD_FIELDNAME] = $this->previousData;
+
+                $event->setData($data);
             }
         }
     }
