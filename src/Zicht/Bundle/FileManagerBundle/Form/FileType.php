@@ -89,8 +89,8 @@ class FileType extends AbstractType
         $fm = $this->fileManager;
 
         $builder->add(self::UPLOAD_FIELDNAME, 'file');
-        $builder->add(self::HASH_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));*
-        $builder->add(self::FILENAME_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));
+        $builder->add(self::HASH_FIELDNAME, 'text', array('mapped' => false, 'read_only' => true));
+        $builder->add(self::FILENAME_FIELDNAME, 'text', array('mapped' => false, 'read_only' => true));
 
         $builder->addViewTransformer(
             new Transformer\FileTransformer(
@@ -127,10 +127,6 @@ class FileType extends AbstractType
 
         $entity = $view->vars['entity'];
         $field  = $view->vars['property'];
-
-        echo "view->vars['value']:" . PHP_EOL;
-        var_dump($view->vars['value']);
-        echo "----";
 
         if($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
 
