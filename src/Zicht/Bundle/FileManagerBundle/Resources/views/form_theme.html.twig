@@ -10,14 +10,26 @@
                 {% endif %}
             </a>
         </p>
-
-        {# TODO: we need to format the fields - so we can inject other fields like the message below or the delete-checkbox #}
-        {{ block('form_widget_compound') }}
-        <p><small>{{ "Selecting a file will replace the current file"|trans }}</small></p>
-    {% else %}
-        {{ block('form_widget_compound') }}
     {% endif %}
 
-    {#{{ dump(_context) }}#}
+    {% spaceless %}
+        <div {{ block('widget_container_attributes') }}>
+            {% if form.parent is empty %}
+                {{ form_errors(form) }}
+            {% endif %}
 
+            {{ form_row(form.upload_file) }}
+            {{ form_row(form.hash) }}
+            {{ form_row(form.filename) }}
+
+            {% if file_url is defined %}
+                {{ form_row(form.remove) }}
+                <p><small>{{ "Selecting a file will replace the current file"|trans }}</small></p>
+            {% else %}
+                {% do form.remove.setRendered %} {# not sure there is a better way to do this #}
+            {% endif %}
+
+            {{ form_rest(form) }}
+        </div>
+    {% endspaceless %}
 {% endblock %}
