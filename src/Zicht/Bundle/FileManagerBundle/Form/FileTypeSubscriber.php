@@ -80,69 +80,65 @@ class FileTypeSubscriber implements EventSubscriberInterface
     {
         $data = $event->getData();
         
-        /** @var Form $form */
-        $form = $event->getForm();
-
         if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
 
             /** @var UploadedFile $uploadedFile */
             $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
 
-            $purgatoryFileManager = clone $this->fileManager;
-            $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
+            $purgatoryFileManager = $this->getPurgatoryFileManager();
 
             $path = $purgatoryFileManager->prepare($uploadedFile, $this->entity, $this->field);
             $purgatoryFileManager->save($uploadedFile, $path);
 
-            $data[FileType::FILENAME_FIELDNAME] = $uploadedFile->getBasename();
-            $data[FileType::HASH_FIELDNAME] = PurgatoryHelper::makeHash($event->getForm()->getPropertyPath(), $data[FileType::FILENAME_FIELDNAME]);
-
-            $data[FileType::UPLOAD_FIELDNAME] = new File($path);
-
-            var_dump($path);
-
+            $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
             $event->setData($data);
+        }
+        else { // no file was uploaded
 
-        } else {
-//            // no file was uploaded
-//
-//            var_dump($form);
-//
-//            $hash = $form->get('hash')->getData();
-//            $filename = $form->get('filename')->getData();
-//
-//            var_dump($hash);
-//            var_dump($filename);
-//
-//            var_dump($data);
-//            exit;
-//
-//            // check if there was a purgatory file (and the file is not tampered with)
-//            if (!empty($hash)
-//                && !empty($filename)
-//                && PurgatoryHelper::makeHash($form->getPropertyPath(), $filename)
-//                    === $hash
-//            ) {
-//                $purgatoryFileManager = clone $this->fileManager;
-//                $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
-//
-//                $filePath = $purgatoryFileManager->getFilePath(
-//                    $this->entity,
-//                    $this->field,
-//                    $filename
-//                );
-//
-//                $data['filename'] = 'poep';
-//                $data['hash'] = 'hashendepoep';
-//                $data[FileType::UPLOAD_FIELDNAME] = new File($filePath);
-//
-//                $event->setData($data);
-//            } elseif (null !== $this->previousData) {
+            $hash = $data[FileType::HASH_FIELDNAME];
+            $filename = $data[FileType::FILENAME_FIELDNAME];
+
+            // check if there was a purgatory file (and the file is not tampered with)
+            if (!empty($hash) && !empty($filename)
+                && PurgatoryHelper::makeHash($event->getForm()->getPropertyPath(), $filename) === $hash
+            ) {
+                $path = $this->getPurgatoryFileManager()->getFilePath(
+                    $this->entity,
+                    $this->field,
+                    $filename
+                );
+
+                $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
+                $event->setData($data);
+            }
+            elseif (null !== $this->previousData) {
 
                 // use the previously data - set in preSetData()
+
+                unset($data[FileType::HASH_FIELDNAME]);
+                unset($data[FileType::FILENAME_FIELDNAME]);
+
                 $data[FileType::UPLOAD_FIELDNAME] = $this->previousData;
                 $event->setData($data);
-//            }
+            }
         }
+    }
+
+    private function getPurgatoryFileManager()
+    {
+        $purgatoryFileManager = clone $this->fileManager;
+        $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
+
+        return $purgatoryFileManager;
+    }
+
+    private function prepareData(&$data, $path, $propertyPath)
+    {
+        $file = new File($path);
+
+        $data[FileType::FILENAME_FIELDNAME] = $file->getBasename();
+        $data[FileType::HASH_FIELDNAME] = PurgatoryHelper::makeHash($propertyPath, $data[FileType::FILENAME_FIELDNAME]);
+
+        $data[FileType::UPLOAD_FIELDNAME] = $file;
     }
 }

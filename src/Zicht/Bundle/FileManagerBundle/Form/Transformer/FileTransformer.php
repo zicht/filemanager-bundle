@@ -66,8 +66,6 @@ class FileTransformer implements DataTransformerInterface
         try {
             return array(
                 FileType::UPLOAD_FIELDNAME => new File(call_user_func($this->callback, $value))
-//                FileType::HASH_FIELDNAME => '',
-//                FileType::FILENAME_FIELDNAME => ''
             );
 
         } catch (FileNotFoundException $e) {
