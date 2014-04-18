@@ -130,12 +130,13 @@ class FileType extends AbstractType
 
         echo "view->vars['value']:" . PHP_EOL;
         var_dump($view->vars['value']);
+        echo "----";
 
         if($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
 
             $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
 
-        } //else {
+        } else {
 //            $data = $form->getData();
 //
 //            if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof File) {
@@ -157,7 +158,7 @@ class FileType extends AbstractType
 //            $hashForm->add('filename', 'text', array('read_only' => true, 'data' => 'filename-123    ', 'mapped' => false));
 //
 //            $view->children['hashForm'] = $hashForm->createView($view);
-//        }
+        }
     }
 
     /**
@@ -172,8 +173,7 @@ class FileType extends AbstractType
 
     public function getParent()
     {
-        //default is 'form' - so no need to overwrite it
-        //but overwritten to express that this is done on purpose
+        //default is 'form' - but overwritten to express that this is done on purpose
         return parent::getParent();
     }
 }
