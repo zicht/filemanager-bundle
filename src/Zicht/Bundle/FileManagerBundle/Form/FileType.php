@@ -44,7 +44,8 @@ class FileType extends AbstractType
             array(
                 'entity' => null,
                 'property' => null,
-                'show_current_file' => true
+                'show_current_file' => true,
+                'show_remove' => true
             )
         );
     }
@@ -90,6 +91,7 @@ class FileType extends AbstractType
         $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
+        $view->vars['show_remove']= $form->getConfig()->getOption('show_remove');
         $view->vars['multipart'] = true;
 
         $entity = $view->vars['entity'];

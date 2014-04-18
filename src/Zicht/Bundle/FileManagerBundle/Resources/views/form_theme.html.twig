@@ -23,12 +23,13 @@
             {{ form_row(form.filename) }}
 
             {% if file_url is defined %}
-                {{ form_row(form.remove) }}
+                {% if show_remove %}
+                    {{ form_row(form.remove) }}
+                {% endif %}
                 <p><small>{{ "Selecting a file will replace the current file"|trans }}</small></p>
-            {% else %}
-                {% do form.remove.setRendered %} {# not sure there is a better way to do this #}
             {% endif %}
 
+            {% do form.remove.setRendered %} {# not sure there is a better way to do this #}
             {{ form_rest(form) }}
         </div>
     {% endspaceless %}
