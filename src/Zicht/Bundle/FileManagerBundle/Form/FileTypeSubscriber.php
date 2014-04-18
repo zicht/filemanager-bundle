@@ -78,12 +78,12 @@ class FileTypeSubscriber implements EventSubscriberInterface
      */
     public function preBind(FormEvent $event)
     {
-//        $data = $event->getData();
-//
-//        /** @var Form $form */
-//        $form = $event->getForm();
-//
-//        if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
+        $data = $event->getData();
+        
+        /** @var Form $form */
+        $form = $event->getForm();
+
+        if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
 //
 //            /** @var UploadedFile $uploadedFile */
 //            $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
@@ -103,7 +103,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
 //            $event->setData($data);
 ////            $form->getParent()->get('singlePhoto')->setData(new File($path));
 //
-//        } else {
+        } else {
 //            // no file was uploaded
 //
 //            var_dump($form);
@@ -138,14 +138,11 @@ class FileTypeSubscriber implements EventSubscriberInterface
 //
 //                $event->setData($data);
 //            } elseif (null !== $this->previousData) {
-//                // use the previously data - set in preSetData()
-//
-//                $data['filename'] = 'poep';
-//                $data['hash'] = 'hashendepoep';
-//                $data[FileType::UPLOAD_FIELDNAME] = $this->previousData;
-//
-//                $event->setData($data);
+
+                // use the previously data - set in preSetData()
+                $data[FileType::UPLOAD_FIELDNAME] = $this->previousData;
+                $event->setData($data);
 //            }
-//        }
+        }
     }
 }
