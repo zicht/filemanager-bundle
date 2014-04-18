@@ -16,14 +16,11 @@ namespace Zicht\Bundle\FileManagerBundle\Helper;
  */
 class PurgatoryHelper
 {
-    public static function makeHash($entity, $field, $fileName)
+    const SUPER_SECRET_SHIZZLE = 'ThisIsASuperSecretKeyUsedForTheHashAndIAmAAAAWSommeee';
+
+    public static function makeHash($propertyPath, $fileName)
     {
         //TODO, make better hash ^^
-        return md5($entity . $field . $fileName);
+        return md5($propertyPath . $fileName . PurgatoryHelper::SUPER_SECRET_SHIZZLE);
     }
-
-    public static function makePostFix($entity, $field)
-    {
-        return md5($entity . $field);
-    }
-} 
+}

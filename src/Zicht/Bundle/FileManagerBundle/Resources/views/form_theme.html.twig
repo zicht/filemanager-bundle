@@ -1,4 +1,5 @@
 {% block zicht_file_widget %}
+
     {% if file_url is defined and show_current_file %}
         <p>
             <a href="{{ asset(file_url) }}">
@@ -9,16 +10,27 @@
                 {% endif %}
             </a>
         </p>
-
-        {% if purgatory_file_filename is defined  %}
-            <input name='purgatory_file_filename_{{ purgatory_field_postfix }}'  type='hidden' class='hidden' value='{{ purgatory_file_filename }}'>
-            <input name='purgatory_file_hash_{{ purgatory_field_postfix }}' type='hidden' class='hidden' value='{{ purgatory_file_hash }}'>
-        {% endif %}
-
-
-        {{ block('form_widget_simple') }}
-        <p><small>{{ "Selecting a file will replace the current file"|trans }}</small></p>
-    {% else %}
-        {{ block('form_widget_simple') }}
     {% endif %}
+
+    {% spaceless %}
+        <div {{ block('widget_container_attributes') }}>
+            {% if form.parent is empty %}
+                {{ form_errors(form) }}
+            {% endif %}
+
+            {{ form_row(form.upload_file) }}
+            {{ form_row(form.hash) }}
+            {{ form_row(form.filename) }}
+
+            {% if file_url is defined %}
+                {% if show_remove %}
+                    {{ form_row(form.remove) }}
+                {% endif %}
+                <p><small>{{ "Selecting a file will replace the current file"|trans }}</small></p>
+            {% endif %}
+
+            {% do form.remove.setRendered %} {# not sure there is a better way to do this #}
+            {{ form_rest(form) }}
+        </div>
+    {% endspaceless %}
 {% endblock %}
