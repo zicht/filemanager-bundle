@@ -137,27 +137,17 @@ class FileType extends AbstractType
             $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
 
         } else {
-//            $data = $form->getData();
-//
-//            if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof File) {
-//                $purgatoryFileManager = clone $this->fileManager;
-//                $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
-//
-//                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($entity, $field, $data[FileType::UPLOAD_FIELDNAME]);
-//            }
-////
-//            $view->vars['purgatory_field_postfix'] = PurgatoryHelper::makePostFix($entity, $field);
-//            $view->vars['purgatory_file_filename'] = $form->getData()->getBaseName();
-//            $view->vars['purgatory_file_hash'] = PurgatoryHelper::makeHash($entity, $field, $view->vars['purgatory_file_filename']);
-////
-////                /** @var FormFactoryInterface $factory */
-//            $factory = $form->getConfig()->getAttribute('factory');
-//
-//            $hashForm = $factory->create();
-//            $hashForm->add('hash', 'text', array('read_only' => true, 'data' => 'hash-1-2-3', 'mapped' => false));
-//            $hashForm->add('filename', 'text', array('read_only' => true, 'data' => 'filename-123    ', 'mapped' => false));
-//
-//            $view->children['hashForm'] = $hashForm->createView($view);
+            $formData = $form->getData();
+
+            //since the hash and filename aren't mapped, they are not in the form->getData
+            //they can be accessed using $form->get('hash')->getData() or $form->get('filename')->getData()
+
+            if (null !== $formData && $formData instanceof File) {
+                $purgatoryFileManager = clone $this->fileManager;
+                $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
+
+                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($entity, $field, $formData);
+            }
         }
     }
 

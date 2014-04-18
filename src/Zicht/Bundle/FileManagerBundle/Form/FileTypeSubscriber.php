@@ -84,25 +84,25 @@ class FileTypeSubscriber implements EventSubscriberInterface
         $form = $event->getForm();
 
         if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
-//
-//            /** @var UploadedFile $uploadedFile */
-//            $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
-//
-//            $purgatoryFileManager = clone $this->fileManager;
-//            $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
-//
-//            $path = $purgatoryFileManager->prepare($uploadedFile, $this->entity, $this->field);
-//            $purgatoryFileManager->save($uploadedFile, $path);
-//
-//
-//            $data[FileType::FILENAME_FIELDNAME] = $uploadedFile->getBasename();
-//            $data[FileType::HASH_FIELDNAME] = PurgatoryHelper::makeHash($event->getForm()->getPropertyPath(), $data[FileType::FILENAME_FIELDNAME]);
-//
-//            $data[FileType::UPLOAD_FIELDNAME] = new File($path);
-//
-//            $event->setData($data);
-////            $form->getParent()->get('singlePhoto')->setData(new File($path));
-//
+
+            /** @var UploadedFile $uploadedFile */
+            $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
+
+            $purgatoryFileManager = clone $this->fileManager;
+            $purgatoryFileManager->setRoot($purgatoryFileManager->getRoot() . '/purgatory');
+
+            $path = $purgatoryFileManager->prepare($uploadedFile, $this->entity, $this->field);
+            $purgatoryFileManager->save($uploadedFile, $path);
+
+            $data[FileType::FILENAME_FIELDNAME] = $uploadedFile->getBasename();
+            $data[FileType::HASH_FIELDNAME] = PurgatoryHelper::makeHash($event->getForm()->getPropertyPath(), $data[FileType::FILENAME_FIELDNAME]);
+
+            $data[FileType::UPLOAD_FIELDNAME] = new File($path);
+
+            var_dump($path);
+
+            $event->setData($data);
+
         } else {
 //            // no file was uploaded
 //

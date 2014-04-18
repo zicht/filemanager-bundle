@@ -30,6 +30,11 @@ class FileTransformer implements DataTransformerInterface
     /**
      * @{inheritDoc}
      */
+
+    /**
+     * Transforms File -> string
+     */
+
     public function reverseTransform($value)
     {
         if (null === $value) {
@@ -47,6 +52,11 @@ class FileTransformer implements DataTransformerInterface
     /**
      * @{inheritDoc}
      */
+
+    /**
+     * Transforms string -> File
+     */
+
     public function transform($value)
     {
         if(is_array($value)) {
