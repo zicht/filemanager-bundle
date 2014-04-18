@@ -18,34 +18,38 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 
-class MyDataTransformer implements DataTransformerInterface
-{
-    public function transform($value)
-    {
-        if (null === $value)
-            return;
-
-        if ($value instanceof \File)
-            return array(
-                'upload_file' => 'uploaded file',
-                'hash' => '1234kjsdfjkv23',
-                'filename' => 'filenamesk'
-            );
-
-        return null;
-    }
-
-    public function reverseTransform($value)
-    {
-        if (null === $value)
-            return null;
-
-        if (is_array($value) && array_key_exists('upload_file', $value) && array_key_exists('hash', $value))
-            return $value['upload_file'] . 'reverse-transformed';
-
-        return null;
-    }
-}
+//class MyDataTransformer implements DataTransformerInterface
+//{
+//    public function transform($value)
+//    {
+//        if (null === $value)
+//            return;
+//
+//        if (is_string($value)) {
+////        if ($value instanceof File)
+//            return array(
+//                FileType::UPLOAD_FIELDNAME => $value . '-transformed',
+////                FileType::HASH_FIELDNAME => '',
+////                FileType::FILENAME_FIELDNAME => ''
+//            );
+//        }
+//
+//        return null;
+//    }
+//
+//    public function reverseTransform($value)
+//    {
+//        if (null === $value) {
+//            return null;
+//        }
+//
+//        if (is_array($value) && array_key_exists(FileType::UPLOAD_FIELDNAME, $value)) {
+//            return $value[FileType::UPLOAD_FIELDNAME] . 'reverse-transformed';
+//        }
+//
+//        return null;
+//    }
+//}
 
 class FileType extends AbstractType
 {
@@ -70,6 +74,7 @@ class FileType extends AbstractType
     {
         $resolver->setDefaults(
             array(
+//                'data_class' => null,
                 'entity' => null,
                 'property' => null,
                 'show_current_file' => true
@@ -83,15 +88,21 @@ class FileType extends AbstractType
 
         $fm = $this->fileManager;
 
-//        $builder->add(self::UPLOAD_FIELDNAME, 'text');
-        $builder->add('upload_file', 'text')
-                ->add('hash', 'text')
-                ->add('filename', 'text')
-                ->addViewTransformer(new MyDataTransformer()
+        $builder->add(self::UPLOAD_FIELDNAME, 'file');
+        $builder->add(self::HASH_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));*
+        $builder->add(self::FILENAME_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));
+
+        $builder->addViewTransformer(
+            new Transformer\FileTransformer(
+                function($value) use($fm, $builder) {
+                    return $fm->getFilePath(
+                        $builder->getAttribute('entity'),
+                        $builder->getAttribute('property'),
+                        $value
+                    );
+                }
+            )
         );
-//        $builder->add(self::HASH_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));*
-//        $builder->add(self::FILENAME_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));
-//
 
 //      TODO: show yes/no when option is set / or not
 //      $builder->add('remove', 'checkbox', array('label' => 'You wanna remove?'));
@@ -109,19 +120,22 @@ class FileType extends AbstractType
 
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
-//        $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
-//        $view->vars['property'] = $form->getConfig()->getAttribute('property');
-//        $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
-//        $view->vars['multipart'] = true;
-//
-//        $entity = $view->vars['entity'];
-//        $field  = $view->vars['property'];
-//
-//        if($view->vars['value'] && is_string($view->vars['value'])) {
-//
-//            $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value']);
-//
-//        } else {
+        $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
+        $view->vars['property'] = $form->getConfig()->getAttribute('property');
+        $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
+        $view->vars['multipart'] = true;
+
+        $entity = $view->vars['entity'];
+        $field  = $view->vars['property'];
+
+        echo "view->vars['value']:" . PHP_EOL;
+        var_dump($view->vars['value']);
+
+        if($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
+
+            $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
+
+        } //else {
 //            $data = $form->getData();
 //
 //            if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof File) {
@@ -130,12 +144,12 @@ class FileType extends AbstractType
 //
 //                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($entity, $field, $data[FileType::UPLOAD_FIELDNAME]);
 //            }
-
+////
 //            $view->vars['purgatory_field_postfix'] = PurgatoryHelper::makePostFix($entity, $field);
 //            $view->vars['purgatory_file_filename'] = $form->getData()->getBaseName();
 //            $view->vars['purgatory_file_hash'] = PurgatoryHelper::makeHash($entity, $field, $view->vars['purgatory_file_filename']);
-
-                /** @var FormFactoryInterface $factory */
+////
+////                /** @var FormFactoryInterface $factory */
 //            $factory = $form->getConfig()->getAttribute('factory');
 //
 //            $hashForm = $factory->create();
