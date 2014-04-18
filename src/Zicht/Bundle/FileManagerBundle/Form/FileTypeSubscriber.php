@@ -79,47 +79,52 @@ class FileTypeSubscriber implements EventSubscriberInterface
     public function preBind(FormEvent $event)
     {
         $data = $event->getData();
-        
-        if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
 
-            /** @var UploadedFile $uploadedFile */
-            $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
-
-            $purgatoryFileManager = $this->getPurgatoryFileManager();
-
-            $path = $purgatoryFileManager->prepare($uploadedFile, $this->entity, $this->field);
-            $purgatoryFileManager->save($uploadedFile, $path);
-
-            $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
-            $event->setData($data);
+        if(isset($data[FileType::REMOVE_FIELDNAME]) &&  $data[FileType::REMOVE_FIELDNAME] === '1') {
+            $event->setData(null);
         }
-        else { // no file was uploaded
+        else {
+            if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
 
-            $hash = $data[FileType::HASH_FIELDNAME];
-            $filename = $data[FileType::FILENAME_FIELDNAME];
+                /** @var UploadedFile $uploadedFile */
+                $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
 
-            // check if there was a purgatory file (and the file is not tampered with)
-            if (!empty($hash) && !empty($filename)
-                && PurgatoryHelper::makeHash($event->getForm()->getPropertyPath(), $filename) === $hash
-            ) {
-                $path = $this->getPurgatoryFileManager()->getFilePath(
-                    $this->entity,
-                    $this->field,
-                    $filename
-                );
+                $purgatoryFileManager = $this->getPurgatoryFileManager();
+
+                $path = $purgatoryFileManager->prepare($uploadedFile, $this->entity, $this->field);
+                $purgatoryFileManager->save($uploadedFile, $path);
 
                 $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
                 $event->setData($data);
             }
-            elseif (null !== $this->previousData) {
+            else { // no file was uploaded
 
-                // use the previously data - set in preSetData()
+                $hash = $data[FileType::HASH_FIELDNAME];
+                $filename = $data[FileType::FILENAME_FIELDNAME];
 
-                unset($data[FileType::HASH_FIELDNAME]);
-                unset($data[FileType::FILENAME_FIELDNAME]);
+                // check if there was a purgatory file (and the file is not tampered with)
+                if (!empty($hash) && !empty($filename)
+                    && PurgatoryHelper::makeHash($event->getForm()->getPropertyPath(), $filename) === $hash
+                ) {
+                    $path = $this->getPurgatoryFileManager()->getFilePath(
+                        $this->entity,
+                        $this->field,
+                        $filename
+                    );
 
-                $data[FileType::UPLOAD_FIELDNAME] = $this->previousData;
-                $event->setData($data);
+                    $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
+                    $event->setData($data);
+                }
+                elseif (null !== $this->previousData) {
+
+                    // use the previously data - set in preSetData()
+
+                    unset($data[FileType::HASH_FIELDNAME]);
+                    unset($data[FileType::FILENAME_FIELDNAME]);
+
+                    $data[FileType::UPLOAD_FIELDNAME] = $this->previousData;
+                    $event->setData($data);
+                }
             }
         }
     }

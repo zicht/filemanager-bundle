@@ -18,44 +18,12 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 
-//class MyDataTransformer implements DataTransformerInterface
-//{
-//    public function transform($value)
-//    {
-//        if (null === $value)
-//            return;
-//
-//        if (is_string($value)) {
-////        if ($value instanceof File)
-//            return array(
-//                FileType::UPLOAD_FIELDNAME => $value . '-transformed',
-////                FileType::HASH_FIELDNAME => '',
-////                FileType::FILENAME_FIELDNAME => ''
-//            );
-//        }
-//
-//        return null;
-//    }
-//
-//    public function reverseTransform($value)
-//    {
-//        if (null === $value) {
-//            return null;
-//        }
-//
-//        if (is_array($value) && array_key_exists(FileType::UPLOAD_FIELDNAME, $value)) {
-//            return $value[FileType::UPLOAD_FIELDNAME] . 'reverse-transformed';
-//        }
-//
-//        return null;
-//    }
-//}
-
 class FileType extends AbstractType
 {
     const UPLOAD_FIELDNAME   = 'upload_file';
     const HASH_FIELDNAME     = 'hash';
     const FILENAME_FIELDNAME = 'filename';
+    const REMOVE_FIELDNAME   = 'remove';
 
     /**
      * Constructor.
@@ -74,7 +42,6 @@ class FileType extends AbstractType
     {
         $resolver->setDefaults(
             array(
-//                'data_class' => null,
                 'entity' => null,
                 'property' => null,
                 'show_current_file' => true
@@ -89,8 +56,11 @@ class FileType extends AbstractType
         $fm = $this->fileManager;
 
         $builder->add(self::UPLOAD_FIELDNAME, 'file');
-        $builder->add(self::HASH_FIELDNAME, 'text', array('mapped' => false, 'read_only' => true));
-        $builder->add(self::FILENAME_FIELDNAME, 'text', array('mapped' => false, 'read_only' => true));
+        $builder->add(self::HASH_FIELDNAME, 'hidden', array('mapped' => false, 'read_only' => true));
+        $builder->add(self::FILENAME_FIELDNAME, 'hidden', array('mapped' => false, 'read_only' => true));
+
+        //TODO: show yes/no when option is set / or not
+        $builder->add(self::REMOVE_FIELDNAME, 'checkbox', array('mapped' => false, 'label' => 'You wanna remove?'));
 
         $builder->addViewTransformer(
             new Transformer\FileTransformer(
@@ -103,9 +73,6 @@ class FileType extends AbstractType
                 }
             )
         );
-
-//      TODO: show yes/no when option is set / or not
-//      $builder->add('remove', 'checkbox', array('label' => 'You wanna remove?'));
 
         $builder->setAttribute('entity', $builder->getParent()->getDataClass());
         $builder->setAttribute('property', $builder->getName());

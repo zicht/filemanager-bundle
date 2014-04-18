@@ -1,9 +1,5 @@
 {% block zicht_file_widget %}
 
-    {% if file_url is defined %}
-        file_url = {{ dump(file_url) }}
-    {% endif %}
-
     {% if file_url is defined and show_current_file %}
         <p>
             <a href="{{ asset(file_url) }}">
@@ -17,7 +13,6 @@
 
         {# TODO: we need to format the fields - so we can inject other fields like the message below or the delete-checkbox #}
         {{ block('form_widget_compound') }}
-
         <p><small>{{ "Selecting a file will replace the current file"|trans }}</small></p>
     {% else %}
         {{ block('form_widget_compound') }}
