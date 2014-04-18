@@ -7,6 +7,8 @@
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -15,6 +17,35 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
+
+class MyDataTransformer implements DataTransformerInterface
+{
+    public function transform($value)
+    {
+        if (null === $value)
+            return;
+
+        if ($value instanceof \File)
+            return array(
+                'upload_file' => 'uploaded file',
+                'hash' => '1234kjsdfjkv23',
+                'filename' => 'filenamesk'
+            );
+
+        return null;
+    }
+
+    public function reverseTransform($value)
+    {
+        if (null === $value)
+            return null;
+
+        if (is_array($value) && array_key_exists('upload_file', $value) && array_key_exists('hash', $value))
+            return $value['upload_file'] . 'reverse-transformed';
+
+        return null;
+    }
+}
 
 class FileType extends AbstractType
 {
@@ -50,14 +81,21 @@ class FileType extends AbstractType
     {
         parent::buildForm($builder, $options);
 
-        $builder->add(self::UPLOAD_FIELDNAME, 'file');
-        $builder->add(self::HASH_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));*
-        $builder->add(self::FILENAME_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));
+        $fm = $this->fileManager;
+
+//        $builder->add(self::UPLOAD_FIELDNAME, 'text');
+        $builder->add('upload_file', 'text')
+                ->add('hash', 'text')
+                ->add('filename', 'text')
+                ->addViewTransformer(new MyDataTransformer()
+        );
+//        $builder->add(self::HASH_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));*
+//        $builder->add(self::FILENAME_FIELDNAME, 'text', array('mapped' => false)); //, array('read_only' => true));
+//
 
 //      TODO: show yes/no when option is set / or not
 //      $builder->add('remove', 'checkbox', array('label' => 'You wanna remove?'));
 
-        $fm = $this->fileManager;
         $builder->setAttribute('entity', $builder->getParent()->getDataClass());
         $builder->setAttribute('property', $builder->getName());
 
@@ -67,22 +105,6 @@ class FileType extends AbstractType
             $builder->getAttribute('property')
         );
         $builder->addEventSubscriber($fileTypeSubscriber);
-
-        $builder->addViewTransformer(
-            new Transformer\FileTransformer(
-                function($value) use($fm, $builder) {
-                    if(isset($value)) {
-                        return $fm->getFilePath(
-                            $builder->getAttribute('entity'),
-                            $builder->getAttribute('property'),
-                            $value[FileType::UPLOAD_FIELDNAME]
-                        );
-                    }
-
-                    return null;
-                }
-            )
-        );
     }
 
     public function finishView(FormView $view, FormInterface $form, array $options)
