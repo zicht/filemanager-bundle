@@ -60,8 +60,9 @@ class FileType extends AbstractType
         $builder->add(self::HASH_FIELDNAME, 'hidden', array('mapped' => false, 'read_only' => true));
         $builder->add(self::FILENAME_FIELDNAME, 'hidden', array('mapped' => false, 'read_only' => true));
 
-        //TODO: show yes/no when option is set / or not
-        $builder->add(self::REMOVE_FIELDNAME, 'checkbox', array('mapped' => false, 'label' => 'You wanna remove?'));
+//        if ($options['show_remove'] === true) { - TODO: this needs to be tested and needs some fixes at ZichtFileManagerBundle::form_theme.html.twig at line 25 ^^
+            $builder->add(self::REMOVE_FIELDNAME, 'checkbox', array('mapped' => false, 'label' => 'Remove this file?'));
+//        }
 
         $builder->addViewTransformer(
             new Transformer\FileTransformer(
@@ -97,10 +98,8 @@ class FileType extends AbstractType
         $entity = $view->vars['entity'];
         $field  = $view->vars['property'];
 
-        if($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
-
+        if ($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
             $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
-
         } else {
             $formData = $form->getData();
 
