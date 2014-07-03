@@ -127,7 +127,7 @@ class FileType extends AbstractType
 
     public function getParent()
     {
-        //default is 'form' - but overwritten to express that this is done on purpose
-        return parent::getParent();
+        // return 'field' fixes layout issues
+        return 'field';
     }
 }
