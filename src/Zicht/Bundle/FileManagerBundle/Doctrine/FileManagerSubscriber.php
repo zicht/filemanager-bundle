@@ -151,6 +151,11 @@ class FileManagerSubscriber implements EventSubscriber
      */
     public function scheduleForUpload($value, $entity, $field)
     {
+        if (is_string($value)) {
+            // try to locate the file on disk
+            $value = new File($this->fileManager->getFilePath($entity, $field, $value));
+        }
+
         if ($value instanceof File) {
             $path = $this->fileManager->prepare($value, $entity, $field);
             $fileName = basename($path);
