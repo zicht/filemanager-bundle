@@ -16,6 +16,7 @@ use \Symfony\Component\HttpFoundation\File\File;
 use \Symfony\Component\HttpFoundation\File\UploadedFile;
 
 use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use \Zicht\Bundle\FileManagerBundle\FixtureFile;
 
 /**
  * The subscriber that manages updates, persists and deletes of managed file properties.
@@ -153,7 +154,7 @@ class FileManagerSubscriber implements EventSubscriber
     {
         if (is_string($value)) {
             // try to locate the file on disk
-            $value = new File($this->fileManager->getFilePath($entity, $field, $value));
+            $value = new FixtureFile($this->fileManager->getFilePath($entity, $field, $value));
         }
 
         if ($value instanceof File) {
