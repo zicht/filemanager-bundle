@@ -26,7 +26,7 @@
                 {% if show_remove %}
                     {{ form_row(form.remove) }}
                 {% endif %}
-                <p><small>{{ "zicht_filemanager.remove_file_note"|trans }}</small></p>
+                <p><small>{{ "zicht_filemanager.remove_file_note"|trans({}, translation_domain) }}</small></p>
             {% endif %}
 
             {% do form.remove.setRendered %} {# not sure there is a better way to do this #}
