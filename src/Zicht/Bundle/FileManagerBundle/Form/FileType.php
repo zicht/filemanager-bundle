@@ -56,12 +56,14 @@ class FileType extends AbstractType
 
         $fm = $this->fileManager;
 
-        $builder->add(self::UPLOAD_FIELDNAME, 'file');
-        $builder->add(self::HASH_FIELDNAME, 'hidden', array('mapped' => false, 'read_only' => true));
-        $builder->add(self::FILENAME_FIELDNAME, 'hidden', array('mapped' => false, 'read_only' => true));
+        $builder
+            ->add(self::UPLOAD_FIELDNAME, 'file', array('translation_domain' => $options['translation_domain'], 'label' => 'zicht_filemanager.upload_file'))
+            ->add(self::HASH_FIELDNAME, 'hidden', array('mapped' => false, 'read_only' => true, 'translation_domain' => $options['translation_domain']))
+            ->add(self::FILENAME_FIELDNAME, 'hidden', array('mapped' => false, 'read_only' => true, 'translation_domain' => $options['translation_domain']))
+        ;
 
 //        if ($options['show_remove'] === true) { - TODO: this needs to be tested and needs some fixes at ZichtFileManagerBundle::form_theme.html.twig at line 25 ^^
-            $builder->add(self::REMOVE_FIELDNAME, 'checkbox', array('mapped' => false, 'label' => 'Remove this file?'));
+            $builder->add(self::REMOVE_FIELDNAME, 'checkbox', array('mapped' => false, 'label' => 'zicht_filemanager.remove_file', 'translation_domain' => $options['translation_domain']));
 //        }
 
         $builder->addViewTransformer(
