@@ -1,0 +1,4 @@
+zicht_filemanager:
+    remove_file:        "Bestand verwijderen"
+    remove_file_note:   "Door een nieuw bestand te selecteren wordt de bestaande vervangen"
+    upload_file:        "Bestand uploaden"
