@@ -45,7 +45,8 @@ class FileType extends AbstractType
                 'entity' => null,
                 'property' => null,
                 'show_current_file' => true,
-                'show_remove' => true
+                'show_remove' => true,
+                'translation_domain' => 'admin'
             )
         );
     }
