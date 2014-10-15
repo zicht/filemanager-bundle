@@ -256,7 +256,7 @@ class FileType extends AbstractType
             }
         }
 
-        if (in_array($extension, $this->mimeTypes)) {
+        if (array_key_exists($extension, $this->mimeTypes)) {
             return $this->mimeTypes[$extension];
         } else {
             throw new \InvalidArgumentException(sprintf('Could not determine mime type on: %s', $extension));
