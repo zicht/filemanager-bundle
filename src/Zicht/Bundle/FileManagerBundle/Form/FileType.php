@@ -21,6 +21,7 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Yaml\Yaml;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
+use Symfony\Component\HttpKernel\Kernel;
 
 class FileType extends AbstractType
 {
@@ -30,6 +31,7 @@ class FileType extends AbstractType
     const REMOVE_FIELDNAME   = 'remove';
 
     protected $mimeTypes;
+    protected $parent;
 
     /**
      * Constructor.
@@ -39,6 +41,7 @@ class FileType extends AbstractType
     public function __construct(FileManager $fileManager)
     {
         $this->fileManager = $fileManager;
+        $this->parent      = (Kernel::MINOR_VERSION <= 2) ? 'field' : 'form';
     }
 
     /**
@@ -46,6 +49,7 @@ class FileType extends AbstractType
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
+
         $resolver->setDefaults(
             array(
                 'entity'             => null,
@@ -62,8 +66,8 @@ class FileType extends AbstractType
     {
         parent::buildForm($builder, $options);
 
-        $fm = $this->fileManager;
-
+        $fm    = $this->fileManager;
+        $label = isset($options['label']) ? $options['label'] : 'zicht_filemanager.upload_file';
         $this->updateOptions($options);
 
         $builder
@@ -72,7 +76,7 @@ class FileType extends AbstractType
                 'file',
                 array(
                     'translation_domain' => $options['translation_domain'],
-                    'label'              => 'zicht_filemanager.upload_file',
+                    'label'              => $label,
                     'attr'               => array(
                         'accept' => implode(', ', $options['file_types'])
                     )
@@ -186,10 +190,12 @@ class FileType extends AbstractType
         return 'zicht_file';
     }
 
+    /**
+     * @return null|string|\Symfony\Component\Form\FormTypeInterface
+     */
     public function getParent()
     {
-        // return 'field' fixes layout issues
-        return 'field';
+        return $this->parent;
     }
 
     /**
