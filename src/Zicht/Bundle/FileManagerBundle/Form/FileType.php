@@ -141,7 +141,13 @@ class FileType extends AbstractType
             );
 
 
-        $builder->setAttribute('entity', $builder->getParent()->getDataClass());
+        if (method_exists($builder, 'getParent')) {
+            $entity = $builder->getParent()->getDataClass();
+        } else {
+            $entity = $builder->getDataClass();
+        }
+
+        $builder->setAttribute('entity', $entity);
         $builder->setAttribute('property', $builder->getName());
 
         $fileTypeSubscriber = new FileTypeSubscriber(
