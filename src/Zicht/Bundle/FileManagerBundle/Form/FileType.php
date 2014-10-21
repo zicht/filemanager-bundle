@@ -22,6 +22,7 @@ use Symfony\Component\Yaml\Yaml;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
 class FileType extends AbstractType
 {
@@ -38,10 +39,12 @@ class FileType extends AbstractType
      *
      * @param FileManager $fileManager
      */
-    public function __construct(FileManager $fileManager)
+    public function __construct(FileManager $fileManager, Translator $translator)
     {
         $this->fileManager = $fileManager;
         $this->parent      = $this->compareKernelVersion(2,3) ? 'form' : 'field';
+        $this->translator  = $translator;
+
     }
 
     /**
@@ -116,36 +119,21 @@ class FileType extends AbstractType
                 }
             )
         );
-        $self = $this;
+        $translator = $this->translator;
         $builder
             ->get(self::UPLOAD_FIELDNAME)
-            ->addEventListener(FormEvents::POST_BIND, function (FormEvent $event) use ($options, $self) {
+            ->addEventListener(FormEvents::POST_BIND, function (FormEvent $event) use ($options, $translator) {
                     /** @var \Symfony\Component\HttpFoundation\File\File $data */
                     $data = $event->getData();
                     if (!empty($data) && $data instanceof \Symfony\Component\HttpFoundation\File\File) {
                         if (null !== $mime = $data->getMimeType()) {
                             if (!in_array($mime, $options['file_types'])) {
+                                $message = $translator->trans('zicht_filemanager.wrong_type', array(
+                                    '%this_type%'     => $data->getMimeType(),
+                                    '%allowed_types%' => implode(', ', $options['file_types'])
+                                ), $options['translation_domain']);
 
-                                if ($self->compareKernelVersion(2,3)) {
-                                    $formError =  new FormError(
-                                        'zicht_filemanager.wrong_type',
-                                        null,
-                                        array(
-                                            '%this_type%'     => $data->getMimeType(),
-                                            '%allowed_types%' => implode(', ', $options['file_types'])
-                                        )
-                                    );
-                                } else {
-                                    $formError =  new FormError(
-                                        'zicht_filemanager.wrong_type',
-                                        array(
-                                            '%this_type%'     => $data->getMimeType(),
-                                            '%allowed_types%' => implode(', ', $options['file_types'])
-                                        )
-                                    );
-                                }
-
-                                $event->getForm()->addError($formError);
+                                $event->getForm()->addError(new FormError($message));
                             }
                         }
                     }
