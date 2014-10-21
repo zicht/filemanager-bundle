@@ -116,17 +116,17 @@ class FileType extends AbstractType
                 }
             )
         );
-
+        $self = $this;
         $builder
             ->get(self::UPLOAD_FIELDNAME)
-            ->addEventListener(FormEvents::POST_BIND, function (FormEvent $event) use ($options) {
+            ->addEventListener(FormEvents::POST_BIND, function (FormEvent $event) use ($options, $self) {
                     /** @var \Symfony\Component\HttpFoundation\File\File $data */
                     $data = $event->getData();
                     if (!empty($data) && $data instanceof \Symfony\Component\HttpFoundation\File\File) {
                         if (null !== $mime = $data->getMimeType()) {
                             if (!in_array($mime, $options['file_types'])) {
 
-                                if ($this->compareKernelVersion(2,3)) {
+                                if ($self->compareKernelVersion(2,3)) {
                                     $formError =  new FormError(
                                         'zicht_filemanager.wrong_type',
                                         null,
