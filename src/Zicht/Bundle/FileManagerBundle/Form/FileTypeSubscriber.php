@@ -7,6 +7,7 @@
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
 use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormError;
 use \Symfony\Component\Form\FormEvent;
 use \Symfony\Component\Form\FormEvents;
 use \Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -15,6 +16,7 @@ use \Symfony\Component\HttpFoundation\File\UploadedFile;
 use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
 /**
  * Form subscriber
@@ -22,6 +24,8 @@ use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 class FileTypeSubscriber implements EventSubscriberInterface
 {
     private $previousData;
+    private $translator;
+    private $allowedFileTypes;
 
     /**
      * Set up the subscriber
@@ -30,11 +34,13 @@ class FileTypeSubscriber implements EventSubscriberInterface
      * @param string $entity
      * @param string $field
      */
-    public function __construct(FileManager $fileManager, $entity, $field)
+    public function __construct(FileManager $fileManager, $entity, $field, Translator $translator, array $allowedFileTypes = array())
     {
-        $this->fileManager = $fileManager;
-        $this->entity      = $entity;
-        $this->field       = $field;
+        $this->fileManager      = $fileManager;
+        $this->entity           = $entity;
+        $this->field            = $field;
+        $this->translator       = $translator;
+        $this->allowedFileTypes = $allowedFileTypes;
     }
 
     /**
@@ -78,7 +84,8 @@ class FileTypeSubscriber implements EventSubscriberInterface
      */
     public function preBind(FormEvent $event)
     {
-        $data = $event->getData();
+        $data    = $event->getData();
+        $options = $event->getForm()->getConfig()->getOptions();
 
         if(isset($data[FileType::REMOVE_FIELDNAME]) &&  $data[FileType::REMOVE_FIELDNAME] === '1') {
             $event->setData(null);
@@ -88,14 +95,31 @@ class FileTypeSubscriber implements EventSubscriberInterface
 
                 /** @var UploadedFile $uploadedFile */
                 $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
+                $isValidFile  = true;
 
-                $purgatoryFileManager = $this->getPurgatoryFileManager();
+                if (!empty($this->allowedFileTypes) && null !== $mime = $uploadedFile->getMimeType()) {
+                    if (!in_array($mime, $this->allowedFileTypes)) {
+                        $isValidFile = false;
+                        $message     = $this->translator->trans('zicht_filemanager.wrong_type', array(
+                            '%this_type%'     => $mime,
+                            '%allowed_types%' => implode(', ', $this->allowedFileTypes)
+                        ), $options['translation_domain']);
 
-                $path = $purgatoryFileManager->prepare($uploadedFile, $this->entity, $this->field);
-                $purgatoryFileManager->save($uploadedFile, $path);
+                        $event->getForm()->addError(new FormError($message));
+                        /** Set back data to old so we don`t see new file */
+                        $event->setData(array(FileType::UPLOAD_FIELDNAME => $event->getForm()->getData()));
+                    }
+                }
 
-                $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
-                $event->setData($data);
+                if ($isValidFile) {
+                    $purgatoryFileManager = $this->getPurgatoryFileManager();
+
+                    $path = $purgatoryFileManager->prepare($uploadedFile, $this->entity, $this->field);
+                    $purgatoryFileManager->save($uploadedFile, $path);
+
+                    $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
+                    $event->setData($data);
+                }
             }
             else { // no file was uploaded
 

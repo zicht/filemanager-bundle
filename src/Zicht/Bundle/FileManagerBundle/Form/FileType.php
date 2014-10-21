@@ -2,7 +2,7 @@
 /**
  * @author Oskar van Velden <oskar@zicht.nl>
  * @copyright Zicht Online <http://zicht.nl>
-  */
+ */
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
@@ -69,9 +69,10 @@ class FileType extends AbstractType
     {
         parent::buildForm($builder, $options);
 
+        $allowedTypes = $this->getAllowedTypes($options);
+
         $fm    = $this->fileManager;
         $label = isset($options['label']) ? $options['label'] : 'zicht_filemanager.upload_file';
-        $this->updateOptions($options);
 
         $builder
             ->add(
@@ -81,7 +82,7 @@ class FileType extends AbstractType
                     'translation_domain' => $options['translation_domain'],
                     'label'              => $label,
                     'attr'               => array(
-                        'accept' => implode(', ', $options['file_types'])
+                        'accept' => implode(', ', $allowedTypes)
                     )
                 )
             )
@@ -105,7 +106,7 @@ class FileType extends AbstractType
         ;
 
 //        if ($options['show_remove'] === true) { - TODO: this needs to be tested and needs some fixes at ZichtFileManagerBundle::form_theme.html.twig at line 25 ^^
-            $builder->add(self::REMOVE_FIELDNAME, 'checkbox', array('mapped' => false, 'label' => 'zicht_filemanager.remove_file', 'translation_domain' => $options['translation_domain']));
+        $builder->add(self::REMOVE_FIELDNAME, 'checkbox', array('mapped' => false, 'label' => 'zicht_filemanager.remove_file', 'translation_domain' => $options['translation_domain']));
 //        }
 
         $builder->addViewTransformer(
@@ -119,26 +120,6 @@ class FileType extends AbstractType
                 }
             )
         );
-        $translator = $this->translator;
-        $builder
-            ->get(self::UPLOAD_FIELDNAME)
-            ->addEventListener(FormEvents::POST_BIND, function (FormEvent $event) use ($options, $translator) {
-                    /** @var \Symfony\Component\HttpFoundation\File\File $data */
-                    $data = $event->getData();
-                    if (!empty($data) && $data instanceof \Symfony\Component\HttpFoundation\File\File) {
-                        if (null !== $mime = $data->getMimeType()) {
-                            if (!in_array($mime, $options['file_types'])) {
-                                $message = $translator->trans('zicht_filemanager.wrong_type', array(
-                                    '%this_type%'     => $data->getMimeType(),
-                                    '%allowed_types%' => implode(', ', $options['file_types'])
-                                ), $options['translation_domain']);
-
-                                $event->getForm()->addError(new FormError($message));
-                            }
-                        }
-                    }
-                }
-            );
 
         /**
          * Compatibility for <= 2.3
@@ -155,7 +136,9 @@ class FileType extends AbstractType
         $fileTypeSubscriber = new FileTypeSubscriber(
             $fm,
             $builder->getAttribute('entity'),
-            $builder->getAttribute('property')
+            $builder->getAttribute('property'),
+            $this->translator,
+            $allowedTypes
         );
         $builder->addEventSubscriber($fileTypeSubscriber);
     }
@@ -175,7 +158,6 @@ class FileType extends AbstractType
             $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
         } else {
             $formData = $form->getData();
-
             //since the hash and filename aren't mapped, they are not in the form->getData
             //they can be accessed using $form->get('hash')->getData() or $form->get('filename')->getData()
 
@@ -211,14 +193,16 @@ class FileType extends AbstractType
      * so if only extension is given it
      * will try to determine mime type
      *
-     * @param   $options
+     * @param   array  $options
      * @return  $this;
      */
-    protected function updateOptions(&$options)
+    protected function getAllowedTypes(array $options)
     {
+        $types = null;
+
         if(isset($options['file_types'])) {
 
-            $types = &$options['file_types'];
+            $types = $options['file_types'];
             $self  = $this;
 
             if (!is_array($types)) {
@@ -233,7 +217,7 @@ class FileType extends AbstractType
             });
         }
 
-        return $this;
+        return $types;
     }
 
     /**
