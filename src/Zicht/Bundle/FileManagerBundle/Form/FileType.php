@@ -41,7 +41,7 @@ class FileType extends AbstractType
     public function __construct(FileManager $fileManager)
     {
         $this->fileManager = $fileManager;
-        $this->parent      = (Kernel::MINOR_VERSION <= 2) ? 'field' : 'form';
+        $this->parent      = $this->compareKernelVersion(2,3) ? 'form' : 'field';
     }
 
     /**
@@ -125,23 +125,43 @@ class FileType extends AbstractType
                     if (!empty($data) && $data instanceof \Symfony\Component\HttpFoundation\File\File) {
                         if (null !== $mime = $data->getMimeType()) {
                             if (!in_array($mime, $options['file_types'])) {
-                                $event->getForm()->addError(
-                                    new FormError(
+
+                                if ($this->compareKernelVersion(2,3)) {
+                                    $formError =  new FormError(
+                                        'zicht_filemanager.wrong_type',
+                                        null,
+                                        array(
+                                            '%this_type%'     => $data->getMimeType(),
+                                            '%allowed_types%' => implode(', ', $options['file_types'])
+                                        )
+                                    );
+                                } else {
+                                    $formError =  new FormError(
                                         'zicht_filemanager.wrong_type',
                                         array(
-                                            $data->getMimeType(),
-                                            implode(', ', $options['file_types'])
+                                            '%this_type%'     => $data->getMimeType(),
+                                            '%allowed_types%' => implode(', ', $options['file_types'])
                                         )
-                                    )
-                                );
+                                    );
+                                }
+
+                                $event->getForm()->addError($formError);
                             }
                         }
                     }
                 }
             );
 
+        /**
+         * Compatibility for <= 2.3
+         */
+        if (method_exists($builder, 'getParent')) {
+            $entity = $builder->getParent()->getDataClass();
+        } else {
+            $entity = $builder->getDataClass();
+        }
 
-        $builder->setAttribute('entity', $builder->getParent()->getDataClass());
+        $builder->setAttribute('entity', $entity);
         $builder->setAttribute('property', $builder->getName());
 
         $fileTypeSubscriber = new FileTypeSubscriber(
@@ -256,11 +276,28 @@ class FileType extends AbstractType
             }
         }
 
-        if (in_array($extension, $this->mimeTypes)) {
+        if (array_key_exists($extension, $this->mimeTypes)) {
             return $this->mimeTypes[$extension];
         } else {
             throw new \InvalidArgumentException(sprintf('Could not determine mime type on: %s', $extension));
         }
 
+    }
+
+    /**
+     * Check core version is bigger
+     * than given values
+     *
+     * @param $major
+     * @param $minor
+     * @return bool
+     */
+    private function compareKernelVersion($major, $minor, $release = 0)
+    {
+        return  (
+            Kernel::MAJOR_VERSION   >= $major &&
+            Kernel::MINOR_VERSION   >= $minor &&
+            Kernel::RELEASE_VERSION >= $release
+        );
     }
 }

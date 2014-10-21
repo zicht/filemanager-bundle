@@ -2,4 +2,4 @@ zicht_filemanager:
     remove_file:        "Bestand verwijderen"
     remove_file_note:   "Door een nieuw bestand te selecteren wordt de bestaande vervangen"
     upload_file:        "Bestand uploaden"
-    wrong_type:         "Het bestand type (%s) is niet toegestaan, toegestaande types: %s"
+    wrong_type:         "Het bestand type (%this_type%) is niet toegestaan, toegestaande types: %allowed_types%"
