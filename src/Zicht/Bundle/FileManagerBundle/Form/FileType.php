@@ -292,7 +292,7 @@ class FileType extends AbstractType
      * @param $minor
      * @return bool
      */
-    private function compareKernelVersion($major, $minor, $release = 0)
+    public function compareKernelVersion($major, $minor, $release = 0)
     {
         return  (
             Kernel::MAJOR_VERSION   >= $major &&
