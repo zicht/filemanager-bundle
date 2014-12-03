@@ -197,13 +197,16 @@ class FileManager {
             if ($entity) {
                 $fileName = PropertyHelper::getValue($entity, $field);
             }
-        } elseif ($fileName instanceof File) {
+        }
+
+        if ($fileName instanceof File) {
             $fileName = $fileName->getBasename();
         }
 
         if ($fileName) {
             return ltrim($this->httpRoot . '/' . $this->getRelativePath($entity, $field) . '/' . $fileName, '/');
         }
+
         return null;
     }
 
@@ -222,13 +225,16 @@ class FileManager {
             if (is_object($entity)) {
                 $fileName = PropertyHelper::getValue($entity, $field);
             }
-        } elseif ($fileName instanceof File) {
+        }
+
+        if ($fileName instanceof File) {
             $fileName = $fileName->getBasename();
         }
 
         if ($fileName) {
             return $this->getDir($entity, $field) . '/' . $fileName;
         }
+        
         return null;
     }
 
