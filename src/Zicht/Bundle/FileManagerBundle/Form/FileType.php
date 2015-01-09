@@ -119,8 +119,10 @@ class FileType extends AbstractType
                     'mapped' => false,
                     'read_only' => true,
                     'translation_domain' => $options['translation_domain'])
-            )
-            ->add(
+            );
+
+        if ($options['show_remove']) {
+            $builder->add(
                 self::REMOVE_FIELDNAME,
                 'checkbox',
                 array(
@@ -128,8 +130,8 @@ class FileType extends AbstractType
                     'label' => 'zicht_filemanager.remove_file',
                     'translation_domain' => $options['translation_domain']
                 )
-            )
-        ;
+            );
+        }
 
         $builder->addViewTransformer(new Transformer\FileTransformer(array($this, 'transformCallback')));
 
@@ -169,7 +171,6 @@ class FileType extends AbstractType
         $view->vars['entity'] = $this->entity;
         $view->vars['property'] = $this->property;
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
-        $view->vars['show_remove']= $form->getConfig()->getOption('show_remove');
         $view->vars['multipart'] = true;
 
         if ($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
@@ -204,8 +205,7 @@ class FileType extends AbstractType
      */
     public function getParent()
     {
-        //@TODO is deze filetype nog BC? Anders hoeft deze check sowieso niet meer ^^
-        return $this->compareKernelVersion(2, 3) ? 'form' : 'field';
+        return 'form';
     }
 
     /**
@@ -273,23 +273,5 @@ class FileType extends AbstractType
         } else {
             throw new \InvalidArgumentException(sprintf('Could not determine mime type on: %s', $extension));
         }
-    }
-
-    /**
-     * Check core version is bigger
-     * than given values
-     *
-     * @param string $major
-     * @param string $minor
-     * @param int $release
-     * @return bool
-     */
-    public function compareKernelVersion($major, $minor, $release = 0)
-    {
-        return  (
-            Kernel::MAJOR_VERSION   >= $major &&
-            Kernel::MINOR_VERSION   >= $minor &&
-            Kernel::RELEASE_VERSION >= $release
-        );
     }
 }
