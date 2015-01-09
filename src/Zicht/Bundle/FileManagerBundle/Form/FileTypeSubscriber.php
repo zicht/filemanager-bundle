@@ -6,20 +6,24 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
-use Symfony\Component\Form\Form;
-use Symfony\Component\Form\FormError;
+use \Symfony\Component\Form\Form;
+use \Symfony\Component\Form\FormError;
 use \Symfony\Component\Form\FormEvent;
 use \Symfony\Component\Form\FormEvents;
 use \Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use \Symfony\Component\HttpFoundation\File\File;
 use \Symfony\Component\HttpFoundation\File\UploadedFile;
 use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use \Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
 /**
  * Form subscriber
+ *
+ * This subscriber is used to keep the data - which is possibly present in the FileType (when editing an entity) - preserved.
+ * When the form is generated, the data (filename, as a string) is preserved and when the form is saved (submitted) and there is no new file uploaded, the old filename is inserted in the form again.
  */
 class FileTypeSubscriber implements EventSubscriberInterface
 {
@@ -31,13 +35,14 @@ class FileTypeSubscriber implements EventSubscriberInterface
      * Set up the subscriber
      *
      * @param \Zicht\Bundle\FileManagerBundle\FileManager\FileManager $fileManager
-     * @param string $entity
      * @param string $field
+     * @param \Symfony\Bundle\FrameworkBundle\Translation\Translator $translator
+     * @param array $allowedFileTypes
+     * @internal param string $entity
      */
-    public function __construct(FileManager $fileManager, $entity, $field, Translator $translator, array $allowedFileTypes = array())
+    public function __construct(FileManager $fileManager, $field, Translator $translator, array $allowedFileTypes = array())
     {
         $this->fileManager      = $fileManager;
-        $this->entity           = $entity;
         $this->field            = $field;
         $this->translator       = $translator;
         $this->allowedFileTypes = $allowedFileTypes;
@@ -49,31 +54,8 @@ class FileTypeSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            FormEvents::POST_SET_DATA => 'postSetData',
-            FormEvents::PRE_BIND      => 'preBind', //this did the trick - no idea (yet) why
+            FormEvents::PRE_SUBMIT    => 'preSubmit',
         );
-    }
-
-    /**
-     * Just store the previous value, so we can check it in the bind function
-     *
-     * @param FormEvent $event
-     * @return void
-     */
-    public function postSetData(FormEvent $event)
-    {
-        $data = $event->getData();
-
-        if (!is_null($data) && is_string($data) && !empty($data)) {
-
-            $path = $this->fileManager->getFilePath($this->entity, $this->field, $data);
-
-            try {
-                $this->previousData = new File($path);
-                $event->setData($this->previousData);
-            } catch (\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException $e) {
-            }
-        }
     }
 
     /**
@@ -82,16 +64,17 @@ class FileTypeSubscriber implements EventSubscriberInterface
      * @param FormEvent $event
      * @return void
      */
-    public function preBind(FormEvent $event)
+    public function preSubmit(FormEvent $event)
     {
         $data    = $event->getData();
-        $options = $event->getForm()->getConfig()->getOptions();
+        $entity = $event->getForm()->getParent()->getConfig()->getDataClass();
 
-        if(isset($data[FileType::REMOVE_FIELDNAME]) &&  $data[FileType::REMOVE_FIELDNAME] === '1') {
+        //if the remove checkbox is checked, clear the data
+        if (isset($data[FileType::REMOVE_FIELDNAME]) &&  $data[FileType::REMOVE_FIELDNAME] === '1') {
             $event->setData(null);
-        }
-        else {
-            if (null !== $data && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
+        } else {
+            //if there was a file uploaded
+            if ($data !== null && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
 
                 /** @var UploadedFile $uploadedFile */
                 $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
@@ -103,7 +86,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
                         $message     = $this->translator->trans('zicht_filemanager.wrong_type', array(
                             '%this_type%'     => $mime,
                             '%allowed_types%' => implode(', ', $this->allowedFileTypes)
-                        ), $options['translation_domain']);
+                        ), $event->getForm()->getConfig()->getOption('translation_domain'));
 
                         $event->getForm()->addError(new FormError($message));
                         /** Set back data to old so we don`t see new file */
@@ -114,14 +97,14 @@ class FileTypeSubscriber implements EventSubscriberInterface
                 if ($isValidFile) {
                     $purgatoryFileManager = $this->getPurgatoryFileManager();
 
-                    $path = $purgatoryFileManager->prepare($uploadedFile, $this->entity, $this->field);
+                    $path = $purgatoryFileManager->prepare($uploadedFile, $entity, $this->field);
                     $purgatoryFileManager->save($uploadedFile, $path);
 
                     $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
                     $event->setData($data);
                 }
-            }
-            else { // no file was uploaded
+            } else {
+                // no file was uploaded
 
                 $hash = $data[FileType::HASH_FIELDNAME];
                 $filename = $data[FileType::FILENAME_FIELDNAME];
@@ -131,28 +114,37 @@ class FileTypeSubscriber implements EventSubscriberInterface
                     && PurgatoryHelper::makeHash($event->getForm()->getPropertyPath(), $filename) === $hash
                 ) {
                     $path = $this->getPurgatoryFileManager()->getFilePath(
-                        $this->entity,
+                        $entity,
                         $this->field,
                         $filename
                     );
 
                     $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
                     $event->setData($data);
-                }
-                elseif (null !== $this->previousData) {
 
-                    // use the previously data - set in preSetData()
+                //use the previous data, so the field isn't empty
+                } elseif ($event->getForm()->getData() !== null) {
 
                     unset($data[FileType::HASH_FIELDNAME]);
                     unset($data[FileType::FILENAME_FIELDNAME]);
 
-                    $data[FileType::UPLOAD_FIELDNAME] = $this->previousData;
+                    $path = $this->fileManager->getFilePath($entity, $this->field, $event->getForm()->getData());
+
+                    try {
+                        $file = new File($path);
+                    } catch (FileNotFoundException $e) {
+                    }
+
+                    $data[FileType::UPLOAD_FIELDNAME] = $file;
                     $event->setData($data);
                 }
             }
         }
     }
 
+    /**
+     * @return FileManager
+     */
     private function getPurgatoryFileManager()
     {
         $purgatoryFileManager = clone $this->fileManager;
@@ -161,6 +153,13 @@ class FileTypeSubscriber implements EventSubscriberInterface
         return $purgatoryFileManager;
     }
 
+    /**
+     * Prepares the data before sending it to the form
+     *
+     * @param $data mixed
+     * @param $path string
+     * @param $propertyPath string
+     */
     private function prepareData(&$data, $path, $propertyPath)
     {
         $file = new File($path);

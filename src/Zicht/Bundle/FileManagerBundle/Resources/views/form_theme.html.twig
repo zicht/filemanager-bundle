@@ -19,8 +19,8 @@
             {% endif %}
 
             {{ form_row(form.upload_file) }}
-            {{ form_row(form.hash) }}
-            {{ form_row(form.filename) }}
+            {{ form_row(form.hash) }} {# hidden field #}
+            {{ form_row(form.filename) }} {# hidden field #}
 
             {% if file_url is defined %}
                 {% if show_remove %}
@@ -30,7 +30,7 @@
             {% endif %}
 
             {% do form.remove.setRendered %} {# not sure there is a better way to do this #}
-            {{ form_rest(form) }}
+            {{ form_rest(form) }}.
         </div>
     {% endspaceless %}
 {% endblock %}

@@ -8,7 +8,7 @@ namespace Zicht\Bundle\FileManagerBundle\Form\Transformer;
 use \Symfony\Component\Form\DataTransformerInterface;
 use \Symfony\Component\HttpFoundation\File\File;
 use \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
-use Zicht\Bundle\FileManagerBundle\Form\FileType;
+use \Zicht\Bundle\FileManagerBundle\Form\FileType;
 
 /**
  * File transformer for FileType fields, converts a local value into a File instance. The callback passed
@@ -28,13 +28,11 @@ class FileTransformer implements DataTransformerInterface
 
 
     /**
-     * @{inheritDoc}
+     * Transforms File -> string (to database)
+     *
+     * @param mixed $value
+     * @return mixed|null
      */
-
-    /**
-     * Transforms File -> string
-     */
-
     public function reverseTransform($value)
     {
         if (null === $value) {
@@ -48,18 +46,15 @@ class FileTransformer implements DataTransformerInterface
         return null;
     }
 
-
     /**
-     * @{inheritDoc}
+     * Transforms string (from database) -> File
+     *
+     * @param mixed $value
+     * @return array|mixed|null
      */
-
-    /**
-     * Transforms string -> File
-     */
-
     public function transform($value)
     {
-        if(is_array($value)) {
+        if (is_array($value)) {
             $value = $value[FileType::UPLOAD_FIELDNAME];
         }
 
@@ -67,7 +62,6 @@ class FileTransformer implements DataTransformerInterface
             return array(
                 FileType::UPLOAD_FIELDNAME => new File(call_user_func($this->callback, $value))
             );
-
         } catch (FileNotFoundException $e) {
             return null;
         }

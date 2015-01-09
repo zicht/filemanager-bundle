@@ -6,45 +6,57 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\DataTransformerInterface;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormView;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use Symfony\Component\Yaml\Yaml;
-use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
-use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use \Symfony\Component\Form\AbstractType;
+use \Symfony\Component\Form\CallbackTransformer;
+use \Symfony\Component\Form\DataTransformerInterface;
+use \Symfony\Component\Form\FormBuilderInterface;
+use \Symfony\Component\Form\FormError;
+use \Symfony\Component\Form\FormEvent;
+use \Symfony\Component\Form\FormEvents;
+use \Symfony\Component\Form\FormFactoryInterface;
+use \Symfony\Component\Form\FormInterface;
+use \Symfony\Component\Form\FormView;
+use \Symfony\Component\HttpFoundation\File\File;
+use \Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use \Symfony\Component\Yaml\Yaml;
+use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
+use \Symfony\Component\HttpKernel\Kernel;
+use \Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
+/**
+ * Class FileType
+ *
+ * @package Zicht\Bundle\FileManagerBundle\Form
+ */
 class FileType extends AbstractType
 {
+    /** @const the HTML-fieldname for the upload field */
     const UPLOAD_FIELDNAME   = 'upload_file';
+
+    /** @const the HTML-fieldname for the (hidden) hash field */
     const HASH_FIELDNAME     = 'hash';
+
+    /** @const the HTML-fieldname for the (hidden) filename field */
     const FILENAME_FIELDNAME = 'filename';
+
+    /** @const the HTML-fieldname for the remove checkbox field */
     const REMOVE_FIELDNAME   = 'remove';
 
     protected $mimeTypes;
-    protected $parent;
+    public $entity;
+    public $property;
 
     /**
      * Constructor.
      *
      * @param FileManager $fileManager
+     * @param \Symfony\Bundle\FrameworkBundle\Translation\Translator $translator
      */
     public function __construct(FileManager $fileManager, Translator $translator)
     {
         $this->fileManager = $fileManager;
-        $this->parent      = $this->compareKernelVersion(2,3) ? 'form' : 'field';
         $this->translator  = $translator;
-
     }
 
     /**
@@ -65,9 +77,14 @@ class FileType extends AbstractType
         );
     }
 
+    /**
+     * @{inheritDoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
+
+        $this->property = $builder->getName();
 
         $allowedTypes = $this->getAllowedTypes($options);
 
@@ -103,61 +120,63 @@ class FileType extends AbstractType
                     'read_only' => true,
                     'translation_domain' => $options['translation_domain'])
             )
+            ->add(
+                self::REMOVE_FIELDNAME,
+                'checkbox',
+                array(
+                    'mapped' => false,
+                    'label' => 'zicht_filemanager.remove_file',
+                    'translation_domain' => $options['translation_domain']
+                )
+            )
         ;
 
-//        if ($options['show_remove'] === true) { - TODO: this needs to be tested and needs some fixes at ZichtFileManagerBundle::form_theme.html.twig at line 25 ^^
-        $builder->add(self::REMOVE_FIELDNAME, 'checkbox', array('mapped' => false, 'label' => 'zicht_filemanager.remove_file', 'translation_domain' => $options['translation_domain']));
-//        }
+        $builder->addViewTransformer(new Transformer\FileTransformer(array($this, 'transformCallback')));
 
-        $builder->addViewTransformer(
-            new Transformer\FileTransformer(
-                function($value) use($fm, $builder) {
-                    return $fm->getFilePath(
-                        $builder->getAttribute('entity'),
-                        $builder->getAttribute('property'),
-                        $value
-                    );
-                }
-            )
+        $self = $this;
+        $builder->addEventListener(FormEvents::PRE_SET_DATA,
+            function (FormEvent $event) use ($self)
+            {
+                $self->entity = $event->getForm()->getParent()->getConfig()->getDataClass();
+            }
         );
-
-        /**
-         * Compatibility for <= 2.3
-         */
-        if (method_exists($builder, 'getParent')) {
-            $entity = $builder->getParent()->getDataClass();
-        } else {
-            $entity = $builder->getDataClass();
-        }
-
-        $builder->setAttribute('entity', $entity);
-        $builder->setAttribute('property', $builder->getName());
 
         $fileTypeSubscriber = new FileTypeSubscriber(
             $fm,
-            $builder->getAttribute('entity'),
-            $builder->getAttribute('property'),
+            $this->property,
             $this->translator,
             $allowedTypes
         );
         $builder->addEventSubscriber($fileTypeSubscriber);
     }
 
+    /**
+     * Callback for the FileTransformer - since we can't pass the entity in buildForm :(
+     *
+     * @param string $value
+     * @return null|string
+     */
+    public function transformCallback($value)
+    {
+        return $this->fileManager->getFilePath($this->entity, $this->property, $value);
+    }
+
+    /**
+     * @{inheritDoc}
+     */
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
-        $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
-        $view->vars['property'] = $form->getConfig()->getAttribute('property');
+        $view->vars['entity'] = $this->entity;
+        $view->vars['property'] = $this->property;
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
         $view->vars['show_remove']= $form->getConfig()->getOption('show_remove');
         $view->vars['multipart'] = true;
 
-        $entity = $view->vars['entity'];
-        $field  = $view->vars['property'];
-
         if ($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
-            $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $field, $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
+            $view->vars['file_url'] = $this->fileManager->getFileUrl($this->entity, $this->property, $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
         } else {
             $formData = $form->getData();
+
             //since the hash and filename aren't mapped, they are not in the form->getData
             //they can be accessed using $form->get('hash')->getData() or $form->get('filename')->getData()
 
@@ -165,7 +184,7 @@ class FileType extends AbstractType
                 $purgatoryFileManager = clone $this->fileManager;
                 $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
 
-                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($entity, $field, $formData);
+                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($this->entity, $this->property, $formData);
             }
         }
     }
@@ -185,7 +204,8 @@ class FileType extends AbstractType
      */
     public function getParent()
     {
-        return $this->parent;
+        //@TODO is deze filetype nog BC? Anders hoeft deze check sowieso niet meer ^^
+        return $this->compareKernelVersion(2, 3) ? 'form' : 'field';
     }
 
     /**
@@ -193,14 +213,14 @@ class FileType extends AbstractType
      * so if only extension is given it
      * will try to determine mime type
      *
-     * @param   array  $options
-     * @return  $this;
+     * @param array $options
+     * @return null | mixed;
      */
     protected function getAllowedTypes(array $options)
     {
         $types = null;
 
-        if(isset($options['file_types'])) {
+        if (isset($options['file_types'])) {
 
             $types = $options['file_types'];
             $self  = $this;
@@ -223,7 +243,7 @@ class FileType extends AbstractType
     /**
      * mime type converter for lazy loading :)
      *
-     * @param  $extension
+     * @param string $extension
      * @return string
      * @throws \InvalidArgumentException
      */
@@ -253,15 +273,15 @@ class FileType extends AbstractType
         } else {
             throw new \InvalidArgumentException(sprintf('Could not determine mime type on: %s', $extension));
         }
-
     }
 
     /**
      * Check core version is bigger
      * than given values
      *
-     * @param $major
-     * @param $minor
+     * @param string $major
+     * @param string $minor
+     * @param int $release
      * @return bool
      */
     public function compareKernelVersion($major, $minor, $release = 0)
