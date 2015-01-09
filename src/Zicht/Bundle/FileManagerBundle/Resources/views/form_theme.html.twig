@@ -18,18 +18,17 @@
                 {{ form_errors(form) }}
             {% endif %}
 
-            {{ form_row(form.upload_file) }}
-            {{ form_row(form.hash) }}
-            {{ form_row(form.filename) }}
+            {{ form_widget(form.upload_file) }}
+            {{ form_widget(form.hash) }} {# hidden field #}
+            {{ form_widget(form.filename) }} {# hidden field #}
 
             {% if file_url is defined %}
-                {% if show_remove %}
-                    {{ form_row(form.remove) }}
-                {% endif %}
                 <p><small>{{ "zicht_filemanager.remove_file_note"|trans({}, translation_domain) }}</small></p>
+                {% if form.remove is defined %}
+                    {{ form_widget(form.remove) }}<span style="margin-left:7px;">{{ form_label(form.remove) }}</span>
+                {% endif %}
             {% endif %}
 
-            {% do form.remove.setRendered %} {# not sure there is a better way to do this #}
             {{ form_rest(form) }}
         </div>
     {% endspaceless %}
