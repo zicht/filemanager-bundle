@@ -6,30 +6,39 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\DataTransformerInterface;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormView;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use Symfony\Component\Yaml\Yaml;
-use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
-use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use \Symfony\Component\Form\AbstractType;
+use \Symfony\Component\Form\CallbackTransformer;
+use \Symfony\Component\Form\DataTransformerInterface;
+use \Symfony\Component\Form\FormBuilderInterface;
+use \Symfony\Component\Form\FormError;
+use \Symfony\Component\Form\FormEvent;
+use \Symfony\Component\Form\FormEvents;
+use \Symfony\Component\Form\FormFactoryInterface;
+use \Symfony\Component\Form\FormInterface;
+use \Symfony\Component\Form\FormView;
+use \Symfony\Component\HttpFoundation\File\File;
+use \Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use \Symfony\Component\Yaml\Yaml;
+use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
+use \Symfony\Component\HttpKernel\Kernel;
+use \Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
+/**
+ * Class FileType
+ *
+ * @package Zicht\Bundle\FileManagerBundle\Form
+ */
 class FileType extends AbstractType
 {
     const UPLOAD_FIELDNAME   = 'upload_file';
     const HASH_FIELDNAME     = 'hash';
     const FILENAME_FIELDNAME = 'filename';
     const REMOVE_FIELDNAME   = 'remove';
+    const RADIO_FIELDNAME    = 'select';
+    const URL_FIELDNAME      = 'url';
+    const FILE_URL           = 'url';
+    const FILE_UPLOAD        = 'upload';
 
     protected $mimeTypes;
     protected $parent;
@@ -44,7 +53,6 @@ class FileType extends AbstractType
         $this->fileManager = $fileManager;
         $this->parent      = $this->compareKernelVersion(2,3) ? 'form' : 'field';
         $this->translator  = $translator;
-
     }
 
     /**
@@ -52,7 +60,6 @@ class FileType extends AbstractType
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
-
         $resolver->setDefaults(
             array(
                 'entity'             => null,
@@ -61,18 +68,22 @@ class FileType extends AbstractType
                 'show_remove'        => true,
                 'translation_domain' => 'admin',
                 'file_types'         => array(),
+                'allow_url'          => false,
             )
         );
     }
 
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
 
         $allowedTypes = $this->getAllowedTypes($options);
 
-        $fm    = $this->fileManager;
-        $label = isset($options['label']) ? $options['label'] : 'zicht_filemanager.upload_file';
+        $fm = $this->fileManager;
 
         $builder
             ->add(
@@ -80,10 +91,11 @@ class FileType extends AbstractType
                 'file',
                 array(
                     'translation_domain' => $options['translation_domain'],
-                    'label'              => $label,
+                    'label'              => 'zicht_filemanager.upload_label',
                     'attr'               => array(
                         'accept' => implode(', ', $allowedTypes)
-                    )
+                    ),
+                    'required' => false
                 )
             )
             ->add(
@@ -102,6 +114,30 @@ class FileType extends AbstractType
                     'mapped' => false,
                     'read_only' => true,
                     'translation_domain' => $options['translation_domain'])
+            )
+            ->add(
+                self::RADIO_FIELDNAME,
+                'choice',
+                array(
+                    'mapped' => false,
+                    'expanded' => true,
+                    'multiple' => false,
+                    'choices' => array(
+                        self::FILE_UPLOAD => self::FILE_UPLOAD,
+                        self::FILE_URL => self::FILE_URL
+                    ),
+                    'data' => 'upload',
+                )
+            )
+            ->add(
+                self::URL_FIELDNAME,
+                'text',
+                array(
+                    'mapped' => false,
+                    'label' => 'zicht_filemanager.url_label',
+                    'translation_domain' => $options['translation_domain'],
+                    'required' => false,
+                )
             )
         ;
 
@@ -143,12 +179,18 @@ class FileType extends AbstractType
         $builder->addEventSubscriber($fileTypeSubscriber);
     }
 
+    /**
+     * @param FormView $view
+     * @param FormInterface $form
+     * @param array $options
+     */
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars['entity'] = $form->getConfig()->getAttribute('entity');
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
         $view->vars['show_remove']= $form->getConfig()->getOption('show_remove');
+        $view->vars['allow_url']= $form->getConfig()->getOption('allow_url');
         $view->vars['multipart'] = true;
 
         $entity = $view->vars['entity'];
@@ -262,6 +304,7 @@ class FileType extends AbstractType
      *
      * @param $major
      * @param $minor
+     * @param $release
      * @return bool
      */
     public function compareKernelVersion($major, $minor, $release = 0)
