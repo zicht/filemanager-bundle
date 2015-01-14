@@ -6,8 +6,8 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
-use Symfony\Component\Form\Form;
-use Symfony\Component\Form\FormError;
+use \Symfony\Component\Form\Form;
+use \Symfony\Component\Form\FormError;
 use \Symfony\Component\Form\FormEvent;
 use \Symfony\Component\Form\FormEvents;
 use \Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -16,7 +16,7 @@ use \Symfony\Component\HttpFoundation\File\UploadedFile;
 use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use \Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
 /**
  * Form subscriber
@@ -87,13 +87,16 @@ class FileTypeSubscriber implements EventSubscriberInterface
         $data    = $event->getData();
         $options = $event->getForm()->getConfig()->getOptions();
 
-        if(isset($data[FileType::REMOVE_FIELDNAME]) &&  $data[FileType::REMOVE_FIELDNAME] === '1') {
+        if (isset($data[FileType::REMOVE_FIELDNAME]) &&  $data[FileType::REMOVE_FIELDNAME] === '1') {
             $event->setData(null);
         } else {
-            if (null !== $data && is_array($data)) {
+            $isUrlFile = is_array($data) && $data[FileType::RADIO_FIELDNAME] === FileType::FILE_URL && isset($data[FileType::URL_FIELDNAME]);
+            $isUploadFile = is_array($data) && $data[FileType::RADIO_FIELDNAME] === FileType::FILE_UPLOAD && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile;
+
+            if (null !== $data && is_array($data) && ($isUploadFile || $isUrlFile)) {
                 $uploadedFile = null;
 
-                if ($data[FileType::RADIO_FIELDNAME] === FileType::FILE_URL && isset($data[FileType::URL_FIELDNAME])) {
+                if ($isUrlFile) {
                     $fileurl = $data[FileType::URL_FIELDNAME];
                     $file = file_get_contents($fileurl);
                     $fileparts = explode('/', $fileurl);
@@ -102,8 +105,10 @@ class FileTypeSubscriber implements EventSubscriberInterface
                     $fp = fopen($path, 'w');
                     fwrite($fp, $file);
                     fclose($fp);
+
+//                    var_dump($fp);
                     $uploadedFile = new File($path);
-                } else if ($data[FileType::RADIO_FIELDNAME] === FileType::FILE_UPLOAD && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
+                } else if ($isUploadFile) {
                     /** @var UploadedFile $uploadedFile */
                     $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
                 }
@@ -136,7 +141,6 @@ class FileTypeSubscriber implements EventSubscriberInterface
                     }
                 }
             } else { // no file was uploaded
-
                 $hash = $data[FileType::HASH_FIELDNAME];
                 $filename = $data[FileType::FILENAME_FIELDNAME];
 
@@ -153,7 +157,6 @@ class FileTypeSubscriber implements EventSubscriberInterface
                     $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
                     $event->setData($data);
                 } else if (null !== $this->previousData) {
-
                     // use the previously data - set in preSetData()
 
                     unset($data[FileType::HASH_FIELDNAME]);
