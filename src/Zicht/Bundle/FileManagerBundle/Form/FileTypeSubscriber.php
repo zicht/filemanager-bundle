@@ -93,7 +93,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
             $isUrlFile = is_array($data) && $data[FileType::RADIO_FIELDNAME] === FileType::FILE_URL && isset($data[FileType::URL_FIELDNAME]);
             $isUploadFile = is_array($data) && $data[FileType::RADIO_FIELDNAME] === FileType::FILE_UPLOAD && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile;
 
-            if (null !== $data && is_array($data) && ($isUploadFile || $isUrlFile)) {
+            if ($isUploadFile || $isUrlFile) {
                 $uploadedFile = null;
 
                 if ($isUrlFile) {
@@ -106,7 +106,17 @@ class FileTypeSubscriber implements EventSubscriberInterface
                     fwrite($fp, $file);
                     fclose($fp);
 
-//                    var_dump($fp);
+                    // ensure file extension
+                    if (pathinfo($path, PATHINFO_EXTENSION) == '') {
+                        $imageInfo = getimagesize($path);
+                        $mime = explode('/', $imageInfo['mime']);
+                        $extension = array_pop($mime);
+                        $filename .= '.' . $extension;
+                        $oldpath = $path;
+                        $path = sys_get_temp_dir() . '/' . $filename;
+                        rename($oldpath, $path);
+                    }
+
                     $uploadedFile = new File($path);
                 } else if ($isUploadFile) {
                     /** @var UploadedFile $uploadedFile */
