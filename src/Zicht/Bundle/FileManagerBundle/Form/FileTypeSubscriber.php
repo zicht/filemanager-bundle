@@ -108,9 +108,16 @@ class FileTypeSubscriber implements EventSubscriberInterface
 
                     // ensure file extension
                     if (pathinfo($path, PATHINFO_EXTENSION) == '') {
-                        $imageInfo = getimagesize($path);
-                        $mime = explode('/', $imageInfo['mime']);
-                        $extension = array_pop($mime);
+                        // get mime type
+                        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                        $mime = finfo_file($finfo, $path);
+                        finfo_close($finfo);
+
+                        // get extension
+                        $mimeParts = explode('/', $mime);
+                        $extension = array_pop($mimeParts);
+
+                        // create new path and rename file
                         $filename .= '.' . $extension;
                         $oldpath = $path;
                         $path = sys_get_temp_dir() . '/' . $filename;
