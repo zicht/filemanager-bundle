@@ -21,9 +21,10 @@ class FileTransformer implements DataTransformerInterface
      *
      * @param callback $callback
      */
-    public function __construct($callback)
+    public function __construct($callback, $property)
     {
         $this->callback = $callback;
+        $this->property = $property;
     }
 
 
@@ -60,7 +61,7 @@ class FileTransformer implements DataTransformerInterface
 
         try {
             return array(
-                FileType::UPLOAD_FIELDNAME => new File(call_user_func($this->callback, $value))
+                FileType::UPLOAD_FIELDNAME => new File(call_user_func($this->callback, $value, $this->property))
             );
         } catch (FileNotFoundException $e) {
             return null;
