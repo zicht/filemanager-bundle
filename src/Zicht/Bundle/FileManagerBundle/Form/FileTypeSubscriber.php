@@ -137,11 +137,11 @@ class FileTypeSubscriber implements EventSubscriberInterface
 
                 try {
                     $file = new File($path);
+                    $data[FileType::UPLOAD_FIELDNAME] = $file;
+                    $event->setData($data);
                 } catch (FileNotFoundException $e) {
+                    //do nothing
                 }
-
-                $data[FileType::UPLOAD_FIELDNAME] = $file;
-                $event->setData($data);
             }
         }
     }
