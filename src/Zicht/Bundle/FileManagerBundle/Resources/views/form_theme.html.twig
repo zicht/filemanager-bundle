@@ -27,6 +27,8 @@
                 {% if form.remove is defined %}
                     {{ form_widget(form.remove) }}<span style="margin-left:7px;">{{ form_label(form.remove) }}</span>
                 {% endif %}
+            {% else %}
+                {% do form.remove.setRendered %}
             {% endif %}
 
             {{ form_rest(form) }}
