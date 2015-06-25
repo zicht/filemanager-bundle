@@ -53,12 +53,12 @@ class FileManager {
      * @param bool $noclobber
      * @return string
      */
-    public function prepare(File $file, $entity, $field, $noclobber = true)
+    public function prepare(File $file, $entity, $field, $noclobber = true, $preferredFilename = null)
     {
         $dir = $this->getDir($entity, $field);
         $i = 0;
         do {
-            $f = $this->proposeFilename($file, $i ++);
+            $f = $this->proposeFilename($file, $i ++, $preferredFilename);
             $pathname = $dir . '/' . $f;
         } while ($noclobber && $this->fs->exists($pathname));
         $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);
@@ -133,9 +133,11 @@ class FileManager {
      * @param string $suffix
      * @return mixed|string
      */
-    public function proposeFilename(File $file, $suffix)
+    public function proposeFilename(File $file, $suffix, $preferredFilename = null)
     {
-        if ($file instanceof UploadedFile) {
+        if ($preferredFilename) {
+            $fileName = $preferredFilename;
+        } elseif ($file instanceof UploadedFile) {
             $fileName = $file->getClientOriginalName();
         } else {
             $fileName = $file->getBasename();
