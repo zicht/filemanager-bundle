@@ -36,7 +36,7 @@ class FileTypeSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($events));
         $this->assertArrayHasKey(FormEvents::POST_SET_DATA, $events);
-        $this->assertArrayHasKey(FormEvents::BIND, $events);
+        $this->assertArrayHasKey(FormEvents::SUBMIT, $events);
     }
 
 
