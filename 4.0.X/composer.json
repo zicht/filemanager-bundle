@@ -1,0 +1,26 @@
+{
+    "name": "zicht/filemanager-bundle",
+    "description": "Zicht FileManagerBundle",
+    "type": "symfony-bundle",
+    "authors": [
+        {
+            "name": "Gerard van Helden",
+            "email": "gerard@zicht.nl"
+        }
+    ],
+    "require": {
+        "php": ">=5.3",
+        "symfony/symfony": ">=2.1",
+        "jms/metadata": "*",
+        "zicht/util": "*",
+        "doctrine/orm": ">=2.2.3"
+    },
+    "require-dev": {
+        "doctrine/doctrine-bundle": "1.0.*",
+        "jms/metadata": "*"
+    },
+    "autoload": {
+        "psr-0": { "": ["src/", "tests/"] }
+    },
+    "minimum-stability": "dev"
+}
