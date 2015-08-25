@@ -85,7 +85,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
 
             switch ($data[FileType::RADIO_FIELDNAME]) {
                 case FileType::FILE_URL:
-                    if (isset($data[FileType::URL_FIELDNAME])) {
+                    if (!empty($data[FileType::URL_FIELDNAME])) {
                         $fileurl = $data[FileType::URL_FIELDNAME];
                         $file = file_get_contents($fileurl);
                         $fileparts = explode('/', $fileurl);
@@ -103,21 +103,6 @@ class FileTypeSubscriber implements EventSubscriberInterface
                         $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
                     }
                     break;
-            }
-
-            if ($data[FileType::RADIO_FIELDNAME] === FileType::FILE_URL && isset($data[FileType::URL_FIELDNAME])) {
-                $fileurl = $data[FileType::URL_FIELDNAME];
-                $file = file_get_contents($fileurl);
-                $fileparts = explode('/', $fileurl);
-                $filename = array_pop($fileparts);
-                $path = sys_get_temp_dir() . '/' . $filename;
-                $fp = fopen($path, 'w');
-                fwrite($fp, $file);
-                fclose($fp);
-                $uploadedFile = new File($path);
-            } else if ($data[FileType::RADIO_FIELDNAME] === FileType::FILE_UPLOAD && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
-                /** @var UploadedFile $uploadedFile */
-                $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
             }
 
             if ($uploadedFile instanceof File) {

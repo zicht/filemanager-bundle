@@ -28,7 +28,7 @@
                     <tbody>
                     <tr>
                         <td>
-                            <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') }}"{{ form.select.vars.value[0] == true ? ' checked="checked"' : '' }}>
+                            <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') }}"{{ form.select.vars.value == constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') ? ' checked="checked"' : '' }}> </td>
                         </td>
                         <td>
                             {{ form_label(form.upload_file) }}
@@ -37,7 +37,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_URL') }}"{{ form.select.vars.value[1] == true ? ' checked="checked"' : '' }}>
+                            <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_URL') }}"{{ form.select.vars.value == constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_URL') ? ' checked="checked"' : '' }}>
                         </td>
                         <td>
                             {{ form_label(form.url) }}
