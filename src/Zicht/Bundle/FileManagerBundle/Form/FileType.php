@@ -43,6 +43,11 @@ class FileType extends AbstractType
     /** @const the HTML-fieldname for the remove checkbox field */
     const REMOVE_FIELDNAME   = 'remove';
 
+    const RADIO_FIELDNAME    = 'select';
+    const URL_FIELDNAME      = 'url';
+    const FILE_URL           = 'url';
+    const FILE_UPLOAD        = 'upload';
+
     protected $mimeTypes;
     public $entity;
 
@@ -72,6 +77,8 @@ class FileType extends AbstractType
                 'show_remove'        => true,
                 'translation_domain' => 'admin',
                 'file_types'         => array(),
+                'allow_url'          => false,
+
             )
         );
     }
@@ -116,7 +123,32 @@ class FileType extends AbstractType
                     'mapped' => false,
                     'read_only' => true,
                     'translation_domain' => $options['translation_domain'])
-            );
+            )
+            ->add(
+                self::RADIO_FIELDNAME,
+                'choice',
+                array(
+                    'mapped' => false,
+                    'expanded' => true,
+                    'multiple' => false,
+                    'choices' => array(
+                        self::FILE_UPLOAD => self::FILE_UPLOAD,
+                        self::FILE_URL => self::FILE_URL
+                    ),
+                    'data' => 'upload',
+                )
+            )
+            ->add(
+                self::URL_FIELDNAME,
+                'text',
+                array(
+                    'mapped' => false,
+                    'label' => 'zicht_filemanager.url_label',
+                    'translation_domain' => $options['translation_domain'],
+                    'required' => false,
+                )
+            )
+        ;
 
         if ($options['show_remove']) {
             $builder->add(
@@ -185,6 +217,8 @@ class FileType extends AbstractType
         $view->vars['entity'] = $this->entity;
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
+        $view->vars['show_remove']= $form->getConfig()->getOption('show_remove');
+        $view->vars['allow_url']= $form->getConfig()->getOption('allow_url');
         $view->vars['multipart'] = true;
 
         //We check if there is a value. If there is a file uploaded, the $view->vars['value'] = null, so this is only valid when the value comes from the database.
