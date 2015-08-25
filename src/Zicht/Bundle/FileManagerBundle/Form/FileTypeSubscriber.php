@@ -74,39 +74,81 @@ class FileTypeSubscriber implements EventSubscriberInterface
             $event->setData(null);
             $data = null;
             return;
+        } else {
+
         }
 
         //if there was a file uploaded
-        if ($data !== null && is_array($data) && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
+        if ($data !== null && is_array($data)) {
 
-            /** @var UploadedFile $uploadedFile */
-            $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
-            $isValidFile  = true;
+            $uploadedFile = null;
 
-            //check if the file is allowed by the MIME-types constraint given
-            if (!empty($this->allowedFileTypes) && null !== $mime = $uploadedFile->getMimeType()) {
-                if (!in_array($mime, $this->allowedFileTypes)) {
-                    $isValidFile = false;
-                    $message     = $this->translator->trans('zicht_filemanager.wrong_type', array(
-                        '%this_type%'     => $mime,
-                        '%allowed_types%' => implode(', ', $this->allowedFileTypes)
-                    ), $event->getForm()->getConfig()->getOption('translation_domain'));
+            switch ($data[FileType::RADIO_FIELDNAME]) {
+                case FileType::FILE_URL:
+                    if (isset($data[FileType::URL_FIELDNAME])) {
+                        $fileurl = $data[FileType::URL_FIELDNAME];
+                        $file = file_get_contents($fileurl);
+                        $fileparts = explode('/', $fileurl);
+                        $filename = array_pop($fileparts);
+                        $path = sys_get_temp_dir() . '/' . $filename;
+                        $fp = fopen($path, 'w');
+                        fwrite($fp, $file);
+                        fclose($fp);
+                        $uploadedFile = new File($path);
+                    }
+                    break;
+                case  FileType::FILE_UPLOAD:
+                    if (isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
+                        /** @var UploadedFile $uploadedFile */
+                        $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
+                    }
+                    break;
+            }
 
-                    $event->getForm()->addError(new FormError($message));
-                    /** Set back data to old so we don`t see new file */
-                    $event->setData(array(FileType::UPLOAD_FIELDNAME => $event->getForm()->getData()));
+            if ($data[FileType::RADIO_FIELDNAME] === FileType::FILE_URL && isset($data[FileType::URL_FIELDNAME])) {
+                $fileurl = $data[FileType::URL_FIELDNAME];
+                $file = file_get_contents($fileurl);
+                $fileparts = explode('/', $fileurl);
+                $filename = array_pop($fileparts);
+                $path = sys_get_temp_dir() . '/' . $filename;
+                $fp = fopen($path, 'w');
+                fwrite($fp, $file);
+                fclose($fp);
+                $uploadedFile = new File($path);
+            } else if ($data[FileType::RADIO_FIELDNAME] === FileType::FILE_UPLOAD && isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
+                /** @var UploadedFile $uploadedFile */
+                $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
+            }
+
+            if ($uploadedFile instanceof File) {
+                $isValidFile  = true;
+                //check if the file is allowed by the MIME-types constraint given
+                if (!empty($this->allowedFileTypes) && null !== $mime = $uploadedFile->getMimeType()) {
+                    if (!in_array($mime, $this->allowedFileTypes)) {
+                        $isValidFile = false;
+                        $message     = $this->translator->trans('zicht_filemanager.wrong_type', array(
+                            '%this_type%'     => $mime,
+                            '%allowed_types%' => implode(', ', $this->allowedFileTypes)
+                        ), $event->getForm()->getConfig()->getOption('translation_domain'));
+
+                        $event->getForm()->addError(new FormError($message));
+                        /** Set back data to old so we don`t see new file */
+                        $event->setData(array(FileType::UPLOAD_FIELDNAME => $event->getForm()->getData()));
+                    }
+                }
+
+                if ($isValidFile) {
+                    $purgatoryFileManager = $this->getPurgatoryFileManager();
+
+                    $path = $purgatoryFileManager->prepare($uploadedFile, $entity, $this->field);
+                    $purgatoryFileManager->save($uploadedFile, $path);
+
+                    $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
+                    $event->setData($data);
                 }
             }
 
-            if ($isValidFile) {
-                $purgatoryFileManager = $this->getPurgatoryFileManager();
 
-                $path = $purgatoryFileManager->prepare($uploadedFile, $entity, $this->field);
-                $purgatoryFileManager->save($uploadedFile, $path);
-
-                $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
-                $event->setData($data);
-            }
 
         // no file was uploaded
         } else {

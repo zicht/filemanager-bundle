@@ -104,7 +104,8 @@ class FileType extends AbstractType
                     'label'              => $label,
                     'attr'               => array(
                         'accept' => implode(', ', $allowedTypes)
-                    )
+                    ),
+                    'required' => false
                 )
             )
             ->add(

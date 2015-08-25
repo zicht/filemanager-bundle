@@ -17,8 +17,41 @@
             {% if form.parent is empty %}
                 {{ form_errors(form) }}
             {% endif %}
+            {% if allow_url == true %}
+                <table class="zicht_file">
+                    <thead>
+                    <tr>
+                        <th>{{ 'zicht_filemanager.select_table_header'|trans({}, translation_domain) }}</th>
+                        <th>{{ 'zicht_filemanager.value_table_header'|trans({}, translation_domain) }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') }}"{{ form.select.vars.value[0] == true ? ' checked="checked"' : '' }}>
+                        </td>
+                        <td>
+                            {{ form_label(form.upload_file) }}
+                            {{ form_widget(form.upload_file) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_URL') }}"{{ form.select.vars.value[1] == true ? ' checked="checked"' : '' }}>
+                        </td>
+                        <td>
+                            {{ form_label(form.url) }}
+                            {{ form_widget(form.url) }}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <input type="hidden" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') }}">
+                {% do form.url.setRendered %} {# not sure there is a better way to do this #}
+                {{ form_row(form.upload_file) }}
+            {% endif %}
 
-            {{ form_widget(form.upload_file) }}
             {{ form_widget(form.hash) }} {# hidden field #}
             {{ form_widget(form.filename) }} {# hidden field #}
 
@@ -29,6 +62,7 @@
                 {% endif %}
             {% else %}
                 {% do form.remove.setRendered %}
+                {% do form.select.setRendered %} {# not sure there is a better way to do this #}
             {% endif %}
 
             {{ form_rest(form) }}
