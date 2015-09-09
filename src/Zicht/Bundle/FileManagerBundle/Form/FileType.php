@@ -224,6 +224,12 @@ class FileType extends AbstractType
 
         //We check if there is a value. If there is a file uploaded, the $view->vars['value'] = null, so this is only valid when the value comes from the database.
         if ($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
+
+
+            foreach ($view->vars['value'] as $name => $value) {
+                $view->children[$name]->vars['value'] = $view->vars['value'][$name];
+            }
+
             $view->vars['file_url'] = $this->fileManager->getFileUrl($this->entity, $view->vars['property'], $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
         } else {
             //We don't have previously stored data, we can check if we have a file uploaded. If so, we can show that.

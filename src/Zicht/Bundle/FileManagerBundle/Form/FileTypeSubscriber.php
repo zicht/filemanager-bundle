@@ -58,6 +58,70 @@ class FileTypeSubscriber implements EventSubscriberInterface
         );
     }
 
+    protected function getUploadedFile($data)
+    {
+        $file = null;
+
+        if ($data !== null && is_array($data)) {
+            switch ($data[FileType::RADIO_FIELDNAME]) {
+                case FileType::FILE_URL:
+                    if (!empty($data[FileType::URL_FIELDNAME])) {
+                        $fileurl = $data[FileType::URL_FIELDNAME];
+                        $fileparts = explode('/', $fileurl);
+                        $filename = urldecode(array_pop($fileparts));
+                        $filePath = sprintf('%s/%s', sys_get_temp_dir(), $filename);
+                        file_put_contents($filePath, file_get_contents($fileurl));
+                        $file = new File($filePath);
+                    }
+                    break;
+                case  FileType::FILE_UPLOAD:
+                    if ($data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
+                        /** @var UploadedFile $file */
+                        $file = $data[FileType::UPLOAD_FIELDNAME];
+                    }
+                    break;
+            }
+        }
+
+        return $file;
+    }
+
+    protected function validateFile($file, FormEvent $event)
+    {
+        if ($file instanceof File) {
+
+            $isValidFile  = true;
+
+            //check if the file is allowed by the MIME-types constraint given
+            if (!empty($this->allowedFileTypes) && null !== $mime = $file->getMimeType()) {
+                if (!in_array($mime, $this->allowedFileTypes)) {
+                    $isValidFile = false;
+                    $message = $this->translator->trans(
+                        'zicht_filemanager.wrong_type',
+                        array(
+                            '%this_type%'     => $mime,
+                            '%allowed_types%' => implode(', ', $this->allowedFileTypes)
+                        ),
+                        $event->getForm()->getConfig()->getOption('translation_domain')
+                    );
+
+                    $event->getForm()->addError(new FormError($message));
+                    /** Set back data to old so we don`t see new file */
+                    $event->setData(array(FileType::UPLOAD_FIELDNAME => $event->getForm()->getData()));
+                }
+            }
+
+            if ($isValidFile) {
+                $purgatoryFileManager = $this->getPurgatoryFileManager();
+                $entity = $event->getForm()->getParent()->getConfig()->getDataClass();;
+                $path = $purgatoryFileManager->prepare($file, $entity, $this->field);
+                $purgatoryFileManager->save($file, $path);
+                $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
+                $event->setData($data);
+            }
+        }
+    }
+
     /**
      * Just before the form is submitted, check if there is no data entered and if so, set the 'old' data back.
      *
@@ -66,7 +130,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
      */
     public function preSubmit(FormEvent $event)
     {
-        $data    = $event->getData();
+        $data = $event->getData();
         $entity = $event->getForm()->getParent()->getConfig()->getDataClass();
 
         //if the remove checkbox is checked, clear the data
@@ -74,69 +138,12 @@ class FileTypeSubscriber implements EventSubscriberInterface
             $event->setData(null);
             $data = null;
             return;
-        } else {
-
         }
 
-        //if there was a file uploaded
-        if ($data !== null && is_array($data)) {
-
-            $uploadedFile = null;
-
-            switch ($data[FileType::RADIO_FIELDNAME]) {
-                case FileType::FILE_URL:
-                    if (!empty($data[FileType::URL_FIELDNAME])) {
-                        $fileurl = $data[FileType::URL_FIELDNAME];
-                        $file = file_get_contents($fileurl);
-                        $fileparts = explode('/', $fileurl);
-                        $filename = array_pop($fileparts);
-                        $path = sys_get_temp_dir() . '/' . $filename;
-                        $fp = fopen($path, 'w');
-                        fwrite($fp, $file);
-                        fclose($fp);
-                        $uploadedFile = new File($path);
-                    }
-                    break;
-                case  FileType::FILE_UPLOAD:
-                    if (isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
-                        /** @var UploadedFile $uploadedFile */
-                        $uploadedFile = $data[FileType::UPLOAD_FIELDNAME];
-                    }
-                    break;
-            }
-
-            if ($uploadedFile instanceof File) {
-                $isValidFile  = true;
-                //check if the file is allowed by the MIME-types constraint given
-                if (!empty($this->allowedFileTypes) && null !== $mime = $uploadedFile->getMimeType()) {
-                    if (!in_array($mime, $this->allowedFileTypes)) {
-                        $isValidFile = false;
-                        $message     = $this->translator->trans('zicht_filemanager.wrong_type', array(
-                            '%this_type%'     => $mime,
-                            '%allowed_types%' => implode(', ', $this->allowedFileTypes)
-                        ), $event->getForm()->getConfig()->getOption('translation_domain'));
-
-                        $event->getForm()->addError(new FormError($message));
-                        /** Set back data to old so we don`t see new file */
-                        $event->setData(array(FileType::UPLOAD_FIELDNAME => $event->getForm()->getData()));
-                    }
-                }
-
-                if ($isValidFile) {
-                    $purgatoryFileManager = $this->getPurgatoryFileManager();
-
-                    $path = $purgatoryFileManager->prepare($uploadedFile, $entity, $this->field);
-                    $purgatoryFileManager->save($uploadedFile, $path);
-
-                    $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
-                    $event->setData($data);
-                }
-            }
-
-
-
-        // no file was uploaded
+        if (null !== ($file = $this->getUploadedFile($data))) {
+            $this->validateFile($file, $event);
         } else {
+            // nothing uploaded
             $hash = $data[FileType::HASH_FIELDNAME];
             $filename = $data[FileType::FILENAME_FIELDNAME];
 
@@ -153,7 +160,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
                 $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
                 $event->setData($data);
 
-            //use the original form data, so the field isn't empty
+                //use the original form data, so the field isn't empty
             } elseif ($event->getForm()->getData() !== null) {
 
                 unset($data[FileType::HASH_FIELDNAME]);
