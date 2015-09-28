@@ -62,7 +62,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
     {
         $file = null;
 
-        if ($data !== null && is_array($data)) {
+        if ($data !== null && is_array($data) && isset($data[FileType::RADIO_FIELDNAME])) {
             switch ($data[FileType::RADIO_FIELDNAME]) {
                 case FileType::FILE_URL:
                     if (!empty($data[FileType::URL_FIELDNAME])) {
