@@ -1,15 +1,23 @@
 {% block zicht_file_widget %}
 
     {% if file_url is defined and show_current_file %}
-        <p>
-            <a href="{{ asset(file_url) }}">
+        <div class="js-moxiemanager-edit-image">
+            <p>
+                <a href="{{ asset(file_url) }}">
+                    {% if file_url|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] %}
+                        <div class="js-moxiemanager-edit-image__image-preview">
+                            <img title="(Current: {{ file_url }})" alt="" src="{{ file_url|imagine_filter('cms') }}">
+                        </div>
+                    {% else %}
+                        {{ file_url }}
+                    {% endif %}
+                </a>
+
                 {% if file_url|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] %}
-                    <img title="(Current: {{ file_url }})" alt="" src="{{ file_url|imagine_filter('cms') }}">
-                {% else %}
-                    {{ file_url }}
+                    <a href="#" class="js-moxiemanager-edit-image__trigger" data-file-url="{{ asset(file_url) }}"><i class="ion-edit"></i></a>
                 {% endif %}
-            </a>
-        </p>
+            </p>
+        </div>
     {% endif %}
 
     {% spaceless %}
