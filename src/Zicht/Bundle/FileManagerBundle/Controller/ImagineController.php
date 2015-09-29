@@ -38,7 +38,8 @@ class ImagineController extends Controller
         if ($path && $filter) {
             /** @var CacheManager $cacheManager */
             $cacheManager = $this->get('liip_imagine.cache.manager');
-            $cacheManager->remove($path, $filter);
+            // Filter is purposely left out on the remove call, it should remove all the caches for the current given file.
+            $cacheManager->remove($path);
             $cacheManager->getBrowserPath($path, $filter);
             $response['success'] = true;
             $response['url']  = $cacheManager->generateUrl($path, $filter);

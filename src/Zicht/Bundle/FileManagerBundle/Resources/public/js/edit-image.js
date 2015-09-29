@@ -7,6 +7,8 @@ $(function () {
             $imagePreview = $(this).find('.js-moxiemanager-edit-image__image-preview'),
             fileUrl = $trigger.data('file-url');
 
+        fileUrl = fileUrl.split('?')[0];
+
         $trigger.click(function (e) {
             e.preventDefault();
 
