@@ -30,10 +30,8 @@ class FileManagerExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            'file_url' => new \Twig_Function_Method(
-                $this,
-                'getFileUrl'
-            )
+            'file_url' => new \Twig_Function_Method($this, 'getFileUrl'),
+            'file_urls' => new \Twig_Function_Method($this, 'getFileUrls'),
         );
     }
 
@@ -50,6 +48,22 @@ class FileManagerExtension extends \Twig_Extension
     public function getFileUrl($entity, $field, $value = null)
     {
         return call_user_func_array(array($this->fm, 'getFileUrl'), func_get_args());
+    }
+
+    /**
+     * Returns a list of file urls for the specified entity/field combination.
+     *
+     * @param mixed[] $entities
+     * @param string $field
+     * @return string|null
+     */
+    public function getFileUrls($entities, $field)
+    {
+        $urls = array();
+        foreach ($entities as $entity) {
+            $urls [] = $this->fm->getFileUrl($entity, $field);
+        }
+        return $urls;
     }
 
 
