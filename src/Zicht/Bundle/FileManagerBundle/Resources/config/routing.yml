@@ -1,0 +1,4 @@
+zicht_filemanager:
+    resource: "@ZichtFileManagerBundle/Controller"
+    type: annotation
+    prefix: /admin/filemanager

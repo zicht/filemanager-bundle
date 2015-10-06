@@ -68,8 +68,13 @@ class FileTypeSubscriber implements EventSubscriberInterface
                     if (!empty($data[FileType::URL_FIELDNAME])) {
                         $fileurl = $data[FileType::URL_FIELDNAME];
                         $fileparts = explode('/', $fileurl);
+
                         $filename = urldecode(array_pop($fileparts));
-                        $filePath = sprintf('%s/%s', sys_get_temp_dir(), $filename);
+                        $parsedFileName = parse_url($filename);
+
+                        // We are only interested in the original file path, strip '?...' section
+                        $filePath = sprintf('%s/%s', sys_get_temp_dir(), $parsedFileName['path']);
+
                         file_put_contents($filePath, file_get_contents($fileurl));
                         $file = new File($filePath);
                     }
