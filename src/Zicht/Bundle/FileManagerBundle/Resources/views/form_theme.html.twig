@@ -7,6 +7,8 @@
                         <div class="js-moxiemanager-edit-image__image-preview">
                             <img title="(Current: {{ file_url }})" alt="" src="{{ file_url|imagine_filter('cms') }}">
                         </div>
+                    {% elseif (file_url|lower[-3:] in ['mp3']) %}
+                        <audio src="{{ asset(file_url) }}" controls></audio>
                     {% else %}
                         {{ file_url }}
                     {% endif %}
