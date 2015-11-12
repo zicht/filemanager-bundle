@@ -6,23 +6,23 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
-use \Symfony\Component\Form\AbstractType;
-use \Symfony\Component\Form\CallbackTransformer;
-use \Symfony\Component\Form\DataTransformerInterface;
-use \Symfony\Component\Form\FormBuilderInterface;
-use \Symfony\Component\Form\FormError;
-use \Symfony\Component\Form\FormEvent;
-use \Symfony\Component\Form\FormEvents;
-use \Symfony\Component\Form\FormFactoryInterface;
-use \Symfony\Component\Form\FormInterface;
-use \Symfony\Component\Form\FormView;
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use \Symfony\Component\Yaml\Yaml;
-use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
-use \Symfony\Component\HttpKernel\Kernel;
-use \Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\DataTransformerInterface;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\Yaml\Yaml;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
 /**
  * Class FileType
@@ -51,6 +51,8 @@ class FileType extends AbstractType
     protected $mimeTypes;
     public $entity;
 
+    public $entities = [];
+
     /**
      * Constructor.
      *
@@ -78,7 +80,6 @@ class FileType extends AbstractType
                 'translation_domain' => 'admin',
                 'file_types'         => array(),
                 'allow_url'          => false,
-
             )
         );
     }
@@ -164,7 +165,6 @@ class FileType extends AbstractType
         }
 
         $builder->setAttribute('property', $builder->getName());
-        $builder->addViewTransformer(new Transformer\FileTransformer(array($this, 'transformCallback'), $builder->getAttribute('property')));
 
         /**
          * In Symfony >= 2.3 there is no FormBuilder::getParent() anymore. And because in the buildForm Symfony just builds a
@@ -178,8 +178,13 @@ class FileType extends AbstractType
             function (FormEvent $event) use ($self)
             {
                 $self->entity = $event->getForm()->getParent()->getConfig()->getDataClass();
+                // 'solves' issues with this filetype being a singleton, so this->entity is overridden for each implementation of this type
+                // e.g. more then 1 'zicht_file_type' is defined but their entities might be different, it will use the last implementation.
+                $self->entities[$event->getForm()->getConfig()->getName()] = $event->getForm()->getParent()->getConfig()->getDataClass();
             }
         );
+
+        $builder->addViewTransformer(new Transformer\FileTransformer(array($this, 'transformCallback'), $builder->getAttribute('property')));
 
         /**
          * This FileTypeSubscriber is needed to preserve the old values, if there is no new file uploaded. Otherwise a blank string would be stored.
@@ -202,7 +207,7 @@ class FileType extends AbstractType
      */
     public function transformCallback($value, $property)
     {
-        return $this->fileManager->getFilePath($this->entity, $property, $value);
+        return $this->fileManager->getFilePath($this->entities[$property], $property, $value);
     }
 
     /**
@@ -215,7 +220,7 @@ class FileType extends AbstractType
          */
 
         //First we set some vars, like the entity, the property and if the current file should be shown
-        $view->vars['entity'] = $this->entity;
+        $view->vars['entity'] = $this->entities[$form->getName()];
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
         $view->vars['show_remove']= $form->getConfig()->getOption('show_remove');
@@ -224,13 +229,11 @@ class FileType extends AbstractType
 
         //We check if there is a value. If there is a file uploaded, the $view->vars['value'] = null, so this is only valid when the value comes from the database.
         if ($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
-
-
             foreach ($view->vars['value'] as $name => $value) {
                 $view->children[$name]->vars['value'] = $view->vars['value'][$name];
             }
 
-            $view->vars['file_url'] = $this->fileManager->getFileUrl($this->entity, $view->vars['property'], $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
+            $view->vars['file_url'] = $this->fileManager->getFileUrl($this->entities[$form->getName()], $view->vars['property'], $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
         } else {
             //We don't have previously stored data, we can check if we have a file uploaded. If so, we can show that.
             $formData = $form->getData();
@@ -239,7 +242,7 @@ class FileType extends AbstractType
                 $purgatoryFileManager = clone $this->fileManager;
                 $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
 
-                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($this->entity, $view->vars['property'], $formData);
+                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($this->entities[$form->getName()], $view->vars['property'], $formData);
             }
         }
     }
