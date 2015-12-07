@@ -3,26 +3,20 @@
  * @author Oskar van Velden <oskar@zicht.nl>
  * @copyright Zicht Online <http://zicht.nl>
  */
-
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
-use \Symfony\Component\Form\AbstractType;
-use \Symfony\Component\Form\CallbackTransformer;
-use \Symfony\Component\Form\DataTransformerInterface;
-use \Symfony\Component\Form\FormBuilderInterface;
-use \Symfony\Component\Form\FormError;
-use \Symfony\Component\Form\FormEvent;
-use \Symfony\Component\Form\FormEvents;
-use \Symfony\Component\Form\FormFactoryInterface;
-use \Symfony\Component\Form\FormInterface;
-use \Symfony\Component\Form\FormView;
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use \Symfony\Component\Yaml\Yaml;
-use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
-use \Symfony\Component\HttpKernel\Kernel;
-use \Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormConfigInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\Yaml\Yaml;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
 /**
  * Class FileType
