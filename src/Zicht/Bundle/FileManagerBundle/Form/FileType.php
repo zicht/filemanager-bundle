@@ -44,7 +44,8 @@ class FileType extends AbstractType
     const REMOVE_FIELDNAME   = 'remove';
 
     protected $mimeTypes;
-    public $entity;
+    /** @var array|string[]  */
+    protected $entities;
 
     /**
      * Constructor.
@@ -131,7 +132,7 @@ class FileType extends AbstractType
         }
 
         $builder->setAttribute('property', $builder->getName());
-        $builder->addViewTransformer(new Transformer\FileTransformer(array($this, 'transformCallback'), $builder->getAttribute('property')));
+        $builder->addViewTransformer(new Transformer\FileTransformer(array($this, 'transformCallback'), array($builder->getAttribute('property'), $this->getId($builder->getFormConfig()))));
 
         /**
          * In Symfony >= 2.3 there is no FormBuilder::getParent() anymore. And because in the buildForm Symfony just builds a
@@ -140,11 +141,9 @@ class FileType extends AbstractType
          * we need to listen to the first event fired, the PRE_SET_DATA (the event just before the initial data is set in the form).
          * In this event we have the form-instance, so we can access the parent and extract the dataClass.
          */
-        $self = $this;
         $builder->addEventListener(FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) use ($self)
-            {
-                $self->entity = $event->getForm()->getParent()->getConfig()->getDataClass();
+            function (FormEvent $event) {
+                $this->entities[$this->getId($event->getForm()->getConfig())] = $event->getForm()->getParent()->getConfig()->getDataClass();
             }
         );
 
@@ -160,6 +159,17 @@ class FileType extends AbstractType
         $builder->addEventSubscriber($fileTypeSubscriber);
     }
 
+    protected function getId(FormConfigInterface $formConfig)
+    {
+        /** @var \Sonata\DoctrineORMAdminBundle\Admin\FieldDescription $fieldDescription */
+        $fieldDescription = $formConfig->getAttribute('sonata_admin')['field_description'];
+        return sha1(
+            $fieldDescription->getType().
+            $fieldDescription->getName().
+            $fieldDescription->getAdmin()->getUniqid()
+        );
+    }
+
     /**
      * Callback for the FileTransformer - since we can't pass the entity in buildForm, we needed a seperate handler, so the entity is defined :(
      *
@@ -169,7 +179,8 @@ class FileType extends AbstractType
      */
     public function transformCallback($value, $property)
     {
-        return $this->fileManager->getFilePath($this->entity, $property, $value);
+        list($property, $id) = $property;
+        return $this->fileManager->getFilePath($this->entities[$id], $property, $value);
     }
 
     /**
@@ -177,19 +188,23 @@ class FileType extends AbstractType
      */
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
-        /**
-         * This method prepares the view with formData.
-         */
 
+        $entity = $this->entities[$this->getId($form->getConfig())];
         //First we set some vars, like the entity, the property and if the current file should be shown
-        $view->vars['entity'] = $this->entity;
+        $view->vars['entity'] = $entity;
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
         $view->vars['multipart'] = true;
 
         //We check if there is a value. If there is a file uploaded, the $view->vars['value'] = null, so this is only valid when the value comes from the database.
         if ($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
-            $view->vars['file_url'] = $this->fileManager->getFileUrl($this->entity, $view->vars['property'], $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
+
+
+            foreach ($view->vars['value'] as $name => $value) {
+                $view->children[$name]->vars['value'] = $view->vars['value'][$name];
+            }
+
+            $view->vars['file_url'] = $this->fileManager->getFileUrl($entity, $view->vars['property'], $view->vars['value'][FileType::UPLOAD_FIELDNAME]);
         } else {
             //We don't have previously stored data, we can check if we have a file uploaded. If so, we can show that.
             $formData = $form->getData();
@@ -198,7 +213,7 @@ class FileType extends AbstractType
                 $purgatoryFileManager = clone $this->fileManager;
                 $purgatoryFileManager->setHttpRoot($purgatoryFileManager->getHttpRoot() . '/purgatory');
 
-                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($this->entity, $view->vars['property'], $formData);
+                $view->vars['file_url'] = $purgatoryFileManager->getFileUrl($entity, $view->vars['property'], $formData);
             }
         }
     }
