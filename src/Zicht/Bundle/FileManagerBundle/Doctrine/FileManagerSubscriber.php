@@ -6,33 +6,33 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use \Doctrine\Common\EventArgs;
-use \Doctrine\Common\EventSubscriber;
-use \Doctrine\ORM\Events;
-use \Doctrine\ORM\Event\LifecycleEventArgs;
-use \Doctrine\ORM\Event\PreUpdateEventArgs;
-
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\HttpFoundation\File\UploadedFile;
-
-use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use \Zicht\Bundle\FileManagerBundle\FixtureFile;
+use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Symfony\Component\HttpFoundation\File\File;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Zicht\Bundle\FileManagerBundle\FixtureFile;
 
 /**
  * The subscriber that manages updates, persists and deletes of managed file properties.
  */
 class FileManagerSubscriber implements EventSubscriber
 {
+    /** @var CacheManager */
+    protected $liipImagineCacheManager;
+
     /**
      * Constructor.
      *
      * @param FileManager $fileManager
      * @param MetadataRegistry $metadata
      */
-    public function __construct($fileManager, MetadataRegistry $metadata)
+    public function __construct($fileManager, MetadataRegistry $metadata, CacheManager $liipImagineCacheManager)
     {
         $this->fileManager = $fileManager;
         $this->metadata = $metadata;
+        $this->liipImagineCacheManager = $liipImagineCacheManager;
         $this->managedFields = array();
         $this->unitOfWork = array();
     }
@@ -158,11 +158,13 @@ class FileManagerSubscriber implements EventSubscriber
         }
 
         if ($value instanceof File) {
-            $path = $this->fileManager->prepare($value, $entity, $field);
+            $replaceFile = isset($value->metaData['keep_previous_filename']) and $value->metaData['keep_previous_filename'];
+            $path = $this->fileManager->prepare($value, $entity, $field, !$replaceFile);
             $fileName = basename($path);
             PropertyHelper::setValue($entity, $field, $fileName);
-            $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function($fm) use($value, $path) {
+            $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function($fm) use($value, $path, $entity, $field) {
                 $fm->save($value, $path);
+                $this->liipImagineCacheManager->remove($fm->getFileUrl($entity, $field));
             };
             return $fileName;
         } else {

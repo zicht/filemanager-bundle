@@ -53,16 +53,20 @@ class FileManager {
      * @param bool $noclobber
      * @return string
      */
-    public function prepare(File $file, $entity, $field, $noclobber = true)
+    public function prepare(File $file, $entity, $field, $noclobber = true, $forceFilename = '')
     {
         $dir = $this->getDir($entity, $field);
-        $i = 0;
-        do {
-            $f = $this->proposeFilename($file, $i ++);
-            $pathname = $dir . '/' . $f;
-        } while ($noclobber && $this->fs->exists($pathname));
-        $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);
-        $this->fs->touch($pathname);
+        if ($forceFilename) {
+            $pathname = $dir . '/' . $forceFilename;
+        } else {
+            $i = 0;
+            do {
+                $f = $this->proposeFilename($file, $i++);
+                $pathname = $dir . '/' . $f;
+            } while ($noclobber && $this->fs->exists($pathname));
+            $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);
+            $this->fs->touch($pathname);
+        }
         $this->preparedPaths[]= $pathname;
         return $pathname;
     }
@@ -234,7 +238,7 @@ class FileManager {
         if ($fileName) {
             return $this->getDir($entity, $field) . '/' . $fileName;
         }
-        
+
         return null;
     }
 

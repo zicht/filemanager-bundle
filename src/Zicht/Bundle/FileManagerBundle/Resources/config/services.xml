@@ -17,6 +17,7 @@
         <service id="zicht_filemanager.subscribe" class="Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber">
             <argument type="service" id="zicht_filemanager.filemanager" />
             <argument type="service" id="zicht_filemanager.metadata" />
+            <argument type="service" id="liip_imagine.cache.manager" />
             <tag name="doctrine.event_subscriber" connection="default"/>
         </service>
         <service id="zicht_filemanager.filemanager" class="%zicht_filemanager.filemanager.class%">

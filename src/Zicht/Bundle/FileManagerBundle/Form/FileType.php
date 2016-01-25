@@ -48,6 +48,9 @@ class FileType extends AbstractType
     const FILE_URL           = 'url';
     const FILE_UPLOAD        = 'upload';
 
+    /** @const will optionally save the new file using the name of the previous file */
+    const KEEP_PREVIOUS_FILENAME = 'keep_previous_filename';
+
     protected $mimeTypes;
     public $entity;
 
@@ -77,6 +80,7 @@ class FileType extends AbstractType
                 'property'           => null,
                 'show_current_file'  => true,
                 'show_remove'        => true,
+                'show_keep_previous_filename' => true,
                 'translation_domain' => 'admin',
                 'file_types'         => array(),
                 'allow_url'          => false,
@@ -162,6 +166,14 @@ class FileType extends AbstractType
                     'translation_domain' => $options['translation_domain']
                 )
             );
+        }
+
+        if ($options['show_keep_previous_filename']) {
+            $builder->add(self::KEEP_PREVIOUS_FILENAME, 'checkbox', [
+                'mapped' => false,
+                'label' => 'zicht_filemanager.keep_previous_filename',
+                'translation_domain' => $options['translation_domain']
+            ]);
         }
 
         $builder->setAttribute('property', $builder->getName());

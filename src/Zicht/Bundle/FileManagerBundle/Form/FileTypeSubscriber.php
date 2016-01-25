@@ -6,18 +6,16 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
-use \Symfony\Component\Form\Form;
-use \Symfony\Component\Form\FormError;
-use \Symfony\Component\Form\FormEvent;
-use \Symfony\Component\Form\FormEvents;
-use \Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\HttpFoundation\File\UploadedFile;
-use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
-use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
-use \Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 
 /**
  * Form subscriber
@@ -118,8 +116,13 @@ class FileTypeSubscriber implements EventSubscriberInterface
 
             if ($isValidFile) {
                 $purgatoryFileManager = $this->getPurgatoryFileManager();
-                $entity = $event->getForm()->getParent()->getConfig()->getDataClass();;
-                $path = $purgatoryFileManager->prepare($file, $entity, $this->field);
+                $entity = $event->getForm()->getParent()->getConfig()->getDataClass();
+
+                $data = $event->getData();
+                $replaceFile = isset($data[FileType::KEEP_PREVIOUS_FILENAME]) && $data[FileType::KEEP_PREVIOUS_FILENAME] === '1';
+                $forceFilename = $replaceFile ? $event->getForm()->getData() : '';
+
+                $path = $purgatoryFileManager->prepare($file, $entity, $this->field, true, $forceFilename);
                 $purgatoryFileManager->save($file, $path);
                 $this->prepareData($data, $path, $event->getForm()->getPropertyPath());
                 $event->setData($data);
@@ -209,10 +212,9 @@ class FileTypeSubscriber implements EventSubscriberInterface
     private function prepareData(&$data, $path, $propertyPath)
     {
         $file = new File($path);
-
         $data[FileType::FILENAME_FIELDNAME] = $file->getBasename();
         $data[FileType::HASH_FIELDNAME] = PurgatoryHelper::makeHash($propertyPath, $data[FileType::FILENAME_FIELDNAME]);
-
         $data[FileType::UPLOAD_FIELDNAME] = $file;
+        $file->metaData = $data;
     }
 }
