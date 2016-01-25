@@ -22,13 +22,23 @@
             {{ form_widget(form.hash) }} {# hidden field #}
             {{ form_widget(form.filename) }} {# hidden field #}
 
-            {% if file_url is defined %}
-                <p><small>{{ "zicht_filemanager.remove_file_note"|trans({}, translation_domain) }}</small></p>
-                {% if form.remove is defined %}
+            {% if form.remove is defined %}
+                {% if file_url is defined %}
+                    <p><small>{{ "zicht_filemanager.remove_file_note"|trans({}, translation_domain) }}</small></p>
                     {{ form_widget(form.remove) }}<span style="margin-left:7px;">{{ form_label(form.remove) }}</span>
+                {% else %}
+                    {% do form.remove.setRendered %}
+                    {% do form.select.setRendered %} {# not sure there is a better way to do this #}
                 {% endif %}
-            {% else %}
-                {% do form.remove.setRendered %}
+            {% endif %}
+
+            {% if form.keep_previous_filename is defined %}
+                {% if file_url is defined %}
+                    <p><small>{{ "zicht_filemanager.keep_previous_filename_note"|trans({}, translation_domain) }}</small></p>
+                    {{ form_widget(form.keep_previous_filename) }}<span style="margin-left:7px;">{{ form_label(form.keep_previous_filename) }}</span>
+                {% else %}
+                    {% do form.keep_previous_filename.setRendered %}
+                {% endif %}
             {% endif %}
 
             {{ form_rest(form) }}
