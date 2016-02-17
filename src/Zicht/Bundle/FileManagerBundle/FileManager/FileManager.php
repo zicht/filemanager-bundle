@@ -7,12 +7,14 @@
 namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\Filesystem\Filesystem;
-use \Symfony\Component\HttpFoundation\File\UploadedFile;
-use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
-use \Zicht\Util\Str;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use Zicht\Bundle\FileManagerBundle\Event\ResourceEvent;
+use Zicht\Util\Str;
 
 /**
  * Storage layer for files.
@@ -26,6 +28,11 @@ class FileManager {
     private $root;
     private $httpRoot;
     private $preparedPaths;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
     /**
      * Construct the filemanager.
@@ -87,10 +94,12 @@ class FileManager {
             throw new \RuntimeException("{$preparedPath} is not prepared by the filemanager");
         }
         unset($this->preparedPaths[$i]);
+        $existed = $this->fs->exists($preparedPath);
         @$this->fs->remove($preparedPath);
 
         try{
             $file->move(dirname($preparedPath), basename($preparedPath));
+            $this->dispatchEvent($existed ? ResourceEvent::REPLACED : ResourceEvent::CREATED, $preparedPath);
         } catch(FileException $fileException) {
             throw new FileException($fileException->getMessage() . "\n(hint: check the 'upload_max_filesize' in php.ini)", 0, $fileException);
         }
@@ -124,6 +133,7 @@ class FileManager {
         }
         if ($this->fs->exists($filePath)) {
             $this->fs->remove($filePath);
+            $this->dispatchEvent(ResourceEvent::DELETED, $filePath);
             return true;
         }
         return false;
@@ -275,5 +285,34 @@ class FileManager {
     public function getHttpRoot()
     {
         return $this->httpRoot;
+    }
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     */
+    public function setEventDispatcher($eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+
+    /**
+     * Dispatch an event for changed resources
+     *
+     * @param string $eventType
+     * @param string $filePath
+     */
+    private function dispatchEvent($eventType, $filePath)
+    {
+        if (null !== $this->eventDispatcher) {
+            $this->eventDispatcher->dispatch(
+                $eventType,
+                new ResourceEvent(
+                    $this->fs->makePathRelative($filePath, $this->root),
+                    $this->httpRoot,
+                    $this->root
+                )
+            );
+        }
     }
 }

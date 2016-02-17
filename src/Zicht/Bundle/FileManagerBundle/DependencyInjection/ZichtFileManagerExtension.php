@@ -5,6 +5,7 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\DependencyInjection;
 
+use Symfony\Component\DependencyInjection\Reference;
 use \Symfony\Component\HttpKernel\DependencyInjection\Extension as DIExtension;
 use \Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use \Symfony\Component\Config\FileLocator;
@@ -23,6 +24,15 @@ class ZichtFileManagerExtension extends DIExtension
     {
         $loader = new XmlFileLoader($container, new FileLocator(array(__DIR__.'/../Resources/config/')));
         $loader->load('services.xml');
+
+        if ($container->hasDefinition('event_dispatcher')) {
+            $container->getDefinition('zicht_filemanager.filemanager')
+                ->addMethodCall(
+                    'setEventDispatcher', [
+                        new Reference('event_dispatcher')
+                    ]
+                );
+        }
 
         $formResources = $container->getParameter('twig.form.resources');
         $formResources[]= 'ZichtFileManagerBundle::form_theme.html.twig';
