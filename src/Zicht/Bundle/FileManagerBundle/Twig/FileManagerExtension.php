@@ -6,7 +6,7 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Twig;
 
-use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 
 /**
  * The twig extension providing the 'file_url' twig function.

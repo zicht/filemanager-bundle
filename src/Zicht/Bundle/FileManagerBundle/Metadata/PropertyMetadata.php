@@ -5,7 +5,7 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Metadata;
 
-use \Metadata\PropertyMetadata as BasePropertyMetaData;
+use Metadata\PropertyMetadata as BasePropertyMetaData;
 
 /**
  * Property meta data implementation for filemanager details.

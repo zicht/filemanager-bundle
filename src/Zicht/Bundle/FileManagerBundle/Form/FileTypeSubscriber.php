@@ -56,6 +56,13 @@ class FileTypeSubscriber implements EventSubscriberInterface
         );
     }
 
+
+    /**
+     * Get the File object from the form data.
+     *
+     * @param array $data
+     * @return null|File|UploadedFile
+     */
     protected function getUploadedFile($data)
     {
         $file = null;
@@ -89,6 +96,12 @@ class FileTypeSubscriber implements EventSubscriberInterface
         return $file;
     }
 
+    /**
+     * Validate file.
+     *
+     * @param File $file
+     * @param FormEvent $event
+     */
     protected function validateFile($file, FormEvent $event)
     {
         if ($file instanceof File) {

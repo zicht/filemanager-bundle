@@ -5,9 +5,9 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use \Doctrine\Bundle\DoctrineBundle\Registry;
-use \Metadata\MetadataFactory;
-use \Zicht\Util\Str;
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Metadata\MetadataFactory;
+use Zicht\Util\Str;
 
 /**
  * Helper to determine the relevant class names having File annotations

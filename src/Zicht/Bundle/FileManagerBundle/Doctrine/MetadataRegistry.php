@@ -5,7 +5,7 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use \Metadata\MetadataFactoryInterface;
+use Metadata\MetadataFactoryInterface;
 
 /**
  * Contains all the metadata that is needed for the subscriber.
@@ -44,7 +44,7 @@ class MetadataRegistry
                         $this->managedFields[$class][] =$field;
                     }
                 }
-            } while($entityClass = get_parent_class($entityClass));
+            } while ($entityClass = get_parent_class($entityClass));
             $this->managedFields[$class] = array_unique($this->managedFields[$class]);
         }
         return $this->managedFields[$class];

@@ -5,12 +5,12 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
-use \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use \Symfony\Component\Console\Input\InputArgument;
-use \Symfony\Component\Console\Input\InputOption;
-use \Symfony\Component\Console\Input\InputInterface;
-use \Symfony\Component\Console\Output\OutputInterface;
-use \Symfony\Component\Yaml\Dumper;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Dumper;
 
 class CreateMimeFileCommand extends ContainerAwareCommand
 {
@@ -36,7 +36,7 @@ class CreateMimeFileCommand extends ContainerAwareCommand
      zicht:filemanager:create:mime [-d(ry-run)] [-f(force)]
 EOH
 
-        );
+            );
     }
 
     /**
@@ -45,27 +45,26 @@ EOH
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dryRun = $input->getOption('dry-run');
-        $force  = $input->getOption('force');
+        $force = $input->getOption('force');
         $dumper = new Dumper();
-        $file   = sprintf('%s/../Resources/config/mime.yml', __DIR__);
+        $file = sprintf('%s/../Resources/config/mime.yml', __DIR__);
 
         $result = array();
 
         if (false !== $content = file_get_contents(self::MIME_FILE)) {
-
-        foreach (explode("\n", $content) as $line) {
-            if (false == preg_match('/^#/', $line) && strlen(trim($line)) > 0) {
-                $data = preg_split('/\s+/', $line);
-                for($i=1; $i<=count($data)-1; $i++) {
-                    $result[$data[$i]] = $data[0];
+            foreach (explode("\n", $content) as $line) {
+                if (false == preg_match('/^#/', $line) && strlen(trim($line)) > 0) {
+                    $data = preg_split('/\s+/', $line);
+                    for ($i = 1; $i <= count($data) - 1; $i++) {
+                        $result[$data[$i]] = $data[0];
+                    }
                 }
             }
-        }
         } else {
             throw new \RuntimeException(sprintf('could not open file: %s', self::MIME_FILE));
         }
 
-        $ymlDump = $dumper->dump($result,2);
+        $ymlDump = $dumper->dump($result, 2);
 
         if ((false === file_exists($file) || $force) && !$dryRun) {
             if (false === file_put_contents($file, $ymlDump)) {
@@ -76,7 +75,7 @@ EOH
             }
         } elseif (file_exists($file) && !$dryRun) {
             $output->writeln('Mime file exists, use force options to overwrite');
-        } elseif($dryRun) {
+        } elseif ($dryRun) {
             echo $ymlDump;
         }
     }

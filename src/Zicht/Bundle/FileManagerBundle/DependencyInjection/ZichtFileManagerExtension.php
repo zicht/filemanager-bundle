@@ -6,11 +6,11 @@
 namespace Zicht\Bundle\FileManagerBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\Reference;
-use \Symfony\Component\HttpKernel\DependencyInjection\Extension as DIExtension;
-use \Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use \Symfony\Component\Config\FileLocator;
-use \Symfony\Component\DependencyInjection\ContainerBuilder;
-use \Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension as DIExtension;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * Loads the DI extension for the ZichtFileManagerBundle
