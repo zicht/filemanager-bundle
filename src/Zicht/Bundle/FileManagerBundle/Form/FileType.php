@@ -81,7 +81,6 @@ class FileType extends AbstractType
         $allowedTypes = $this->getAllowedTypes($options);
 
         $fm    = $this->fileManager;
-        $label = isset($options['label']) ? $options['label'] : 'zicht_filemanager.upload_file';
 
         $builder
             ->add(
@@ -89,7 +88,7 @@ class FileType extends AbstractType
                 'file',
                 array(
                     'translation_domain' => $options['translation_domain'],
-                    'label'              => $label,
+                    'label'              => 'zicht_filemanager.upload_file',
                     'attr'               => array(
                         'accept' => implode(', ', $allowedTypes)
                     )
