@@ -6,6 +6,8 @@
 
 namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Liip\ImagineBundle\Imagine\Filter\FilterConfiguration;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -35,6 +37,11 @@ class FileManager {
     private $eventDispatcher;
 
     /**
+     * @var [CacheManager, FilterConfiguration]
+     */
+    private $imagineConfig;
+
+    /**
      * Construct the filemanager.
      *
      * @param \Symfony\Component\Filesystem\Filesystem $fs
@@ -47,6 +54,16 @@ class FileManager {
         $this->root = rtrim($root, '/');
         $this->httpRoot = rtrim($httpRoot, '/');
         $this->preparedPaths = array();
+    }
+
+    /**
+     * CacheManager
+     *
+     * @param CacheManager $cacheManager
+     */
+    public function setImagineConfig(CacheManager $cacheManager, FilterConfiguration $configuration)
+    {
+        $this->imagineConfig = [$cacheManager, $configuration];
     }
 
 
@@ -95,11 +112,12 @@ class FileManager {
         }
         unset($this->preparedPaths[$i]);
         $existed = $this->fs->exists($preparedPath);
+
         @$this->fs->remove($preparedPath);
 
         try{
-            $file->move(dirname($preparedPath), basename($preparedPath));
             $this->dispatchEvent($existed ? ResourceEvent::REPLACED : ResourceEvent::CREATED, $preparedPath);
+            $file->move(dirname($preparedPath), basename($preparedPath));
         } catch(FileException $fileException) {
             throw new FileException($fileException->getMessage() . "\n(hint: check the 'upload_max_filesize' in php.ini)", 0, $fileException);
         }
@@ -305,14 +323,37 @@ class FileManager {
     private function dispatchEvent($eventType, $filePath)
     {
         if (null !== $this->eventDispatcher) {
+            $relativePath = $this->fs->makePathRelative(dirname($filePath), $this->root) . basename($filePath);
             $this->eventDispatcher->dispatch(
                 $eventType,
-                new ResourceEvent(
-                    $this->fs->makePathRelative(dirname($filePath), $this->root) . basename($filePath),
-                    $this->httpRoot,
-                    $this->root
-                )
+                new ResourceEvent($relativePath, $this->httpRoot, $this->root)
             );
+
+            if (null !== $this->imagineConfig) {
+                // Create events for the imagine cache as well.
+
+                /** @var CacheManager $cacheManager */
+                /** @var FilterConfiguration $filterConfig */
+                list ($cacheManager, $filterConfig) = $this->imagineConfig;
+                $webPath = $this->httpRoot . '/' . $relativePath;
+                $cacheManager->remove($webPath);
+
+                foreach ($filterConfig->all() as $name => $filter) {
+                    $url = $cacheManager->resolve($webPath, $name);
+
+                    // this weird construct is here because the imagine cache manager generates absolute urls
+                    // even though they're local for some unapparent reason.
+                    $relativeUrl = parse_url($url, PHP_URL_PATH);
+                    $url = $this->fs->makePathRelative(dirname($relativeUrl), $this->httpRoot) . basename($relativeUrl);
+
+                    if (false === strpos($url, '../')) {
+                        $this->eventDispatcher->dispatch(
+                            $eventType,
+                            new ResourceEvent($url, $this->httpRoot, $this->root)
+                        );
+                    }
+                }
+            }
         }
     }
 }

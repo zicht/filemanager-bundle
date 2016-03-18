@@ -17,16 +17,12 @@
         <service id="zicht_filemanager.subscribe" class="Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber">
             <argument type="service" id="zicht_filemanager.filemanager" />
             <argument type="service" id="zicht_filemanager.metadata" />
-            <argument type="service" id="liip_imagine.cache.manager" />
             <tag name="doctrine.event_subscriber" connection="default"/>
         </service>
         <service id="zicht_filemanager.filemanager" class="%zicht_filemanager.filemanager.class%">
             <argument type="service" id="filesystem"/>
             <argument>%zicht_filemanager.root%</argument>
             <argument>%zicht_filemanager.http_root%</argument>
-            <call method="setEventDispatcher">
-                <argument type="service" id="event_dispatcher"/>
-            </call>
         </service>
         <service id="zicht_filemanager.twig_extension" class="Zicht\Bundle\FileManagerBundle\Twig\FileManagerExtension">
             <argument type="service" id="zicht_filemanager.filemanager" />
