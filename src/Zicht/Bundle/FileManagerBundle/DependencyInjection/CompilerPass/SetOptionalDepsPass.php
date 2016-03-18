@@ -16,7 +16,7 @@ class SetOptionalDepsPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if ($container->hasDefinition('event_dispatcher')) {
+        if ($container->hasDefinition('event_dispatcher') || $container->hasAlias('event_dispatcher')) {
             $container->getDefinition('zicht_filemanager.filemanager')
                 ->addMethodCall(
                     'setEventDispatcher', [
