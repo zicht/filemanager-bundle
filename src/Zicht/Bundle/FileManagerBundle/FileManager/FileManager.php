@@ -308,7 +308,7 @@ class FileManager {
             $this->eventDispatcher->dispatch(
                 $eventType,
                 new ResourceEvent(
-                    $this->fs->makePathRelative($filePath, $this->root),
+                    $this->fs->makePathRelative(dirname($filePath), $this->root) . basename($filePath),
                     $this->httpRoot,
                     $this->root
                 )

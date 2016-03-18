@@ -5,13 +5,14 @@
  */
 
 namespace Zicht\Bundle\FileManagerBundle\Event;
+use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Represents an event that happened to a file.
  *
  * TODO This event may be moved to a more generic location as it will also be usable for different types of changes
  */
-class ResourceEvent
+class ResourceEvent extends Event
 {
     const CREATED = 'resource.created';
     const REPLACED = 'resource.replaced';
@@ -42,7 +43,7 @@ class ResourceEvent
      */
     public function getWebPath()
     {
-        return $this->webRoot . $this->relativePath;
+        return '/' . ltrim($this->webRoot, '/') . '/' . ltrim($this->relativePath, '/');
     }
 
     /**
@@ -52,6 +53,6 @@ class ResourceEvent
      */
     public function getLocalPath()
     {
-        return $this->localRoot . $this->relativePath;
+        return '/' . ltrim($this->localRoot, '/') . '/' . ltrim($this->relativePath, '/');
     }
 }
