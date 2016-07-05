@@ -8,11 +8,11 @@ namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\Filesystem\Filesystem;
-use \Symfony\Component\HttpFoundation\File\UploadedFile;
-use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
-use \Zicht\Util\Str;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use Zicht\Util\Str;
 
 /**
  * Storage layer for files.
@@ -26,6 +26,10 @@ class FileManager {
     private $root;
     private $httpRoot;
     private $preparedPaths;
+    /**
+     * @var bool
+     */
+    private $casePreservation;
 
     /**
      * Construct the filemanager.
@@ -33,13 +37,15 @@ class FileManager {
      * @param \Symfony\Component\Filesystem\Filesystem $fs
      * @param string $root
      * @param string $httpRoot
+     * @param bool $casePreservation
      */
-    public function __construct(FileSystem $fs, $root, $httpRoot)
+    public function __construct(FileSystem $fs, $root, $httpRoot, $casePreservation = false)
     {
         $this->fs = $fs;
         $this->root = rtrim($root, '/');
         $this->httpRoot = rtrim($httpRoot, '/');
         $this->preparedPaths = array();
+        $this->casePreservation = $casePreservation;
     }
 
 
@@ -140,8 +146,9 @@ class FileManager {
         } else {
             $fileName = $file->getBasename();
         }
-        $ret = preg_replace('/[^\w.]+/', '-', strtolower($fileName));
+        $ret = preg_replace('/[^\w.]+/', '-', ($this->casePreservation ? $fileName : strtolower($fileName)));
         $ret = preg_replace('/-+/', '-', $ret);
+
         if ($suffix) {
             $ext = (string)pathinfo($ret, PATHINFO_EXTENSION);
             $fn = (string)pathinfo($ret, PATHINFO_FILENAME);
