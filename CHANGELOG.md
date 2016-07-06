@@ -1,3 +1,19 @@
+## Version 4.3.0
+### Changes
+
+Default behaviour of the bundle is to systemize *and* lower case file names. By including the following, the
+FileManagerBundle will not transform the original case.
+
+zicht_file_manager.yml
+
+```
+zicht_file_manager:
+    case_preservation: true
+```
+
+Use case: Some clients are specific in naming their files, such as technical documents.
+Eg H2-drystar-X1234Ya.pdf v.s. h2-drystar-x1234ya.pdf
+
 ## Version 3.0.2
 ### Changes
 - bugfix for showing the image preview with the edit field, when using multiple zicht_file fields in the same form
