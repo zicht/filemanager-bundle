@@ -27,8 +27,12 @@
                     <p><small>{{ "zicht_filemanager.remove_file_note"|trans({}, translation_domain) }}</small></p>
                     {{ form_widget(form.remove) }}<span style="margin-left:7px;">{{ form_label(form.remove) }}</span>
                 {% else %}
-                    {% do form.remove.setRendered %}
-                    {% do form.select.setRendered %} {# not sure there is a better way to do this #}
+                    {% if form.remove|default %}
+                        {% do form.remove.setRendered %}
+                    {% endif %}
+                    {% if form.select|default %}
+                        {% do form.select.setRendered %} {# not sure there is a better way to do this #}
+                    {% endif %}
                 {% endif %}
             {% endif %}
 
