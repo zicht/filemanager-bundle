@@ -119,7 +119,8 @@ class FileType extends AbstractType
                 array(
                     'mapped' => false,
                     'label' => 'zicht_filemanager.remove_file',
-                    'translation_domain' => $options['translation_domain']
+                    'translation_domain' => $options['translation_domain'],
+                    'required' => false
                 )
             );
         }
