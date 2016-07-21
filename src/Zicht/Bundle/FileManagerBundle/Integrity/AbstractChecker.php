@@ -5,9 +5,9 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Integrity;
 
-use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use \Metadata\MetadataFactoryInterface;
-use \Doctrine\Bundle\DoctrineBundle\Registry;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Metadata\MetadataFactoryInterface;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 
 /**
  * Base class for the integrity checkers

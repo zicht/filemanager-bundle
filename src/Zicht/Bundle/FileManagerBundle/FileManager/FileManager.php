@@ -6,7 +6,6 @@
 
 namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Filesystem\Filesystem;

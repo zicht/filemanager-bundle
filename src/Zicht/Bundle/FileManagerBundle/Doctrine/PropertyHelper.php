@@ -6,8 +6,8 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use \Symfony\Component\Form\Util\PropertyPath;
-use \Zicht\Util\Str;
+use Symfony\Component\Form\Util\PropertyPath;
+use Zicht\Util\Str;
 
 // TODO do proper inflection and detection of setters/getters
 // (PropertyAccess / Symfony 2.2?)

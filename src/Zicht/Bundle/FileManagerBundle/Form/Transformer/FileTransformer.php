@@ -5,10 +5,10 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Form\Transformer;
 
-use \Symfony\Component\Form\DataTransformerInterface;
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
-use \Zicht\Bundle\FileManagerBundle\Form\FileType;
+use Symfony\Component\Form\DataTransformerInterface;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+use Zicht\Bundle\FileManagerBundle\Form\FileType;
 
 /**
  * File transformer for FileType fields, converts a local value into a File instance. The callback passed

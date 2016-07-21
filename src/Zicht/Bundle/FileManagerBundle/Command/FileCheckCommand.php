@@ -5,14 +5,11 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
-use \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use \Zicht\Bundle\FileManagerBundle\Doctrine\EntityHelper;
-use \Zicht\Util\Str;
-use \Symfony\Component\Console\Input\InputArgument;
-use \Symfony\Component\Console\Input\InputOption;
-use \Symfony\Component\Console\Input\InputInterface;
-use \Symfony\Component\Console\Output\OutputInterface;
-use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * A command to check if the files in the database are in sync with the files on disk or vice versa.

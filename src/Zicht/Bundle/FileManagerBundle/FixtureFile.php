@@ -6,8 +6,8 @@
 
 namespace Zicht\Bundle\FileManagerBundle;
 
-use \Symfony\Component\HttpFoundation\File\Exception\FileException;
-use \Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * A "fixture" file acts as an uploaded file, but it does not move the file to the moved location,

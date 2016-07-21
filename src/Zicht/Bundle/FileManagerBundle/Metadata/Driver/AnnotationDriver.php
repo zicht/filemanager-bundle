@@ -6,10 +6,10 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Metadata\Driver;
 
-use \Metadata\Driver\DriverInterface;
-use \Metadata\MergeableClassMetadata;
-use \Doctrine\Common\Annotations\Reader;
-use \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata;
+use Metadata\Driver\DriverInterface;
+use Metadata\MergeableClassMetadata;
+use Doctrine\Common\Annotations\Reader;
+use Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata;
 
 /**
  * Annotation driver for @File annotations
