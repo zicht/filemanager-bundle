@@ -6,17 +6,14 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use \Doctrine\Common\EventArgs;
-use \Doctrine\Common\EventSubscriber;
-use \Doctrine\ORM\Events;
-use \Doctrine\ORM\Event\LifecycleEventArgs;
-use \Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\File;
 
-use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use \Zicht\Bundle\FileManagerBundle\FixtureFile;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Zicht\Bundle\FileManagerBundle\FixtureFile;
 
 /**
  * The subscriber that manages updates, persists and deletes of managed file properties.

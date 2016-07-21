@@ -5,7 +5,7 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Integrity;
 
-use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 
 /**
  * Use the filesystem as source for checking the values (i.e., update the records if values aren't present on disk)

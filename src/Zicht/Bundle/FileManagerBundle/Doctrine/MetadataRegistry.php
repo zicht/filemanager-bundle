@@ -5,7 +5,7 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Doctrine;
 
-use \Metadata\MetadataFactoryInterface;
+use Metadata\MetadataFactoryInterface;
 
 /**
  * Contains all the metadata that is needed for the subscriber.

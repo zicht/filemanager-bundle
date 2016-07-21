@@ -6,7 +6,7 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Integrity;
 
-use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 
 /**
  * This checker checks if the values on disk are present in the database

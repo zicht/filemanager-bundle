@@ -6,18 +6,16 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
-use \Symfony\Component\Form\Form;
-use \Symfony\Component\Form\FormError;
-use \Symfony\Component\Form\FormEvent;
-use \Symfony\Component\Form\FormEvents;
-use \Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\HttpFoundation\File\UploadedFile;
-use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
-use \Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use \Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
-use \Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
 /**
  * Form subscriber

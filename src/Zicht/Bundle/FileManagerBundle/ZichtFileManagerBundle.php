@@ -5,7 +5,7 @@
  */
 
 namespace Zicht\Bundle\FileManagerBundle;
-use \Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * Bundle entry point.
