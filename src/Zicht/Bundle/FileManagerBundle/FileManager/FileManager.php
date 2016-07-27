@@ -19,8 +19,8 @@ use Zicht\Util\Str;
  * The save and getFilePath() use a simple mapping based on an entity and field name. The entity name is based on
  * either a string or a classname, where the class name is mapped to the local classname and lowercased.
  */
-class FileManager {
-
+class FileManager
+{
     private $fs;
     private $root;
     private $httpRoot;
@@ -90,9 +90,9 @@ class FileManager {
         unset($this->preparedPaths[$i]);
         @$this->fs->remove($preparedPath);
 
-        try{
+        try {
             $file->move(dirname($preparedPath), basename($preparedPath));
-        } catch(FileException $fileException) {
+        } catch (FileException $fileException) {
             throw new FileException($fileException->getMessage() . "\n(hint: check the 'upload_max_filesize' in php.ini)", 0, $fileException);
         }
     }

@@ -32,8 +32,7 @@ class FileCheckCommand extends ContainerAwareCommand
                 . "Pass the --purge to reset the values to NULL in the database\n"
                 . "Pass --inverse to check if all files on disk are actually present in the database.\n"
                 . "Passing both --inverse and --purge will delete all files that are not present in the database"
-             )
-        ;
+            );
     }
 
 

@@ -14,6 +14,8 @@ use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
  */
 class FileManagerExtension extends \Twig_Extension
 {
+    protected $fm;
+
     /**
      * Constructor.
      *

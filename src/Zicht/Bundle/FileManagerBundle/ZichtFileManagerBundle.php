@@ -5,6 +5,7 @@
  */
 
 namespace Zicht\Bundle\FileManagerBundle;
+
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**

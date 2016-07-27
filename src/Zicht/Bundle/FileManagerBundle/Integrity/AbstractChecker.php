@@ -33,6 +33,21 @@ abstract class AbstractChecker implements CheckerInterface
     protected $classMetaData;
 
     /**
+     * @var FileManager
+     */
+    protected $fm;
+
+    /**
+     * @var MetadataFactoryInterface
+     */
+    protected $metadataFactory;
+
+    /**
+     * @var Registry
+     */
+    protected $doctrine;
+
+    /**
      * Constructor.
      *
      * @param \Zicht\Bundle\FileManagerBundle\FileManager\FileManager $fm
@@ -67,7 +82,7 @@ abstract class AbstractChecker implements CheckerInterface
      * @param int $logLevel
      * @return void
      */
-    protected final function log($str, $logLevel = 0)
+    final protected function log($str, $logLevel = 0)
     {
         if (isset($this->logger)) {
             call_user_func($this->logger, $str, $logLevel);

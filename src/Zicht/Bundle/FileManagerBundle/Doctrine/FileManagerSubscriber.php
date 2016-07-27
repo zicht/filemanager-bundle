@@ -69,7 +69,9 @@ class FileManagerSubscriber implements EventSubscriber
                 list($old, $new) = $changeset[$field];
 
                 if ($old) {
-                    if ($new && ((string) $new) && (string)$new == $this->fileManager->getFilePath($entity, $field, $old)) {
+                    $tempFilePath = $this->fileManager->getFilePath($entity, $field, $old);
+
+                    if ($new && ((string)$new) && (string)$new == $tempFilePath) {
                         /** @var File $new */
                         // in this case the file was wrapped in a file object, but not actually changed.
                         // We "unwrap" the value here.
@@ -77,7 +79,7 @@ class FileManagerSubscriber implements EventSubscriber
                     } else {
                         $filepath = $this->fileManager->getFilePath($entity, $field, $old);
                         $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] =
-                            function(FileManager $fm) use($filepath) {
+                            function (FileManager $fm) use ($filepath) {
                                 $fm->delete($filepath);
                             };
                     }
@@ -110,7 +112,7 @@ class FileManagerSubscriber implements EventSubscriber
             if ($file) {
                 $filepath = $this->fileManager->getFilePath($entity, $field, $file);
 
-                $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] = function(FileManager $fm) use($filepath) {
+                $this->unitOfWork[spl_object_hash($entity)][$field]['delete'] = function (FileManager $fm) use ($filepath) {
                     $fm->delete($filepath);
                 };
             }
@@ -158,7 +160,7 @@ class FileManagerSubscriber implements EventSubscriber
             $path = $this->fileManager->prepare($value, $entity, $field);
             $fileName = basename($path);
             PropertyHelper::setValue($entity, $field, $fileName);
-            $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function($fm) use($value, $path) {
+            $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function ($fm) use ($value, $path) {
                 $fm->save($value, $path);
             };
             return $fileName;

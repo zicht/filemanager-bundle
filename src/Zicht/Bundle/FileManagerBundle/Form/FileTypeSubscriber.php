@@ -85,10 +85,14 @@ class FileTypeSubscriber implements EventSubscriberInterface
             if (!empty($this->allowedFileTypes) && null !== $mime = $uploadedFile->getMimeType()) {
                 if (!in_array($mime, $this->allowedFileTypes)) {
                     $isValidFile = false;
-                    $message     = $this->translator->trans('zicht_filemanager.wrong_type', array(
-                        '%this_type%'     => $mime,
-                        '%allowed_types%' => implode(', ', $this->allowedFileTypes)
-                    ), $event->getForm()->getConfig()->getOption('translation_domain'));
+                    $message = $this->translator->trans(
+                        'zicht_filemanager.wrong_type',
+                        array(
+                            '%this_type%'     => $mime,
+                            '%allowed_types%' => implode(', ', $this->allowedFileTypes)
+                        ),
+                        $event->getForm()->getConfig()->getOption('translation_domain')
+                    );
 
                     $event->getForm()->addError(new FormError($message));
                     /** Set back data to old so we don`t see new file */

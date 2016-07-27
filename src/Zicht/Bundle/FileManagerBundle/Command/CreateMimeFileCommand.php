@@ -11,8 +11,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Dumper;
 
+/**
+ * Class CreateMimeFileCommand
+ *
+ * @package Zicht\Bundle\FileManagerBundle\Command
+ */
 class CreateMimeFileCommand extends ContainerAwareCommand
 {
+    /**
+     * mime types
+     */
     const MIME_FILE = '/etc/mime.types';
 
     /**
@@ -25,21 +33,25 @@ class CreateMimeFileCommand extends ContainerAwareCommand
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to overwrite existing file')
             ->addOption('dry-run', 'd', InputOption::VALUE_NONE, 'Do a dry run')
             ->setDescription("Makes a (yml) config file for available mime types")
-            ->setHelp(<<<EOH
-    Makes a (yml) config file for available mime types, it reads /etc/mime.types
-    and creates from this file a yml file that can be used for the file_types option
-
-    So it knows that jpg is image/jpeg and can check the mime types and limit input fields
-
-    Usage:
-     zicht:filemanager:create:mime [-d(ry-run)] [-f(force)]
-EOH
-
-        );
+            ->setHelp(
+                'Makes a (yml) config file for available mime types, it reads /etc/mime.types' . PHP_EOL
+                .'and creates from this file a yml file that can be used for the file_types option' . PHP_EOL
+                . PHP_EOL
+                .'
+                So it knows that jpg is image/jpeg and can check the mime types and limit input fields' . PHP_EOL
+                . PHP_EOL
+                .'
+                Usage:' . PHP_EOL
+                .'
+                 zicht:filemanager:create:mime [-d(ry-run)] [-f(force)]'
+            );
     }
 
     /**
-     * @{inheritDoc}
+     * Execute
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -55,7 +67,7 @@ EOH
         foreach (explode("\n", $content) as $line) {
             if (false == preg_match('/^#/', $line) && strlen(trim($line)) > 0) {
                 $data = preg_split('/\s+/', $line);
-                for($i=1; $i<=count($data)-1; $i++) {
+                for ($i=1; $i<=count($data)-1; $i++) {
                     $result[$data[$i]] = $data[0];
                 }
             }
@@ -64,7 +76,7 @@ EOH
             throw new \RuntimeException(sprintf('could not open file: %s', self::MIME_FILE));
         }
 
-        $ymlDump = $dumper->dump($result,2);
+        $ymlDump = $dumper->dump($result, 2);
 
         if ((false === file_exists($file) || $force) && !$dryRun) {
             if (false === file_put_contents($file, $ymlDump)) {
@@ -75,7 +87,7 @@ EOH
             }
         } elseif (file_exists($file) && !$dryRun) {
             $output->writeln('Mime file exists, use force options to overwrite');
-        } elseif($dryRun) {
+        } elseif ($dryRun) {
             echo $ymlDump;
         }
     }

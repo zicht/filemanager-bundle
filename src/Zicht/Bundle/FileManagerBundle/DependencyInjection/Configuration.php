@@ -9,6 +9,11 @@ namespace Zicht\Bundle\FileManagerBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * Class Configuration
+ *
+ * @package Zicht\Bundle\FileManagerBundle\DependencyInjection
+ */
 class Configuration implements ConfigurationInterface
 {
 

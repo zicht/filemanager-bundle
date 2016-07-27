@@ -17,16 +17,26 @@ use Zicht\Bundle\FileManagerBundle\Form\FileType;
 class FileTransformer implements DataTransformerInterface
 {
     /**
+     * @var callable
+     */
+    private $callback;
+
+    /**
+     * @var string
+     */
+    private $property;
+
+    /**
      * Constructor.
      *
      * @param callback $callback
+     * @param string $property
      */
     public function __construct($callback, $property)
     {
         $this->callback = $callback;
         $this->property = $property;
     }
-
 
     /**
      * Transforms File -> string (to database)

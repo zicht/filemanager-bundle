@@ -135,9 +135,11 @@ class FileType extends AbstractType
          * we need to listen to the first event fired, the PRE_SET_DATA (the event just before the initial data is set in the form).
          * In this event we have the form-instance, so we can access the parent and extract the dataClass.
          */
-        $builder->addEventListener(FormEvents::PRE_SET_DATA,
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
             function (FormEvent $event) {
-                $this->entities[$this->getId($event->getForm()->getConfig())] = $event->getForm()->getParent()->getConfig()->getDataClass();
+                $id = $this->getId($event->getForm()->getConfig());
+                $this->entities[$id] = $event->getForm()->getParent()->getConfig()->getDataClass();
             }
         );
 
@@ -153,6 +155,10 @@ class FileType extends AbstractType
         $builder->addEventSubscriber($fileTypeSubscriber);
     }
 
+    /**
+     * @param FormConfigInterface $formConfig
+     * @return string
+     */
     protected function getId(FormConfigInterface $formConfig)
     {
         /** @var \Sonata\DoctrineORMAdminBundle\Admin\FieldDescription $fieldDescription */
@@ -252,11 +258,14 @@ class FileType extends AbstractType
                 $types = array_map('trim', $types);
             }
 
-            array_walk($types, function(&$val) use ($self) {
-                if (false == preg_match('#^([^/]+)/([\w|\.|\-]+)#', $val)) {
-                    $val = $self->getMimeType($val);
+            array_walk(
+                $types,
+                function (&$val) use ($self) {
+                    if (false == preg_match('#^([^/]+)/([\w|\.|\-]+)#', $val)) {
+                        $val = $self->getMimeType($val);
+                    }
                 }
-            });
+            );
         }
 
         return $types;
@@ -269,7 +278,7 @@ class FileType extends AbstractType
      * @return string
      * @throws \InvalidArgumentException
      */
-    function getMimeType($extension)
+    public function getMimeType($extension)
     {
         /**
          * check and remove (*.)ext so we only got the extension
