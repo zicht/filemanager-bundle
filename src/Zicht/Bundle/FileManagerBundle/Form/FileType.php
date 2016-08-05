@@ -162,12 +162,15 @@ class FileType extends AbstractType
     protected function getId(FormConfigInterface $formConfig)
     {
         /** @var \Sonata\DoctrineORMAdminBundle\Admin\FieldDescription $fieldDescription */
-        $fieldDescription = $formConfig->getAttribute('sonata_admin')['field_description'];
-        return sha1(
-            $fieldDescription->getType().
-            $fieldDescription->getName().
-            $fieldDescription->getAdmin()->getUniqid()
-        );
+        if ($fieldDescription = $formConfig->getAttribute('sonata_admin')['field_description']) {
+            return sha1(
+                $fieldDescription->getType().
+                $fieldDescription->getName().
+                $fieldDescription->getAdmin()->getUniqid()
+            );
+        } else {
+            return $formConfig->getName();
+        }
     }
 
     /**
@@ -188,7 +191,6 @@ class FileType extends AbstractType
      */
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
-
         $entity = $this->entities[$this->getId($form->getConfig())];
         //First we set some vars, like the entity, the property and if the current file should be shown
         $view->vars['entity'] = $entity;
