@@ -6,7 +6,6 @@
 
 namespace ZichtTest\Bundle\FileManagerBundle\Mapping;
 
-use Symfony\Component\HttpFoundation\File\File;
 use Zicht\Bundle\FileManagerBundle\Mapping\DefaultNamingStrategy;
 
 class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
@@ -36,10 +35,7 @@ class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
 
         // Act
         foreach ($given as $key => $value) {
-            $file = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
-            $file->method('getBasename')->willReturn($value);
-
-            $result[$key] = $namingStrategy->normalize($file);
+            $result[$key] = $namingStrategy->normalize($value);
         }
 
         // Assert
@@ -73,10 +69,7 @@ class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
 
         // Act
         foreach ($given as $key => $value) {
-            $file = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
-            $file->method('getBasename')->willReturn($value);
-
-            $result[$key] = $namingStrategy->normalize($file);
+            $result[$key] = $namingStrategy->normalize($value);
         }
 
         // Assert
@@ -110,10 +103,7 @@ class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
 
         // Act
         foreach ($given as $key => $value) {
-            $file = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
-            $file->method('getBasename')->willReturn($value);
-
-            $result[$key] = $namingStrategy->normalize($file);
+            $result[$key] = $namingStrategy->normalize($value);
         }
 
         // Assert
@@ -141,10 +131,7 @@ class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
 
         // Act
         foreach ($expected as $key => $value) {
-            $file = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
-            $file->method('getBasename')->willReturn($given);
-
-            $result[$key] = $namingStrategy->normalize($file, $key);
+            $result[$key] = $namingStrategy->normalize($given, $key);
         }
 
         // Assert

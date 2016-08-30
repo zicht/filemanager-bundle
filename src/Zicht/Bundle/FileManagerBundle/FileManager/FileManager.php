@@ -10,6 +10,7 @@ use RuntimeException;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 use Zicht\Bundle\FileManagerBundle\Mapping\NamingStrategyInterface;
 use Zicht\Util\Str;
@@ -64,8 +65,15 @@ class FileManager
     {
         $dir = $this->getDir($entity, $field);
         $i = 0;
+
+        if ($file instanceof UploadedFile) {
+            $fileName = $file->getClientOriginalName();
+        } else {
+            $fileName = $file->getBasename();
+        }
+
         do {
-            $f = $this->namingStrategy->normalize($file, $i++);
+            $f = $this->namingStrategy->normalize($fileName, $i++);
             $pathname = $dir . '/' . $f;
         } while ($noclobber && $this->fs->exists($pathname));
         $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);

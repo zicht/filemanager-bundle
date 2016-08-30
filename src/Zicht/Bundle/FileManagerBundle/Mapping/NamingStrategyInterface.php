@@ -6,8 +6,6 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Mapping;
 
-use Symfony\Component\HttpFoundation\File\File;
-
 /**
  * Interface NamingStrategyInterface
  *
@@ -15,7 +13,6 @@ use Symfony\Component\HttpFoundation\File\File;
  */
 interface NamingStrategyInterface
 {
-
     /**
      * Preserves case when set.
      */
@@ -36,9 +33,9 @@ interface NamingStrategyInterface
     /**
      * Create a name according to the strategies wanted method
      *
-     * @param File $file
+     * @param string $fileName
      * @param string|int $suffix
      * @return string
      */
-    public function normalize(File $file, $suffix = 0);
+    public function normalize($fileName, $suffix = 0);
 }

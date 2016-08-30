@@ -6,9 +6,6 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Mapping;
 
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-
 /**
  * Class OriginalNamingStrategy
  *
@@ -34,18 +31,12 @@ class OriginalNamingStrategy implements NamingStrategyInterface
     /**
      * Propose a file name based on the uploaded file name.
      *
-     * @param File $file
+     * @param string $fileName
      * @param string|int $suffix
      * @return string
      */
-    public function normalize(File $file, $suffix = 0)
+    public function normalize($fileName, $suffix = 0)
     {
-        if ($file instanceof UploadedFile) {
-            $fileName = $file->getClientOriginalName();
-        } else {
-            $fileName = $file->getBasename();
-        }
-
         if ($this->casePreservation === self::LOWER_CASE) {
             $fileName = strtolower($fileName);
         }
