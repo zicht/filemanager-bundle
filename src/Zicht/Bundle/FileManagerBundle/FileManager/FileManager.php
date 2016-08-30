@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Filesystem\Filesystem;
 use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
-use Zicht\Bundle\FileManagerBundle\Mapping\NamingStrategy;
+use Zicht\Bundle\FileManagerBundle\Mapping\NamingStrategyInterface;
 use Zicht\Util\Str;
 
 /**
@@ -28,7 +28,7 @@ class FileManager
     private $preparedPaths;
 
     /**
-     * @var NamingStrategy
+     * @var NamingStrategyInterface
      */
     private $namingStrategy;
 
@@ -38,9 +38,9 @@ class FileManager
      * @param \Symfony\Component\Filesystem\Filesystem $fs
      * @param string $root
      * @param string $httpRoot
-     * @param NamingStrategy $namingStrategy
+     * @param NamingStrategyInterface $namingStrategy
      */
-    public function __construct(FileSystem $fs, $root, $httpRoot, NamingStrategy $namingStrategy)
+    public function __construct(FileSystem $fs, $root, $httpRoot, NamingStrategyInterface $namingStrategy)
     {
         $this->fs = $fs;
         $this->root = rtrim($root, '/');

@@ -9,11 +9,11 @@ namespace Zicht\Bundle\FileManagerBundle\Mapping;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
- * Interface NamingStrategy
+ * Interface NamingStrategyInterface
  *
  * @package Zicht\Bundle\FileManagerBundle\Mapping
  */
-interface NamingStrategy
+interface NamingStrategyInterface
 {
 
     /**

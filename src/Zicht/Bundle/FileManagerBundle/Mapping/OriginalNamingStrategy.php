@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  *
  * @package Zicht\Bundle\FileManagerBundle\Mapping
  */
-class OriginalNamingStrategy implements NamingStrategy
+class OriginalNamingStrategy implements NamingStrategyInterface
 {
     /**
      * @var bool
