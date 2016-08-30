@@ -6,18 +6,19 @@
 
 namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
+use RuntimeException;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use Zicht\Bundle\FileManagerBundle\Mapping\NamingStrategy;
 use Zicht\Util\Str;
 
 /**
  * Storage layer for files.
  *
  * The save and getFilePath() use a simple mapping based on an entity and field name. The entity name is based on
- * either a string or a classname, where the class name is mapped to the local classname and lowercased.
+ * either a string or a class name, where the class name is mapped to the local class name and lowercased.
  */
 class FileManager
 {
@@ -25,26 +26,27 @@ class FileManager
     private $root;
     private $httpRoot;
     private $preparedPaths;
-    /**
-     * @var bool
-     */
-    private $casePreservation;
 
     /**
-     * Construct the filemanager.
+     * @var NamingStrategy
+     */
+    private $namingStrategy;
+
+    /**
+     * Construct the file manager.
      *
      * @param \Symfony\Component\Filesystem\Filesystem $fs
      * @param string $root
      * @param string $httpRoot
-     * @param bool $casePreservation
+     * @param NamingStrategy $namingStrategy
      */
-    public function __construct(FileSystem $fs, $root, $httpRoot, $casePreservation = false)
+    public function __construct(FileSystem $fs, $root, $httpRoot, NamingStrategy $namingStrategy)
     {
         $this->fs = $fs;
         $this->root = rtrim($root, '/');
         $this->httpRoot = rtrim($httpRoot, '/');
         $this->preparedPaths = array();
-        $this->casePreservation = $casePreservation;
+        $this->namingStrategy = $namingStrategy;
     }
 
 
@@ -52,7 +54,7 @@ class FileManager
      * Prepares a file for upload, which means that a stub file is created at the point where the file
      * otherwise would be uploaded.
      *
-     * @param \Symfony\Component\HttpFoundation\File\File $file
+     * @param File $file
      * @param mixed $entity
      * @param string $field
      * @param bool $noclobber
@@ -63,7 +65,7 @@ class FileManager
         $dir = $this->getDir($entity, $field);
         $i = 0;
         do {
-            $f = $this->proposeFilename($file, $i ++);
+            $f = $this->namingStrategy->normalize($file, $i++);
             $pathname = $dir . '/' . $f;
         } while ($noclobber && $this->fs->exists($pathname));
         $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);
@@ -76,16 +78,16 @@ class FileManager
     /**
      * Save a file to a previously prepared path.
      *
-     * @param \Symfony\Component\HttpFoundation\File\File $file
+     * @param File $file
      * @param string $preparedPath
      * @return void
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function save(File $file, $preparedPath)
     {
         if (false === ($i = array_search($preparedPath, $this->preparedPaths))) {
-            throw new \RuntimeException("{$preparedPath} is not prepared by the filemanager");
+            throw new RuntimeException("{$preparedPath} is not prepared by the file manager");
         }
         unset($this->preparedPaths[$i]);
         @$this->fs->remove($preparedPath);
@@ -93,7 +95,11 @@ class FileManager
         try {
             $file->move(dirname($preparedPath), basename($preparedPath));
         } catch (FileException $fileException) {
-            throw new FileException($fileException->getMessage() . "\n(hint: check the 'upload_max_filesize' in php.ini)", 0, $fileException);
+            throw new FileException(
+                $fileException->getMessage() . "\n(hint: check the 'upload_max_filesize' in php.ini)",
+                0,
+                $fileException
+            );
         }
     }
 
@@ -121,7 +127,7 @@ class FileManager
     {
         $relativePath = $this->fs->makePathRelative($filePath, $this->root);
         if (preg_match('!(^|/)\.\.!', $relativePath)) {
-            throw new \RuntimeException("{$relativePath} does not seem to be managed by the filemanager");
+            throw new RuntimeException("{$relativePath} does not seem to be managed by the file manager");
         }
         if ($this->fs->exists($filePath)) {
             $this->fs->remove($filePath);
@@ -129,33 +135,6 @@ class FileManager
         }
         return false;
     }
-
-
-    /**
-     * Propose a file name based on the uploaded file name.
-     *
-     * @param File $file
-     * @param string $suffix
-     * @return mixed|string
-     */
-    public function proposeFilename(File $file, $suffix)
-    {
-        if ($file instanceof UploadedFile) {
-            $fileName = $file->getClientOriginalName();
-        } else {
-            $fileName = $file->getBasename();
-        }
-        $ret = preg_replace('/[^\w.]+/', '-', ($this->casePreservation ? $fileName : strtolower($fileName)));
-        $ret = preg_replace('/-+/', '-', $ret);
-
-        if ($suffix) {
-            $ext = (string)pathinfo($ret, PATHINFO_EXTENSION);
-            $fn = (string)pathinfo($ret, PATHINFO_FILENAME);
-            $ret = sprintf('%s-%d.%s', trim($fn, '.'), $suffix, $ext);
-        }
-        return $ret;
-    }
-
 
     /**
      * Returns the relative path for the specified entity / field combination.
