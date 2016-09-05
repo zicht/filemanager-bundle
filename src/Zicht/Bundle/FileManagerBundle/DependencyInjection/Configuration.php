@@ -8,6 +8,7 @@ namespace Zicht\Bundle\FileManagerBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Zicht\Bundle\FileManagerBundle\Mapping\DefaultNamingStrategy;
 
 /**
  * Class Configuration
@@ -30,6 +31,8 @@ class Configuration implements ConfigurationInterface
         $rootNode->children()
             // Default behaviour is to lower case file names
             ->scalarNode('case_preservation')->defaultFalse();
+
+        $rootNode->children()->scalarNode('naming_strategy')->defaultValue(DefaultNamingStrategy::class);
 
         return $treeBuilder;
     }

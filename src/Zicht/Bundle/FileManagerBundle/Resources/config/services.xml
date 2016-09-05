@@ -1,6 +1,6 @@
 <container xmlns="http://symfony.com/schema/dic/services"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="zicht_filemanager.filemanager.class">Zicht\Bundle\FileManagerBundle\FileManager\FileManager</parameter>
         <parameter key="zicht_filemanager.root">%kernel.root_dir%/../web/media</parameter>
@@ -12,9 +12,18 @@
         <parameter key="zicht_filemanager.integrity_checker.database.class">Zicht\Bundle\FileManagerBundle\Integrity\DatabaseChecker</parameter>
         <parameter key="zicht_filemanager.integrity_checker.filesystem.class">Zicht\Bundle\FileManagerBundle\Integrity\FilesystemChecker</parameter>
         <parameter key="zicht_filemanager.entity_helper.class">Zicht\Bundle\FileManagerBundle\Doctrine\EntityHelper</parameter>
-        <parameter key="zicht_filemanager.case_preservation">false</parameter>
+
+        <parameter key="zicht_filemanager.naming_strategy.class">
+            Zicht\Bundle\FileManagerBundle\Mapping\DefaultNamingStrategy
+        </parameter>
+        <parameter key="zicht_filemanager.naming_strategy.case_preservation">false</parameter>
     </parameters>
     <services>
+
+        <service id="zicht_filemanager.naming_strategy" class="%zicht_filemanager.naming_strategy.class%">
+            <argument>%zicht_filemanager.naming_strategy.case_preservation%</argument>
+        </service>
+
         <service id="zicht_filemanager.subscribe" class="Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber">
             <argument type="service" id="zicht_filemanager.filemanager" />
             <argument type="service" id="zicht_filemanager.metadata" />
@@ -24,7 +33,7 @@
             <argument type="service" id="filesystem"/>
             <argument>%zicht_filemanager.root%</argument>
             <argument>%zicht_filemanager.http_root%</argument>
-            <argument>%zicht_filemanager.case_preservation%</argument>
+            <argument type="service" id="zicht_filemanager.naming_strategy"/>
         </service>
         <service id="zicht_filemanager.twig_extension" class="Zicht\Bundle\FileManagerBundle\Twig\FileManagerExtension">
             <argument type="service" id="zicht_filemanager.filemanager" />
@@ -59,5 +68,5 @@
             <argument type="service" id="doctrine" />
             <argument type="service" id="kernel" />
         </service>
-   </services>
+    </services>
 </container>
