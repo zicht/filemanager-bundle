@@ -157,7 +157,8 @@ class FileManagerSubscriber implements EventSubscriber
         }
 
         if ($value instanceof File) {
-            $path = $this->fileManager->prepare($value, $entity, $field);
+            $replaceFile = isset($value->metaData['keep_previous_filename']) and $value->metaData['keep_previous_filename'];
+            $path = $this->fileManager->prepare($value, $entity, $field, !$replaceFile);
             $fileName = basename($path);
             PropertyHelper::setValue($entity, $field, $fileName);
             $this->unitOfWork[spl_object_hash($entity)][$field]['save'] = function ($fm) use ($value, $path) {

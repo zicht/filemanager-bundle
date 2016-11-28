@@ -6,14 +6,17 @@
 
 namespace Zicht\Bundle\FileManagerBundle\FileManager;
 
-use RuntimeException;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Liip\ImagineBundle\Imagine\Filter\FilterConfiguration;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use \Symfony\Component\HttpFoundation\File\File;
+use \Symfony\Component\Filesystem\Filesystem;
+use \Symfony\Component\HttpFoundation\File\UploadedFile;
+use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use Zicht\Bundle\FileManagerBundle\Event\ResourceEvent;
 use Zicht\Bundle\FileManagerBundle\Mapping\NamingStrategyInterface;
-use Zicht\Util\Str;
+use \Zicht\Util\Str;
 
 /**
  * Storage layer for files.
@@ -29,25 +32,45 @@ class FileManager
     private $preparedPaths;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var [CacheManager, FilterConfiguration]
+     */
+    private $imagineConfig;
+
+    /**
      * @var NamingStrategyInterface
      */
     private $namingStrategy;
 
     /**
-     * Construct the file manager.
+     * Construct the filemanager.
      *
      * @param \Symfony\Component\Filesystem\Filesystem $fs
      * @param string $root
      * @param string $httpRoot
      * @param NamingStrategyInterface $namingStrategy
      */
-    public function __construct(FileSystem $fs, $root, $httpRoot, NamingStrategyInterface $namingStrategy)
+    public function __construct(Filesystem $fs, $root, $httpRoot, NamingStrategyInterface $namingStrategy)
     {
         $this->fs = $fs;
         $this->root = rtrim($root, '/');
         $this->httpRoot = rtrim($httpRoot, '/');
         $this->preparedPaths = array();
         $this->namingStrategy = $namingStrategy;
+    }
+
+    /**
+     * CacheManager
+     *
+     * @param CacheManager $cacheManager
+     */
+    public function setImagineConfig(CacheManager $cacheManager, FilterConfiguration $configuration)
+    {
+        $this->imagineConfig = [$cacheManager, $configuration];
     }
 
 
@@ -61,23 +84,28 @@ class FileManager
      * @param bool $noclobber
      * @return string
      */
-    public function prepare(File $file, $entity, $field, $noclobber = true)
+    public function prepare(File $file, $entity, $field, $noclobber = true, $forceFilename = '')
     {
         $dir = $this->getDir($entity, $field);
-        $i = 0;
-
-        if ($file instanceof UploadedFile) {
-            $fileName = $file->getClientOriginalName();
+        if ($forceFilename) {
+            $pathname = $dir . '/' . $forceFilename;
         } else {
-            $fileName = $file->getBasename();
-        }
+            $i = 0;
 
-        do {
-            $f = $this->namingStrategy->normalize($fileName, $i++);
-            $pathname = $dir . '/' . $f;
-        } while ($noclobber && $this->fs->exists($pathname));
-        $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);
-        $this->fs->touch($pathname);
+            if ($file instanceof UploadedFile) {
+                $fileName = $file->getClientOriginalName();
+            } else {
+                $fileName = $file->getBasename();
+            }
+
+            $i = 0;
+            do {
+                $f = $this->namingStrategy->normalize($fileName, $i++);
+                $pathname = $dir . '/' . $f;
+            } while ($noclobber && $this->fs->exists($pathname));
+            $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);
+            $this->fs->touch($pathname);
+        }
         $this->preparedPaths[]= $pathname;
         return $pathname;
     }
@@ -86,21 +114,23 @@ class FileManager
     /**
      * Save a file to a previously prepared path.
      *
-     * @param File $file
+     * @param \Symfony\Component\HttpFoundation\File\File $file
      * @param string $preparedPath
      * @return void
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     public function save(File $file, $preparedPath)
     {
         if (false === ($i = array_search($preparedPath, $this->preparedPaths))) {
-            throw new RuntimeException("{$preparedPath} is not prepared by the file manager");
+            throw new \RuntimeException("{$preparedPath} is not prepared by the filemanager");
         }
         unset($this->preparedPaths[$i]);
+        $existed = $this->fs->exists($preparedPath);
         @$this->fs->remove($preparedPath);
 
         try {
+            $this->dispatchEvent($existed ? ResourceEvent::REPLACED : ResourceEvent::CREATED, $preparedPath);
             $file->move(dirname($preparedPath), basename($preparedPath));
         } catch (FileException $fileException) {
             throw new FileException(
@@ -135,14 +165,41 @@ class FileManager
     {
         $relativePath = $this->fs->makePathRelative($filePath, $this->root);
         if (preg_match('!(^|/)\.\.!', $relativePath)) {
-            throw new RuntimeException("{$relativePath} does not seem to be managed by the file manager");
+            throw new \RuntimeException("{$relativePath} does not seem to be managed by the filemanager");
         }
         if ($this->fs->exists($filePath)) {
             $this->fs->remove($filePath);
+            $this->dispatchEvent(ResourceEvent::DELETED, $filePath);
             return true;
         }
         return false;
     }
+
+
+    /**
+     * Propose a file name based on the uploaded file name.
+     *
+     * @param File $file
+     * @param string $suffix
+     * @return mixed|string
+     */
+    public function proposeFilename(File $file, $suffix)
+    {
+        if ($file instanceof UploadedFile) {
+            $fileName = $file->getClientOriginalName();
+        } else {
+            $fileName = $file->getBasename();
+        }
+        $ret = preg_replace('/[^\w.]+/', '-', strtolower($fileName));
+        $ret = preg_replace('/-+/', '-', $ret);
+        if ($suffix) {
+            $ext = (string)pathinfo($ret, PATHINFO_EXTENSION);
+            $fn = (string)pathinfo($ret, PATHINFO_FILENAME);
+            $ret = sprintf('%s-%d.%s', trim($fn, '.'), $suffix, $ext);
+        }
+        return $ret;
+    }
+
 
     /**
      * Returns the relative path for the specified entity / field combination.
@@ -264,5 +321,57 @@ class FileManager
     public function getHttpRoot()
     {
         return $this->httpRoot;
+    }
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     */
+    public function setEventDispatcher($eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+
+    /**
+     * Dispatch an event for changed resources
+     *
+     * @param string $eventType
+     * @param string $filePath
+     */
+    private function dispatchEvent($eventType, $filePath)
+    {
+        if (null !== $this->eventDispatcher) {
+            $relativePath = $this->fs->makePathRelative(dirname($filePath), $this->root) . basename($filePath);
+            $this->eventDispatcher->dispatch(
+                $eventType,
+                new ResourceEvent($relativePath, $this->httpRoot, $this->root)
+            );
+
+            if (null !== $this->imagineConfig) {
+                // Create events for the imagine cache as well.
+
+                /** @var CacheManager $cacheManager */
+                /** @var FilterConfiguration $filterConfig */
+                list ($cacheManager, $filterConfig) = $this->imagineConfig;
+                $webPath = $this->httpRoot . '/' . $relativePath;
+                $cacheManager->remove($webPath);
+
+                foreach ($filterConfig->all() as $name => $filter) {
+                    $url = $cacheManager->resolve($webPath, $name);
+
+                    // this weird construct is here because the imagine cache manager generates absolute urls
+                    // even though they're local for some unapparent reason.
+                    $relativeUrl = parse_url($url, PHP_URL_PATH);
+                    $url = $this->fs->makePathRelative(dirname($relativeUrl), $this->httpRoot) . basename($relativeUrl);
+
+                    if (false === strpos($url, '../')) {
+                        $this->eventDispatcher->dispatch(
+                            $eventType,
+                            new ResourceEvent($url, $this->httpRoot, $this->root)
+                        );
+                    }
+                }
+            }
+        }
     }
 }

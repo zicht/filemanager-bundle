@@ -6,6 +6,7 @@
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -34,16 +35,9 @@ class CreateMimeFileCommand extends ContainerAwareCommand
             ->addOption('dry-run', 'd', InputOption::VALUE_NONE, 'Do a dry run')
             ->setDescription("Makes a (yml) config file for available mime types")
             ->setHelp(
-                'Makes a (yml) config file for available mime types, it reads /etc/mime.types' . PHP_EOL
-                .'and creates from this file a yml file that can be used for the file_types option' . PHP_EOL
-                . PHP_EOL
-                .'
-                So it knows that jpg is image/jpeg and can check the mime types and limit input fields' . PHP_EOL
-                . PHP_EOL
-                .'
-                Usage:' . PHP_EOL
-                .'
-                 zicht:filemanager:create:mime [-d(ry-run)] [-f(force)]'
+                "Makes a (yml) config file for available mime types, it reads /etc/mime.types"
+                . " and creates from this file a yml file that can be used for the file_types option"
+                . " So it knows that jpg is image/jpeg and can check the mime types and limit input fields"
             );
     }
 
@@ -56,22 +50,21 @@ class CreateMimeFileCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dryRun = $input->getOption('dry-run');
-        $force  = $input->getOption('force');
+        $force = $input->getOption('force');
         $dumper = new Dumper();
-        $file   = sprintf('%s/../Resources/config/mime.yml', __DIR__);
+        $file = sprintf('%s/../Resources/config/mime.yml', __DIR__);
 
         $result = array();
 
         if (false !== $content = file_get_contents(self::MIME_FILE)) {
-
-        foreach (explode("\n", $content) as $line) {
-            if (false == preg_match('/^#/', $line) && strlen(trim($line)) > 0) {
-                $data = preg_split('/\s+/', $line);
-                for ($i=1; $i<=count($data)-1; $i++) {
-                    $result[$data[$i]] = $data[0];
+            foreach (explode("\n", $content) as $line) {
+                if (false == preg_match('/^#/', $line) && strlen(trim($line)) > 0) {
+                    $data = preg_split('/\s+/', $line);
+                    for ($i = 1; $i <= count($data) - 1; $i++) {
+                        $result[$data[$i]] = $data[0];
+                    }
                 }
             }
-        }
         } else {
             throw new \RuntimeException(sprintf('could not open file: %s', self::MIME_FILE));
         }
