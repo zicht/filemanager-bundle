@@ -3,6 +3,7 @@
  * @author Oskar van Velden <oskar@zicht.nl>
  * @copyright Zicht Online <http://zicht.nl>
  */
+
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
@@ -25,20 +26,53 @@ use Symfony\Bundle\FrameworkBundle\Translation\Translator;
  */
 class FileType extends AbstractType
 {
-    /** @const the HTML-fieldname for the upload field */
+    /**
+     * The HTML-fieldname for the upload field
+     */
     const UPLOAD_FIELDNAME   = 'upload_file';
 
-    /** @const the HTML-fieldname for the (hidden) hash field */
+    /**
+     * The HTML-fieldname for the (hidden) hash field
+     */
     const HASH_FIELDNAME     = 'hash';
 
-    /** @const the HTML-fieldname for the (hidden) filename field */
+    /**
+     * The HTML-fieldname for the (hidden) filename field
+     */
     const FILENAME_FIELDNAME = 'filename';
 
-    /** @const the HTML-fieldname for the remove checkbox field */
+    /**
+     * The HTML-fieldname for the remove checkbox field
+     */
     const REMOVE_FIELDNAME   = 'remove';
 
+    /**
+     * Name of the 'select' part of the field
+     */
+    const RADIO_FIELDNAME    = 'select';
+
+    /**
+     * Name of the 'url' part of the field
+     */
+    const URL_FIELDNAME      = 'url';
+
+    /**
+     * Name of the 'url' value part of the field
+     */
+    const FILE_URL           = 'url';
+
+    /**
+     * Name of the 'upload' value part of the field
+     */
+    const FILE_UPLOAD        = 'upload';
+
+    /**
+     * Will optionally save the new file using the name of the previous file
+     */
+    const KEEP_PREVIOUS_FILENAME = 'keep_previous_filename';
+
     protected $mimeTypes;
-    /** @var array|string[]  */
+
     protected $entities;
 
     /**
@@ -65,8 +99,10 @@ class FileType extends AbstractType
                 'property'           => null,
                 'show_current_file'  => true,
                 'show_remove'        => true,
+                'show_keep_previous_filename' => true,
                 'translation_domain' => 'admin',
                 'file_types'         => array(),
+                'allow_url'          => false,
             )
         );
     }
@@ -91,7 +127,8 @@ class FileType extends AbstractType
                     'label'              => 'zicht_filemanager.upload_file',
                     'attr'               => array(
                         'accept' => implode(', ', $allowedTypes)
-                    )
+                    ),
+                    'required' => false
                 )
             )
             ->add(
@@ -110,6 +147,30 @@ class FileType extends AbstractType
                     'mapped' => false,
                     'read_only' => true,
                     'translation_domain' => $options['translation_domain'])
+            )
+            ->add(
+                self::RADIO_FIELDNAME,
+                'choice',
+                array(
+                    'mapped' => false,
+                    'expanded' => true,
+                    'multiple' => false,
+                    'choices' => array(
+                        self::FILE_UPLOAD => self::FILE_UPLOAD,
+                        self::FILE_URL => self::FILE_URL
+                    ),
+                    'data' => 'upload',
+                )
+            )
+            ->add(
+                self::URL_FIELDNAME,
+                'text',
+                array(
+                    'mapped' => false,
+                    'label' => 'zicht_filemanager.url_label',
+                    'translation_domain' => $options['translation_domain'],
+                    'required' => false,
+                )
             );
 
         if ($options['show_remove']) {
@@ -125,8 +186,19 @@ class FileType extends AbstractType
             );
         }
 
+        if ($options['show_keep_previous_filename']) {
+            $builder->add(
+                self::KEEP_PREVIOUS_FILENAME,
+                'checkbox',
+                [
+                    'mapped' => false,
+                    'label' => 'zicht_filemanager.keep_previous_filename',
+                    'translation_domain' => $options['translation_domain']
+                ]
+            );
+        }
+
         $builder->setAttribute('property', $builder->getName());
-        $builder->addViewTransformer(new Transformer\FileTransformer(array($this, 'transformCallback'), array($builder->getAttribute('property'), $this->getId($builder->getFormConfig()))));
 
         /**
          * In Symfony >= 2.3 there is no FormBuilder::getParent() anymore. And because in the buildForm Symfony just builds a
@@ -141,6 +213,13 @@ class FileType extends AbstractType
                 $id = $this->getId($event->getForm()->getConfig());
                 $this->entities[$id] = $event->getForm()->getParent()->getConfig()->getDataClass();
             }
+        );
+
+        $builder->addViewTransformer(
+            new Transformer\FileTransformer(
+                array($this, 'transformCallback'),
+                array($builder->getAttribute('property'), $this->getId($builder->getFormConfig()))
+            )
         );
 
         /**
@@ -196,12 +275,12 @@ class FileType extends AbstractType
         $view->vars['entity'] = $entity;
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
         $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
+        $view->vars['show_remove']= $form->getConfig()->getOption('show_remove');
+        $view->vars['allow_url']= $form->getConfig()->getOption('allow_url');
         $view->vars['multipart'] = true;
 
         //We check if there is a value. If there is a file uploaded, the $view->vars['value'] = null, so this is only valid when the value comes from the database.
         if ($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
-
-
             foreach ($view->vars['value'] as $name => $value) {
                 $view->children[$name]->vars['value'] = $view->vars['value'][$name];
             }

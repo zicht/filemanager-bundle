@@ -1,15 +1,24 @@
 {% block zicht_file_widget %}
-
     {% if file_url is defined and show_current_file %}
-        <p>
-            <a href="{{ asset(file_url) }}">
-                {% if file_url|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] %}
-                    <img title="(Current: {{ file_url }})" alt="" src="{{ file_url|imagine_filter('cms') }}">
-                {% else %}
-                    {{ file_url }}
+        <div class="js-moxiemanager-edit-image">
+            <p>
+                <a href="{{ asset(file_url) }}">
+                    {% if (file_url|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] or file_url|lower[-5:] == '.jpeg') %}
+                        <div class="js-moxiemanager-edit-image__image-preview">
+                            <img title="(Current: {{ file_url }})" alt="" src="{{ file_url|imagine_filter('cms') }}">
+                        </div>
+                    {% elseif (file_url|lower[-3:] in ['mp3']) %}
+                        <audio src="{{ asset(file_url) }}" controls></audio>
+                    {% else %}
+                        {{ file_url }}
+                    {% endif %}
+                </a>
+
+                {% if file_url|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] or file_url|lower[-5:] == '.jpeg' %}
+                    <a href="#" class="js-moxiemanager-edit-image__trigger" data-file-url="{{ asset(file_url) }}"><i class="ion-edit"></i></a>
                 {% endif %}
-            </a>
-        </p>
+            </p>
+        </div>
     {% endif %}
 
     {% spaceless %}
@@ -17,8 +26,41 @@
             {% if form.parent is empty %}
                 {{ form_errors(form) }}
             {% endif %}
+            {% if allow_url == true %}
+                <table class="zicht_file">
+                    <thead>
+                    <tr>
+                        <th>{{ 'zicht_filemanager.select_table_header'|trans({}, translation_domain) }}</th>
+                        <th>{{ 'zicht_filemanager.value_table_header'|trans({}, translation_domain) }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') }}"{{ form.select.vars.value == constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') ? ' checked="checked"' : '' }}> </td>
+                        </td>
+                        <td>
+                            {{ form_label(form.upload_file) }}
+                            {{ form_widget(form.upload_file) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_URL') }}"{{ form.select.vars.value == constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_URL') ? ' checked="checked"' : '' }}>
+                        </td>
+                        <td>
+                            {{ form_label(form.url) }}
+                            {{ form_widget(form.url) }}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <input type="hidden" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') }}">
+                {% do form.url.setRendered %} {# not sure there is a better way to do this #}
+                {{ form_row(form.upload_file) }}
+            {% endif %}
 
-            {{ form_widget(form.upload_file) }}
             {{ form_widget(form.hash) }} {# hidden field #}
             {{ form_widget(form.filename) }} {# hidden field #}
 
@@ -26,13 +68,12 @@
                 {% if file_url is defined %}
                     <p><small>{{ "zicht_filemanager.remove_file_note"|trans({}, translation_domain) }}</small></p>
                     {{ form_widget(form.remove) }}<span style="margin-left:7px;">{{ form_label(form.remove) }}</span>
-                {% else %}
-                    {% if form.remove|default %}
-                        {% do form.remove.setRendered %}
-                    {% endif %}
-                    {% if form.select|default %}
-                        {% do form.select.setRendered %} {# not sure there is a better way to do this #}
-                    {% endif %}
+                {% endif %}
+                {% if form.remove|default %}
+                    {% do form.remove.setRendered %}
+                {% endif %}
+                {% if form.select|default %}
+                    {% do form.select.setRendered %} {# not sure there is a better way to do this #}
                 {% endif %}
             {% endif %}
 
