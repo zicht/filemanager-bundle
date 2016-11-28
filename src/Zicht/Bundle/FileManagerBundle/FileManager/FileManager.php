@@ -10,13 +10,13 @@ use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Liip\ImagineBundle\Imagine\Filter\FilterConfiguration;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use \Symfony\Component\HttpFoundation\File\File;
-use \Symfony\Component\Filesystem\Filesystem;
-use \Symfony\Component\HttpFoundation\File\UploadedFile;
-use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 use Zicht\Bundle\FileManagerBundle\Event\ResourceEvent;
 use Zicht\Bundle\FileManagerBundle\Mapping\NamingStrategyInterface;
-use \Zicht\Util\Str;
+use Zicht\Util\Str;
 
 /**
  * Storage layer for files.
@@ -64,9 +64,10 @@ class FileManager
     }
 
     /**
-     * CacheManager
+     * Set the imagine config to allow for flushing of specific cached files
      *
      * @param CacheManager $cacheManager
+     * @param FilterConfiguration $configuration
      */
     public function setImagineConfig(CacheManager $cacheManager, FilterConfiguration $configuration)
     {
@@ -82,6 +83,7 @@ class FileManager
      * @param mixed $entity
      * @param string $field
      * @param bool $noclobber
+     * @param string $forceFilename
      * @return string
      */
     public function prepare(File $file, $entity, $field, $noclobber = true, $forceFilename = '')
@@ -90,8 +92,6 @@ class FileManager
         if ($forceFilename) {
             $pathname = $dir . '/' . $forceFilename;
         } else {
-            $i = 0;
-
             if ($file instanceof UploadedFile) {
                 $fileName = $file->getClientOriginalName();
             } else {

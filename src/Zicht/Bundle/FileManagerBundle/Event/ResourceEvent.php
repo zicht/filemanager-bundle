@@ -3,8 +3,8 @@
  * @author Gerard van Helden <gerard@zicht.nl>
  * @copyright Zicht Online <http://zicht.nl>
  */
-
 namespace Zicht\Bundle\FileManagerBundle\Event;
+
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -14,8 +14,19 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class ResourceEvent extends Event
 {
+    /**
+     * Fired when a new resource is created
+     */
     const CREATED = 'resource.created';
+
+    /**
+     * Fired when an existing resource is replaced with a new resource
+     */
     const REPLACED = 'resource.replaced';
+
+    /**
+     * Fired when an existing resource is deleted
+     */
     const DELETED = 'resource.deleted';
 
     private $relativePath;

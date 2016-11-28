@@ -7,14 +7,10 @@
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormConfigInterface;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\File\File;
@@ -30,24 +26,49 @@ use Symfony\Bundle\FrameworkBundle\Translation\Translator;
  */
 class FileType extends AbstractType
 {
-    /** @const the HTML-fieldname for the upload field */
+    /**
+     * The HTML-fieldname for the upload field
+     */
     const UPLOAD_FIELDNAME   = 'upload_file';
 
-    /** @const the HTML-fieldname for the (hidden) hash field */
+    /**
+     * The HTML-fieldname for the (hidden) hash field
+     */
     const HASH_FIELDNAME     = 'hash';
 
-    /** @const the HTML-fieldname for the (hidden) filename field */
+    /**
+     * The HTML-fieldname for the (hidden) filename field
+     */
     const FILENAME_FIELDNAME = 'filename';
 
-    /** @const the HTML-fieldname for the remove checkbox field */
+    /**
+     * The HTML-fieldname for the remove checkbox field
+     */
     const REMOVE_FIELDNAME   = 'remove';
 
+    /**
+     * Name of the 'select' part of the field
+     */
     const RADIO_FIELDNAME    = 'select';
+
+    /**
+     * Name of the 'url' part of the field
+     */
     const URL_FIELDNAME      = 'url';
+
+    /**
+     * Name of the 'url' value part of the field
+     */
     const FILE_URL           = 'url';
+
+    /**
+     * Name of the 'upload' value part of the field
+     */
     const FILE_UPLOAD        = 'upload';
 
-    /** @const will optionally save the new file using the name of the previous file */
+    /**
+     * Will optionally save the new file using the name of the previous file
+     */
     const KEEP_PREVIOUS_FILENAME = 'keep_previous_filename';
 
     protected $mimeTypes;
@@ -150,8 +171,7 @@ class FileType extends AbstractType
                     'translation_domain' => $options['translation_domain'],
                     'required' => false,
                 )
-            )
-        ;
+            );
 
         if ($options['show_remove']) {
             $builder->add(
@@ -167,11 +187,15 @@ class FileType extends AbstractType
         }
 
         if ($options['show_keep_previous_filename']) {
-            $builder->add(self::KEEP_PREVIOUS_FILENAME, 'checkbox', [
-                'mapped' => false,
-                'label' => 'zicht_filemanager.keep_previous_filename',
-                'translation_domain' => $options['translation_domain']
-            ]);
+            $builder->add(
+                self::KEEP_PREVIOUS_FILENAME,
+                'checkbox',
+                [
+                    'mapped' => false,
+                    'label' => 'zicht_filemanager.keep_previous_filename',
+                    'translation_domain' => $options['translation_domain']
+                ]
+            );
         }
 
         $builder->setAttribute('property', $builder->getName());

@@ -198,7 +198,7 @@ class FileManagerSubscriber implements EventSubscriber
      *
      * @return void
      */
-    public function postRemove ()
+    public function postRemove()
     {
         $this->doFlush();
     }

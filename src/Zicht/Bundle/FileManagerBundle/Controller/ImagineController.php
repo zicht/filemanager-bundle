@@ -22,9 +22,10 @@ class ImagineController extends Controller
     /**
      * Remove thumbnail for given path
      *
-     * @Route("/clear-thumbnail")
-     *
+     * @param Request $request
      * @return JsonResponse
+     *
+     * @Route("/clear-thumbnail")
      */
     public function clearThumbnailAction(Request $request)
     {

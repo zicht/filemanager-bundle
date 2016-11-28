@@ -84,7 +84,7 @@ class FileTypeSubscriber implements EventSubscriberInterface
                         $file = new File($filePath);
                     }
                     break;
-                case  FileType::FILE_UPLOAD:
+                case FileType::FILE_UPLOAD:
                     if ($data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
                         /** @var UploadedFile $file */
                         $file = $data[FileType::UPLOAD_FIELDNAME];

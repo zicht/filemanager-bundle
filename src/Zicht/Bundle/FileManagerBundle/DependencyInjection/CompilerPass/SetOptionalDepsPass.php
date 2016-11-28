@@ -9,17 +9,21 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * Initializes dependencies that are not hard dependencies.
+ */
 class SetOptionalDepsPass implements CompilerPassInterface
 {
     /**
-     * @inheritDoc
+     * @{inheritDoc}
      */
     public function process(ContainerBuilder $container)
     {
         if ($container->hasDefinition('event_dispatcher') || $container->hasAlias('event_dispatcher')) {
             $container->getDefinition('zicht_filemanager.filemanager')
                 ->addMethodCall(
-                    'setEventDispatcher', [
+                    'setEventDispatcher',
+                    [
                         new Reference('event_dispatcher')
                     ]
                 );
@@ -27,7 +31,8 @@ class SetOptionalDepsPass implements CompilerPassInterface
         if ($container->hasDefinition('liip_imagine.cache.manager') && $container->hasDefinition('liip_imagine.filter.configuration')) {
             $container->getDefinition('zicht_filemanager.filemanager')
                 ->addMethodCall(
-                    'setImagineConfig', [
+                    'setImagineConfig',
+                    [
                         new Reference('liip_imagine.cache.manager'),
                         new Reference('liip_imagine.filter.configuration')
                     ]
