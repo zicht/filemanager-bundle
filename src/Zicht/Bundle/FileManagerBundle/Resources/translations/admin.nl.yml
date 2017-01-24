@@ -7,3 +7,5 @@ zicht_filemanager:
     value_table_header: "Selecteer bron"
     url_label: "URL"
     upload_label: "Upload"
+    keep_previous_filename: "Behoud bestandsnaam"
+    keep_previous_filename_note: "Het nieuwe bestand zal de bestandsnaam krijgen van het al aanwezige bestand"
