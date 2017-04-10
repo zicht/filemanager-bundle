@@ -193,7 +193,8 @@ class FileType extends AbstractType
                 [
                     'mapped' => false,
                     'label' => 'zicht_filemanager.keep_previous_filename',
-                    'translation_domain' => $options['translation_domain']
+                    'translation_domain' => $options['translation_domain'],
+                    'required' => false,
                 ]
             );
         }
