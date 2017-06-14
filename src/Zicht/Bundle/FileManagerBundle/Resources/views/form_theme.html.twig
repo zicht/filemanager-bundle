@@ -3,7 +3,7 @@
         <p>
             <a href="{{ asset(file_url) }}">
                 {% if file_url|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] %}
-                    <img title="(Current: {{ file_url }})" alt="" src="{{ file_url|imagine_filter('cms') }}">
+                    <img title="(Current: {{ file_url }})" alt="" src="{{ asset(file_url|imagine_filter('cms')) }}">
                 {% else %}
                     {{ file_url }}
                 {% endif %}
