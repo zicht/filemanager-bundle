@@ -12,5 +12,5 @@ Zicht\Bundle\FileManagerBundle\Mapping\OriginalNamingStrategy
 Or you can make your own naming strategy which has to implement
 Zicht\Bundle\FileManagerBundle\Mapping\NamingStrategyInterface
 
-# Maintainer(s)
-* Oskar van Velden <oskar@zicht.nl>
+# Maintainer
+* Boudewijn Schoon <boudewijn@zicht.nl>
