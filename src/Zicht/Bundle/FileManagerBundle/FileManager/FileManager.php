@@ -348,6 +348,11 @@ class FileManager
             );
 
             if (null !== $this->imagineConfig) {
+                if (false !== strpos($relativePath, '/../') || 0 === strpos($relativePath, '../')) {
+                    // outside web root, stop.
+                    return;
+                }
+
                 // Create events for the imagine cache as well.
 
                 /** @var CacheManager $cacheManager */
