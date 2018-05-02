@@ -1,3 +1,4 @@
+
 # Change Log
 All notable changes to this project will be documented in this file.
 
@@ -11,6 +12,10 @@ Nothing so far
 ## 5.0.0
 ### Changed
 From this version on the minimal PHP requirement is `7.0`
+
+## Version 4.6.0
+### Fixed
+clearing the cache for imagine for files outside the web root is disabled.
 
 ## Version 4.3.0
 ### Changes
