@@ -1,3 +1,7 @@
+## Version 4.6.0
+### fixes
+clearing the cache for imagine for files outside the web root is disabled.
+
 ## Version 4.3.0
 ### Changes
 
