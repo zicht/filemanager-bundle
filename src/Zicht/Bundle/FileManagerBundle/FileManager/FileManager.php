@@ -100,8 +100,9 @@ class FileManager
 
             $i = 0;
             do {
-                $f = $this->namingStrategy->normalize($fileName, $i++);
+                $f = $this->namingStrategy->normalize($fileName, $i);
                 $pathname = $dir . '/' . $f;
+                $i++;
             } while ($noclobber && $this->fs->exists($pathname));
             $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);
             $this->fs->touch($pathname);
