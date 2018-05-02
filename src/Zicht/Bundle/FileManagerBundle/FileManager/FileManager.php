@@ -348,18 +348,17 @@ class FileManager
             );
 
             if (null !== $this->imagineConfig) {
+                if (false !== strpos($relativePath, '/../') || 0 === strpos($relativePath, '../')) {
+                    // outside web root, stop.
+                    return;
+                }
+
                 // Create events for the imagine cache as well.
 
                 /** @var CacheManager $cacheManager */
                 /** @var FilterConfiguration $filterConfig */
                 list ($cacheManager, $filterConfig) = $this->imagineConfig;
                 $webPath = $this->httpRoot . '/' . $relativePath;
-
-                if (false !== strpos($webPath, '/../') || 0 === strpos($webPath, '../')) {
-                    // outside web root, stop.
-                    return;
-                }
-
                 $cacheManager->remove($webPath);
 
                 foreach ($filterConfig->all() as $name => $filter) {
