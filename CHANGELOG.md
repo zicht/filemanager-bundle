@@ -1,10 +1,24 @@
+
+# Change Log
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [Unreleased]
+### Added|Changed|Deprecated|Removed|Fixed|Security
+Nothing so far
+
+## 5.0.0
+### Changed
+From this version on the minimal PHP requirement is `7.0`
+
 ## Version 4.6.0
-### fixes
+### Fixed
 clearing the cache for imagine for files outside the web root is disabled.
 
 ## Version 4.3.0
 ### Changes
-
 Default behaviour of the bundle is to systemize *and* lower case file names. By including the following, the
 FileManagerBundle will not transform the original case.
 
