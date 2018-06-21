@@ -126,7 +126,7 @@ class FileType extends AbstractType
         $builder
             ->add(
                 self::UPLOAD_FIELDNAME,
-                \Symfony\Component\Form\Extension\Core\Type\FileType::class,
+                'Symfony\Component\Form\Extension\Core\Type\FileType',
                 array(
                     'translation_domain' => $options['translation_domain'],
                     'label'              => 'zicht_filemanager.upload_file',
