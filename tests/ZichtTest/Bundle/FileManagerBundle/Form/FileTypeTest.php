@@ -5,6 +5,7 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle\Form\Transformer;
 
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
 
@@ -28,8 +29,8 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
     {
         $type = new \Zicht\Bundle\FileManagerBundle\Form\FileType($this->fm);
 
-        $opt = new \Symfony\Component\OptionsResolver\OptionsResolver();
-        $type->setDefaultOptions($opt);
+        $opt = new OptionsResolver();
+        $type->configureOptions($opt);
         $opt = $opt->resolve(array());
 
         $this->assertEquals($opt['data_class'], 'Symfony\Component\HttpFoundation\File\File');
@@ -80,7 +81,7 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
         }));
 
         $opt = new \Symfony\Component\OptionsResolver\OptionsResolver();
-        $type->setDefaultOptions($opt);
+        $type->configureOptions($opt);
         $opt = $opt->resolve(array());
 
         $type->buildForm($builder, $opt);

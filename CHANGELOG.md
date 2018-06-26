@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 6.0.0 - 2018-06-26
+### Added
+- Support for Symfony 3.x
+### Removed
+- Support for Symfony 2.x
+
 ## 5.0.0
 ### Changed
 From this version on the minimal PHP requirement is `7.0`

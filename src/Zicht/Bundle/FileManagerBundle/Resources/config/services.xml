@@ -39,7 +39,7 @@
             <argument type="service" id="zicht_filemanager.filemanager" />
             <tag name="twig.extension" />
         </service>
-        <service id="zicht_filemanager.metadata.annotation_driver" class="%zicht_filemanager.metadata.annotation_driver.class%" public="false">
+        <service id="zicht_filemanager.metadata.annotation_driver" class="%zicht_filemanager.metadata.annotation_driver.class%">
             <argument type="service" id="annotation_reader" />
         </service>
         <service id="zicht_filemanager.metadata" class="%zicht_filemanager.metadata.class%">
@@ -51,7 +51,7 @@
         <service id="zicht_filemanager.form.file_type" class="%zicht_filemanager.form.file_type.class%">
             <argument type="service" id="zicht_filemanager.filemanager" />
             <argument type="service" id="translator.default" />
-            <tag name="form.type" alias="zicht_file" />
+            <tag name="form.type" />
         </service>
         <service id="zicht_filemanager.integrity_checker.database" class="%zicht_filemanager.integrity_checker.database.class%">
             <argument type="service" id="zicht_filemanager.filemanager" />

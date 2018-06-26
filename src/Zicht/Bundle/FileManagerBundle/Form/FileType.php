@@ -7,6 +7,10 @@
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormConfigInterface;
 use Symfony\Component\Form\FormEvent;
@@ -14,6 +18,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Yaml\Yaml;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
@@ -88,24 +93,24 @@ class FileType extends AbstractType
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
-
         $resolver->setDefaults(
-            array(
+            [
                 'entity'             => null,
                 'property'           => null,
                 'show_current_file'  => true,
                 'show_remove'        => true,
                 'show_keep_previous_filename' => true,
                 'translation_domain' => 'admin',
-                'file_types'         => array(),
+                'file_types'         => [],
                 'allow_url'          => false,
-            )
+            ]
         );
     }
+
 
     /**
      * @{inheritDoc}
@@ -121,7 +126,7 @@ class FileType extends AbstractType
         $builder
             ->add(
                 self::UPLOAD_FIELDNAME,
-                'file',
+                'Symfony\Component\Form\Extension\Core\Type\FileType',
                 array(
                     'translation_domain' => $options['translation_domain'],
                     'label'              => 'zicht_filemanager.upload_file',
@@ -133,24 +138,24 @@ class FileType extends AbstractType
             )
             ->add(
                 self::HASH_FIELDNAME,
-                'hidden',
+                HiddenType::class,
                 array(
                     'mapped' => false,
-                    'read_only' => true,
+                    'attr' =>['read_only' => true],
                     'translation_domain' => $options['translation_domain']
                 )
             )
             ->add(
                 self::FILENAME_FIELDNAME,
-                'hidden',
+                HiddenType::class,
                 array(
                     'mapped' => false,
-                    'read_only' => true,
+                    'attr' => ['read_only' => true],
                     'translation_domain' => $options['translation_domain'])
             )
             ->add(
                 self::RADIO_FIELDNAME,
-                'choice',
+                ChoiceType::class,
                 array(
                     'mapped' => false,
                     'expanded' => true,
@@ -164,7 +169,7 @@ class FileType extends AbstractType
             )
             ->add(
                 self::URL_FIELDNAME,
-                'text',
+                TextType::class,
                 array(
                     'mapped' => false,
                     'label' => 'zicht_filemanager.url_label',
@@ -176,7 +181,7 @@ class FileType extends AbstractType
         if ($options['show_remove']) {
             $builder->add(
                 self::REMOVE_FIELDNAME,
-                'checkbox',
+                CheckboxType::class,
                 array(
                     'mapped' => false,
                     'label' => 'zicht_filemanager.remove_file',
@@ -189,7 +194,7 @@ class FileType extends AbstractType
         if ($options['show_keep_previous_filename']) {
             $builder->add(
                 self::KEEP_PREVIOUS_FILENAME,
-                'checkbox',
+                CheckboxType::class,
                 [
                     'mapped' => false,
                     'label' => 'zicht_filemanager.keep_previous_filename',
@@ -301,21 +306,11 @@ class FileType extends AbstractType
     }
 
     /**
-     * Returns the name of this type.
-     *
-     * @return string The name of this type
+     * {@inheritDoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'zicht_file';
-    }
-
-    /**
-     * @return null|string|\Symfony\Component\Form\FormTypeInterface
-     */
-    public function getParent()
-    {
-        return 'form';
     }
 
     /**
