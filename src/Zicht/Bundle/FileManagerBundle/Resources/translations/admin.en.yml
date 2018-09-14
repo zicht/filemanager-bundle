@@ -1,0 +1,11 @@
+zicht_filemanager:
+    remove_file: Remove file
+    remove_file_note: Uploading a new file will replice an existing one
+    upload_file: Upload file
+    wrong_type: 'The file type (%this_type%) is not allowed.  Allowed types are: %allowed_types%'
+    select_table_header: ''
+    value_table_header: Select source
+    url_label: URL
+    upload_label: Upload
+    keep_previous_filename: Keep existing filename
+    keep_previous_filename_note: The newly uploaded file will be given the name of the currently uploaded file
