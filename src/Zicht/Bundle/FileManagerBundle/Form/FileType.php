@@ -18,7 +18,6 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Yaml\Yaml;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
