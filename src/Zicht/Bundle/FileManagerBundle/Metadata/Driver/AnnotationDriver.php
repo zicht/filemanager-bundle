@@ -5,6 +5,7 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Metadata\Driver;
 
+use Metadata\ClassMetadata;
 use Metadata\Driver\DriverInterface;
 use Metadata\MergeableClassMetadata;
 use Doctrine\Common\Annotations\Reader;
@@ -34,7 +35,7 @@ class AnnotationDriver implements DriverInterface
      * @param \ReflectionClass $class
      * @return \Metadata\MergeableClassMetadata
      */
-    public function loadMetadataForClass(\ReflectionClass $class)
+    public function loadMetadataForClass(\ReflectionClass $class): ?ClassMetadata
     {
         $classMetadata = new MergeableClassMetadata($class->getName());
 
