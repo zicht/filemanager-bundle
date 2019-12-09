@@ -2,9 +2,10 @@
 /**
  * @copyright Zicht Online <http://www.zicht.nl>
  */
+
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,8 +17,10 @@ use Symfony\Component\Yaml\Dumper;
  *
  * @package Zicht\Bundle\FileManagerBundle\Command
  */
-class CreateMimeFileCommand extends ContainerAwareCommand
+class CreateMimeFileCommand extends Command
 {
+    protected static $defaultName = 'zicht:filemanager:create:mime';
+
     /**
      * mime types
      */
@@ -29,7 +32,6 @@ class CreateMimeFileCommand extends ContainerAwareCommand
     public function configure()
     {
         $this
-            ->setName('zicht:filemanager:create:mime')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to overwrite existing file')
             ->addOption('dry-run', 'd', InputOption::VALUE_NONE, 'Do a dry run')
             ->setDescription("Makes a (yml) config file for available mime types")

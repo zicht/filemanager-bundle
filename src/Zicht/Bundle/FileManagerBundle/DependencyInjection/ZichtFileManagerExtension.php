@@ -29,7 +29,7 @@ class ZichtFileManagerExtension extends DIExtension
         $loader->load('services.xml');
 
         $formResources = $container->getParameter('twig.form.resources');
-        $formResources[] = 'ZichtFileManagerBundle::form_theme.html.twig';
+        $formResources[] = '@ZichtFileManager/form_theme.html.twig';
         $container->setParameter('twig.form.resources', $formResources);
 
         $container->setParameter('zicht_filemanager.naming_strategy.case_preservation', $config['case_preservation']);
