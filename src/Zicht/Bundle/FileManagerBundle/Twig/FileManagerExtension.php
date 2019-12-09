@@ -5,12 +5,14 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Twig;
 
+use Twig\Extension\AbstractExtension;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
+use Twig\TwigFunction;
 
 /**
  * The twig extension providing the 'file_url' twig function.
  */
-class FileManagerExtension extends \Twig_Extension
+class FileManagerExtension extends AbstractExtension
 {
     protected $fm;
 
@@ -31,8 +33,8 @@ class FileManagerExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            'file_url' => new \Twig_SimpleFunction('file_url', [$this, 'getFileUrl']),
-            'file_urls' => new \Twig_SimpleFunction('file_urls', [$this, 'getFileUrls'])
+            'file_url' => new TwigFunction('file_url', [$this, 'getFileUrl']),
+            'file_urls' => new TwigFunction('file_urls', [$this, 'getFileUrls'])
         );
     }
 

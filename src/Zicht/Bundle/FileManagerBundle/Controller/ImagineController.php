@@ -6,7 +6,7 @@
 namespace Zicht\Bundle\FileManagerBundle\Controller;
 
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package Zicht\Bundle\FileManagerBundle\Controller
  */
-class ImagineController extends Controller
+class ImagineController extends AbstractController
 {
     /**
      * Remove thumbnail for given path
