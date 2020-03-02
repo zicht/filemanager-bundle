@@ -60,7 +60,7 @@ class FileTransformer implements DataTransformerInterface
      * Transforms string (from database) -> File
      *
      * @param mixed $value
-     * @return array|mixed|null
+     * @return File[]|null
      */
     public function transform($value)
     {
@@ -68,10 +68,13 @@ class FileTransformer implements DataTransformerInterface
             $value = $value[FileType::UPLOAD_FIELDNAME];
         }
 
+        $path = call_user_func($this->callback, $value, $this->property);
+        if (!is_string($path)) {
+            return null;
+        }
+
         try {
-            return array(
-                FileType::UPLOAD_FIELDNAME => new File(call_user_func($this->callback, $value, $this->property))
-            );
+            return [FileType::UPLOAD_FIELDNAME => new File($path)];
         } catch (FileNotFoundException $e) {
             return null;
         }
