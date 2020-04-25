@@ -32,6 +32,7 @@
             <argument>%zicht_filemanager.http_root%</argument>
             <argument type="service" id="zicht_filemanager.naming_strategy"/>
         </service>
+        <service id="Zicht\Bundle\FileManagerBundle\FileManager\FileManager" alias="zicht_filemanager.filemanager"/>
         <service id="zicht_filemanager.twig_extension" class="Zicht\Bundle\FileManagerBundle\Twig\FileManagerExtension">
             <argument type="service" id="zicht_filemanager.filemanager"/>
             <tag name="twig.extension"/>

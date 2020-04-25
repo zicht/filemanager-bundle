@@ -51,7 +51,7 @@
             "phpcbf --standard=vendor/zicht/standards-php/phpcs.xml src/ tests/"
         ],
         "test": [
-            "./vendor/bin/phpunit tests/"
+            "phpunit tests/"
         ]
     }
 }
