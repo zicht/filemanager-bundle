@@ -49,7 +49,7 @@ Add the following to your config.yml:
 twig:
     form:
         resources:
-            - 'ZichtFileManagerBundle::form_theme.html.twig'
+            - '@ZichtFileManager/form_theme.html.twig'
 
 ## Twig ##
 

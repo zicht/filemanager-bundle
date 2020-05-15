@@ -4,7 +4,7 @@
  */
 namespace Zicht\Bundle\FileManagerBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Represents an event that happened to a file.

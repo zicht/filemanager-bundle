@@ -12,27 +12,46 @@
         "php": "^7.2",
         "doctrine/orm": "^2.5",
         "jms/metadata": "^2.1",
-        "symfony/symfony": "^3.4",
+        "symfony/config": "^4.4",
+        "symfony/console": "^4.4",
+        "symfony/dependency-injection": "^4.4",
+        "symfony/form": "^4.4",
+        "symfony/http-kernel": "^4.4",
+        "twig/twig": "^2.7 || ^3",
         "zicht/util": "^1.7"
     },
     "require-dev": {
-        "doctrine/doctrine-bundle": "^1",
-        "phpunit/phpunit": "^4"
+        "phpunit/phpunit": "^5",
+        "zicht/standards-php": "^4"
     },
     "autoload": {
         "psr-4": {
             "Zicht\\Bundle\\FileManagerBundle\\": [
-                "src/Zicht/Bundle/FileManagerBundle/"
+                "src/"
             ]
         }
     },
     "autoload-dev": {
         "psr-4": {
             "ZichtTest\\Bundle\\FileManagerBundle\\": [
-                "tests/ZichtTest/Bundle/FileManagerBundle/"
+                "tests/"
             ]
         }
     },
     "minimum-stability": "stable",
-    "license": "MIT"
+    "license": "MIT",
+    "scripts": {
+        "lint": [
+            "phpcs --standard=vendor/zicht/standards-php/phpcs.xml src/ tests/"
+        ],
+        "lint-no-warn": [
+            "phpcs -n --standard=vendor/zicht/standards-php/phpcs.xml src/ tests/"
+        ],
+        "lint-fix": [
+            "phpcbf --standard=vendor/zicht/standards-php/phpcs.xml src/ tests/"
+        ],
+        "test": [
+            "phpunit tests/"
+        ]
+    }
 }

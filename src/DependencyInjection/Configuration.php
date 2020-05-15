@@ -24,8 +24,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('zicht_file_manager');
+        $treeBuilder = new TreeBuilder('zicht_file_manager');
+        $rootNode = $treeBuilder->getRootNode();
         
         $rootNode->children()
             // Default behaviour is to lower case file names

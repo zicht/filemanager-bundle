@@ -2,26 +2,51 @@
 /**
  * @copyright Zicht Online <http://zicht.nl>
  */
+
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Zicht\Bundle\FileManagerBundle\Doctrine\EntityHelper;
+use Zicht\Bundle\FileManagerBundle\Integrity\DatabaseChecker;
+use Zicht\Bundle\FileManagerBundle\Integrity\FilesystemChecker;
 
 /**
  * A command to check if the files in the database are in sync with the files on disk or vice versa.
  */
-class FileCheckCommand extends ContainerAwareCommand
+class FileCheckCommand extends Command
 {
+    protected static $defaultName = 'zicht:filemanager:check';
+    /**
+     * @var DatabaseChecker
+     */
+    private $databaseChecker;
+    /**
+     * @var FilesystemChecker
+     */
+    private $filesystemChecker;
+    /**
+     * @var EntityHelper
+     */
+    private $entityHelper;
+
+    public function __construct(DatabaseChecker $databaseChecker, FilesystemChecker $filesystemChecker, EntityHelper $entityHelper, string $name = null)
+    {
+        parent::__construct($name);
+        $this->databaseChecker = $databaseChecker;
+        $this->filesystemChecker = $filesystemChecker;
+        $this->entityHelper = $entityHelper;
+    }
+
     /**
      * @{inheritDoc}
      */
     public function configure()
     {
         $this
-            ->setName('zicht:filemanager:check')
             ->addArgument('entity', InputArgument::OPTIONAL, 'The entity to check.', null)
             ->addOption('purge', '', InputOption::VALUE_NONE, 'Purge the values that do not exist')
             ->addOption('inverse', '', InputOption::VALUE_NONE, 'Inverse the check: check files against database')
@@ -34,25 +59,21 @@ class FileCheckCommand extends ContainerAwareCommand
             );
     }
 
-
     /**
      * @{inheritDoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var $checker \Zicht\Bundle\FileManagerBundle\Integrity\CheckerInterface */
-        $container = $this->getContainer();
-
         if ($input->getOption('inverse')) {
-            $checker = $container->get('zicht_filemanager.integrity_checker.database');
+            $checker = $this->databaseChecker;
         } else {
-            $checker = $container->get('zicht_filemanager.integrity_checker.filesystem');
+            $checker = $this->filesystemChecker;
         }
 
         if ($entityClass = $input->getArgument('entity')) {
             $entityClasses = array($entityClass);
         } else {
-            $entityClasses = $container->get('zicht_filemanager.entity_helper')->getManagedEntities();
+            $entityClasses = $this->entityHelper->getManagedEntities();
         }
 
         if ($input->getOption('purge')) {
