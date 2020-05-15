@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 6.0.2 - 2020-05-15
+### Changed
+- Switched from PSR-0 to PSR-4 autoloading
+### Removed
+- Author file tag/annotation
+### Fixed
+- Drop false positives in deprecations check of OptionsResolverInterface
+
+## 6.0.1 - 2019-09-14
+### Added
+- English translations (merged in from v5.0.2)
+
 ## 6.0.0 - 2018-06-26
 ### Added
 - Support for Symfony 3.x

@@ -20,10 +20,16 @@
         "phpunit/phpunit": "^4"
     },
     "autoload": {
-        "psr-0": {
-            "": [
-                "src/",
-                "tests/"
+        "psr-4": {
+            "Zicht\\Bundle\\FileManagerBundle\\": [
+                "src/Zicht/Bundle/FileManagerBundle/"
+            ]
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZichtTest\\Bundle\\FileManagerBundle\\": [
+                "tests/ZichtTest/Bundle/FileManagerBundle/"
             ]
         }
     },
