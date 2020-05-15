@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 7.0.2 - 2020-05-15
+### Changed
+- Switched from PSR-0 to PSR-4 autoloading (merged in from v6.0.2)
+
+## 7.0.1 - 2019-11-07
+### Fixed
+- Bugfix for the metadata driver
+
+## 7.0.0 - 2019-11-06
+### Changed
+- Minimum PHP version from 7.0 to 7.2
+- Switched jms/metadata from v1 to v2
+### Removed
+- Author file tag/annotation (inherited from unrelease v6 changes)
+### Fixed
+- Drop false positives in deprecations check of OptionsResolverInterface (inherited from unrelease v6 changes)
+
 ## 6.0.2 - 2020-05-15
 ### Changed
 - Switched from PSR-0 to PSR-4 autoloading
