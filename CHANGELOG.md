@@ -14,6 +14,8 @@ Nothing so far
 - Support for Symfony 4.x and Twig 3.x
 ### Removed
 - Support for Symfony 3.x
+### Changed
+- Removed Zicht(Test)/Bundle/FileManagerBundle/ directory depth: moved all code up directly into src/ and test/
 
 ## 7.0.2 - 2020-05-15
 ### Changed
