@@ -342,8 +342,8 @@ class FileManager
         if (null !== $this->eventDispatcher) {
             $relativePath = $this->fs->makePathRelative(dirname($filePath), $this->root) . basename($filePath);
             $this->eventDispatcher->dispatch(
-                $eventType,
-                new ResourceEvent($relativePath, $this->httpRoot, $this->root)
+                new ResourceEvent($relativePath, $this->httpRoot, $this->root),
+                $eventType
             );
 
             if (null !== $this->imagineConfig) {
@@ -370,8 +370,8 @@ class FileManager
 
                     if (false === strpos($url, '../')) {
                         $this->eventDispatcher->dispatch(
-                            $eventType,
-                            new ResourceEvent($url, $this->httpRoot, $this->root)
+                            new ResourceEvent($url, $this->httpRoot, $this->root),
+                            $eventType
                         );
                     }
                 }
