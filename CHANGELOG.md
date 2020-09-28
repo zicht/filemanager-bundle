@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 8.0.1 - 2020-09-25
+### Fixed
+- `FileManager` is now compatible with Symfony 4.x
+
 ## 8.0.0 - 2020-05-15
 ### Added
 - Support for Symfony 4.x and Twig 3.x

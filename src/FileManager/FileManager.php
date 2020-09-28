@@ -342,8 +342,8 @@ class FileManager
         if (null !== $this->eventDispatcher) {
             $relativePath = $this->fs->makePathRelative(dirname($filePath), $this->root) . basename($filePath);
             $this->eventDispatcher->dispatch(
-                $eventType,
-                new ResourceEvent($relativePath, $this->httpRoot, $this->root)
+                new ResourceEvent($relativePath, $this->httpRoot, $this->root),
+                $eventType
             );
 
             if (null !== $this->imagineConfig) {
@@ -366,12 +366,12 @@ class FileManager
                     // this weird construct is here because the imagine cache manager generates absolute urls
                     // even though they're local for some unapparent reason.
                     $relativeUrl = parse_url($url, PHP_URL_PATH);
-                    $url = $this->fs->makePathRelative(dirname($relativeUrl), $this->httpRoot) . basename($relativeUrl);
+                    $url = $this->fs->makePathRelative(dirname($relativeUrl), $this->root) . basename($relativeUrl);
 
                     if (false === strpos($url, '../')) {
                         $this->eventDispatcher->dispatch(
-                            $eventType,
-                            new ResourceEvent($url, $this->httpRoot, $this->root)
+                            new ResourceEvent($url, $this->httpRoot, $this->root),
+                            $eventType
                         );
                     }
                 }
