@@ -3,7 +3,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="zicht_filemanager.filemanager.class">Zicht\Bundle\FileManagerBundle\FileManager\FileManager</parameter>
-        <parameter key="zicht_filemanager.root">%kernel.root_dir%/../web/media</parameter>
+        <parameter key="zicht_filemanager.root">%kernel.project_dir%/public/media</parameter>
         <parameter key="zicht_filemanager.http_root">media</parameter>
         <parameter key="zicht_filemanager.metadata_factory.class">Metadata\MetadataFactory</parameter>
         <parameter key="zicht_filemanager.metadata.class">Zicht\Bundle\FileManagerBundle\Doctrine\MetadataRegistry</parameter>

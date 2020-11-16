@@ -2,8 +2,8 @@
 
 This bundle provides a quick and easy link between doctrine model properties and files. The bundle provides an
 @File annotation, with which the filemanager is notified about the fact that the property contains a file name.
-The files are stored in a common root (e.g. web/media) and are partitioned in {entity}/{field}. For example, a User
-entity's 'avatar' field would become web/media/user/avatar/thefile.jpg.
+The files are stored in a common root (e.g. public/media) and are partitioned in {entity}/{field}. For example, a User
+entity's 'avatar' field would become public/media/user/avatar/thefile.jpg.
 
 ## Installing ##
 
@@ -11,7 +11,7 @@ entity's 'avatar' field would become web/media/user/avatar/thefile.jpg.
 * Add the bundle to your AppKernel
 * Use the annotation in your model and annotate your property with it:
 
-        use \Zicht\Bundle\FileManagerBundle\Annotation\File;
+        use Zicht\Bundle\FileManagerBundle\Annotation\File;
 
         // ....
         /**
@@ -84,24 +84,24 @@ You should use the 'zicht_file' type to handle uploads in forms:
 The check command compares the values in the database to the files present on disk, or vice versa.
 To check if there are values in the database that aren't present on disk, you run the zicht:filemanager:check command:
 
-    php app/console zicht:filemanager:check
+    php bin/console zicht:filemanager:check
 
 To clear the values that aren't present on disk, pass the --purge flag:
 
-    php app/console zicht:filemanager:check --purge
+    php bin/console zicht:filemanager:check --purge
 
 To check if there are files on disk that are not present in the database you pass the --inverse flag:
 
-    php app/console zicht:filemanager:check --inverse
+    php bin/console zicht:filemanager:check --inverse
 
 To delete all files that are managed by the filemanager but are not present in the database, pass the --purge flag:
 
-    php app/console zicht:filemanager:check --inverse --purge
+    php bin/console zicht:filemanager:check --inverse --purge
 
 You can pass an optional entity alias to check only one specific repository. Otherwise, all entities with file
 annotations are checked.
 
-    php app/console zicht:filemanager:check AcmeDemoBundle:SomeEntity
+    php bin/console zicht:filemanager:check AcmeDemoBundle:SomeEntity
 
 ## How does it work, exactly? ##
 
