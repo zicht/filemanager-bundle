@@ -11,6 +11,7 @@
     "require": {
         "php": "^7.0",
         "symfony/symfony": "^3.4",
+        "twig/twig": "^1.40 || ^2.9",
         "jms/metadata": "^1.5",
         "zicht/util": "^1.7",
         "doctrine/orm": "^2.5"

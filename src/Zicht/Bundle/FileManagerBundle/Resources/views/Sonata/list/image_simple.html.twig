@@ -1,0 +1,6 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+
+{% block field %}
+    {% set image_url = file_url(object, field_description.getFieldName()) %}
+    <img src="{{ asset(image_url) }}" title="{{ image_url }}" alt="" style="max-height: 50px; max-width: 50px;">
+{% endblock %}
