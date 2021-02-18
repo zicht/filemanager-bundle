@@ -1,0 +1,19 @@
+{% extends 'ZichtFileManagerBundle::form_theme.html.twig' %}
+
+{% block zicht_file_widget__current_file %}
+    {% if file_url is defined and show_current_file %}
+        <p>
+            <a href="{{ asset(file_url) }}" target="_blank">
+                {% if (file_url|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] or file_url|lower[-5:] == '.jpeg') %}
+                    <img title="(Current: {{ file_url }})" alt="" src="{{ asset(file_url) }}" style="max-height: 50px; max-width: 50px;">
+                {% elseif (file_url|lower[-3:] in ['mp3']) %}
+                    <audio src="{{ asset(file_url) }}" controls></audio>
+                {% else %}
+                    <p>
+                        {{ file_url }}
+                    </p>
+                {% endif %}
+            </a>
+        </p>
+    {% endif %}
+{% endblock %}
