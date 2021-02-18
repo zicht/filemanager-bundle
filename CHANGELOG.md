@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 6.0.3 - 2021-02-18
+### Changed
+- Improve Twig templates compatibility
+
 ## 6.0.2 - 2020-05-15
 ### Changed
 - Switched from PSR-0 to PSR-4 autoloading

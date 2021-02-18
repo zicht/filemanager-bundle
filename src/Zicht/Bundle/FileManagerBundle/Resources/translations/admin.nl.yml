@@ -3,7 +3,6 @@ zicht_filemanager:
     remove_file_note:   "Door een nieuw bestand te selecteren wordt de bestaande vervangen"
     upload_file:        "Bestand uploaden"
     wrong_type:         "Het bestand type (%this_type%) is niet toegestaan, toegestaande types: %allowed_types%"
-    select_table_header: ""
     value_table_header: "Selecteer bron"
     url_label: "URL"
     upload_label: "Upload"

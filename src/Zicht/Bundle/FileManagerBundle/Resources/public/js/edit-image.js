@@ -10,7 +10,8 @@ $(function () {
         if (fileUrl) {
             fileUrl = fileUrl.split('?')[0];
 
-            $trigger.click(function (e) {
+            $trigger.show()
+                .click(function (e) {
                 e.preventDefault();
 
                 moxman.edit({
