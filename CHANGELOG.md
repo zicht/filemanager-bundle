@@ -6,13 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added|Changed|Deprecated|Removed|Fixed|Security
+Nothing so far
+
+## 8.0.2 - 2021-02-18
 ### Changed
 - Changed the use of the deprecated `kernel.root_dir` into `kernel.project_dir` and web/ into public/
+- Forward merge of v7.0.3/v6.0.3: Improve Twig templates compatibility
 - Autofixed linter errors
 ### Updated
 - Updated the docs to Symfony 4
-### Added|Changed|Deprecated|Removed|Fixed|Security
-Nothing else so far
 
 ## 8.0.1 - 2020-09-25
 ### Fixed
