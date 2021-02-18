@@ -25,6 +25,10 @@ Nothing else so far
 ### Changed
 - Removed Zicht(Test)/Bundle/FileManagerBundle/ directory depth: moved all code up directly into src/ and test/
 
+## 7.0.3 - 2021-02-18
+### Changed
+- Forward merge of v6.0.3: Improve Twig templates compatibility
+
 ## 7.0.2 - 2020-05-15
 ### Changed
 - Switched from PSR-0 to PSR-4 autoloading (merged in from v6.0.2)
@@ -41,6 +45,10 @@ Nothing else so far
 - Author file tag/annotation (inherited from unrelease v6 changes)
 ### Fixed
 - Drop false positives in deprecations check of OptionsResolverInterface (inherited from unrelease v6 changes)
+
+## 6.0.3 - 2021-02-18
+### Changed
+- Improve Twig templates compatibility
 
 ## 6.0.2 - 2020-05-15
 ### Changed

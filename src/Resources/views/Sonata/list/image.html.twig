@@ -1,8 +1,10 @@
 {% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+
 {% block field %}
+    {% set image_url = file_url(object, field_description.getFieldName()) %}
     {% if field_description.options.imagine_filter is defined %}
-        <img src="{{ file_url(object, field_description.getFieldName())|imagine_filter(field_description.options.imagine_filter) }}">
+        <img src="{{ image_url|imagine_filter(field_description.options.imagine_filter) }}" title="{{ image_url }}" alt="">
     {% else %}
-        <img src="{{ asset(file_url(object, field_description.getFieldName())) }}">
+        <img src="{{ asset(image_url) }}" title="{{ image_url }}" alt="" style="max-height: 50px; max-width: 50px;">
     {% endif %}
 {% endblock %}

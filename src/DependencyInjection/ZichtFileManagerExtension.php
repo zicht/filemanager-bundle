@@ -28,8 +28,13 @@ class ZichtFileManagerExtension extends DIExtension
         $loader = new XmlFileLoader($container, new FileLocator(array(__DIR__.'/../Resources/config/')));
         $loader->load('services.xml');
 
+        $bundles = $container->getParameter('kernel.bundles');
         $formResources = $container->getParameter('twig.form.resources');
-        $formResources[] = '@ZichtFileManager/form_theme.html.twig';
+        if (array_key_exists('ZichtMoxieManagerBundle', $bundles) && array_key_exists('LiipImagineBundle', $bundles)) {
+            $formResources[] = '@ZichtFileManager/form_theme.html.twig';
+        } else {
+            $formResources[] = 'ZichtFileManagerBundle::form_theme_simple.html.twig';
+        }
         $container->setParameter('twig.form.resources', $formResources);
 
         $container->setParameter('zicht_filemanager.naming_strategy.case_preservation', $config['case_preservation']);
