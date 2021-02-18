@@ -1,0 +1,90 @@
+{% block zicht_file_widget %}
+    <div style="margin-left: 2em;">
+        {% block zicht_file_widget__current_file %}
+            {% if file_url is defined and show_current_file %}
+                <p>
+                    <a href="{{ asset(file_url) }}" target="_blank">
+                        {% if (file_url|lower[-3:] in ['jpg', 'jpeg', 'png', 'gif'] or file_url|lower[-5:] == '.jpeg') %}
+                            <img title="(Current: {{ file_url }})" alt="" src="{{ asset(file_url) }}" style="max-height: 50px; max-width: 50px;">
+                        {% elseif (file_url|lower[-3:] in ['mp3']) %}
+                            <audio src="{{ asset(file_url) }}" controls></audio>
+                        {% else %}
+                            {{ file_url }}
+                        {% endif %}
+                    </a>
+                </p>
+            {% endif %}
+        {% endblock %}
+
+        {% block zicht_file_widget__actions %}
+            {%- apply spaceless %}
+                <div {{ block('widget_container_attributes') }}>
+                    {% if form.parent is empty %}
+                        {{ form_errors(form) }}
+                    {% endif %}
+                    {% if allow_url == true %}
+                        <table class="zicht_file">
+                            <thead>
+                            <tr>
+                                <th colspan="2">{{ 'zicht_filemanager.value_table_header'|trans({}, translation_domain) }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td style="padding-right: 1.4em;">
+                                    <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') }}"{{ form.select.vars.value == constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') ? ' checked="checked"' : '' }}> </td>
+                                </td>
+                                <td>
+                                    {{ form_label(form.upload_file) }}
+                                    {{ form_widget(form.upload_file) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-right: 1.4em;">
+                                    <input type="radio" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_URL') }}"{{ form.select.vars.value == constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_URL') ? ' checked="checked"' : '' }}>
+                                </td>
+                                <td>
+                                    {{ form_label(form.url) }}
+                                    {{ form_widget(form.url) }}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <input type="hidden" name="{{ form.select.vars.full_name }}" value="{{ constant('Zicht\\Bundle\\FileManagerBundle\\Form\\FileType::FILE_UPLOAD') }}">
+                        {% do form.url.setRendered %} {# don't need to render the url field #}
+                        {% do form.select.setRendered %} {# don't need to render the radio button #}
+                        {{ form_row(form.upload_file) }}
+                    {% endif %}
+
+                    {{ form_widget(form.hash) }} {# hidden field #}
+                    {{ form_widget(form.filename) }} {# hidden field #}
+
+                    {% if form.remove is defined %}
+                        {% if file_url is defined %}
+                            <p><small>{{ "zicht_filemanager.remove_file_note"|trans({}, translation_domain) }}</small></p>
+                            {{ form_widget(form.remove) }}
+                        {% endif %}
+                        {% if form.remove|default %}
+                            {% do form.remove.setRendered %}
+                        {% endif %}
+                        {% if form.select|default %}
+                            {% do form.select.setRendered %} {# not sure there is a better way to do this #}
+                        {% endif %}
+                    {% endif %}
+
+                    {% if form.keep_previous_filename is defined %}
+                        {% if file_url is defined %}
+                            <p><small>{{ "zicht_filemanager.keep_previous_filename_note"|trans({}, translation_domain) }}</small></p>
+                            {{ form_widget(form.keep_previous_filename) }}
+                        {% else %}
+                            {% do form.keep_previous_filename.setRendered %}
+                        {% endif %}
+                    {% endif %}
+
+                    {{ form_rest(form) }}
+                </div>
+            {% endapply -%}
+        {% endblock %}
+    </div>
+{% endblock %}
