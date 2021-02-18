@@ -33,7 +33,7 @@ class ZichtFileManagerExtension extends DIExtension
         if (array_key_exists('ZichtMoxieManagerBundle', $bundles) && array_key_exists('LiipImagineBundle', $bundles)) {
             $formResources[] = '@ZichtFileManager/form_theme.html.twig';
         } else {
-            $formResources[] = 'ZichtFileManagerBundle::form_theme_simple.html.twig';
+            $formResources[] = '@ZichtFileManager/form_theme_simple.html.twig';
         }
         $container->setParameter('twig.form.resources', $formResources);
 
