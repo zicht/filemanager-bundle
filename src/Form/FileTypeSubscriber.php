@@ -37,22 +37,22 @@ class FileTypeSubscriber implements EventSubscriberInterface
      * @param array $allowedFileTypes
      * @internal param string $entity
      */
-    public function __construct(FileManager $fileManager, $field, Translator $translator, array $allowedFileTypes = array())
+    public function __construct(FileManager $fileManager, $field, Translator $translator, array $allowedFileTypes = [])
     {
-        $this->fileManager      = $fileManager;
-        $this->field            = $field;
-        $this->translator       = $translator;
+        $this->fileManager = $fileManager;
+        $this->field = $field;
+        $this->translator = $translator;
         $this->allowedFileTypes = $allowedFileTypes;
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            FormEvents::PRE_SUBMIT    => 'preSubmit',
-        );
+        return [
+            FormEvents::PRE_SUBMIT => 'preSubmit',
+        ];
     }
 
 
@@ -96,16 +96,13 @@ class FileTypeSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Validate file.
-     *
      * @param File $file
      * @param FormEvent $event
      */
     protected function validateFile($file, FormEvent $event)
     {
         if ($file instanceof File) {
-
-            $isValidFile  = true;
+            $isValidFile = true;
 
             //check if the file is allowed by the MIME-types constraint given
             if (!empty($this->allowedFileTypes) && null !== $mime = $file->getMimeType()) {
@@ -113,16 +110,16 @@ class FileTypeSubscriber implements EventSubscriberInterface
                     $isValidFile = false;
                     $message = $this->translator->trans(
                         'zicht_filemanager.wrong_type',
-                        array(
-                            '%this_type%'     => $mime,
-                            '%allowed_types%' => implode(', ', $this->allowedFileTypes)
-                        ),
+                        [
+                            '%this_type%' => $mime,
+                            '%allowed_types%' => implode(', ', $this->allowedFileTypes),
+                        ],
                         $event->getForm()->getConfig()->getOption('translation_domain')
                     );
 
                     $event->getForm()->addError(new FormError($message));
                     /** Set back data to old so we don`t see new file */
-                    $event->setData(array(FileType::UPLOAD_FIELDNAME => $event->getForm()->getData()));
+                    $event->setData([FileType::UPLOAD_FIELDNAME => $event->getForm()->getData()]);
                 }
             }
 
@@ -182,7 +179,6 @@ class FileTypeSubscriber implements EventSubscriberInterface
 
                 //use the original form data, so the field isn't empty
             } elseif ($event->getForm()->getData() !== null) {
-
                 unset($data[FileType::HASH_FIELDNAME]);
                 unset($data[FileType::FILENAME_FIELDNAME]);
 

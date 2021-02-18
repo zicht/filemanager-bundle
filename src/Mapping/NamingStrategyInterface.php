@@ -5,11 +5,6 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Mapping;
 
-/**
- * Interface NamingStrategyInterface
- *
- * @package Zicht\Bundle\FileManagerBundle\Mapping
- */
 interface NamingStrategyInterface
 {
     /**
@@ -23,8 +18,6 @@ interface NamingStrategyInterface
     const LOWER_CASE = false;
 
     /**
-     * NamingStrategy constructor.
-     *
      * @param bool $casePreservation
      */
     public function __construct($casePreservation = self::LOWER_CASE);

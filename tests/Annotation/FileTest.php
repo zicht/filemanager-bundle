@@ -11,7 +11,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 {
     function testConstructor()
     {
-        $t = new File(array('metadata' => true));
-        $this->assertEquals($t->settings, array('metadata' => true));
+        $t = new File(['metadata' => true]);
+        $this->assertEquals($t->settings, ['metadata' => true]);
     }
 }

@@ -18,7 +18,7 @@ class FileManagerExtensionTest extends \PHPUnit_Framework_TestCase
         $fm  = $this->getMockBuilder('Zicht\Bundle\FileManagerBundle\FileManager\FileManager')->disableOriginalConstructor()->getMock();
         $ext = new \Zicht\Bundle\FileManagerBundle\Twig\FileManagerExtension($fm);
 
-        return array($ext, $fm);
+        return [$ext, $fm];
     }
 
 

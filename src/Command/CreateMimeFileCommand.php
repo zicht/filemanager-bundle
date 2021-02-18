@@ -12,11 +12,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Dumper;
 
-/**
- * Class CreateMimeFileCommand
- *
- * @package Zicht\Bundle\FileManagerBundle\Command
- */
 class CreateMimeFileCommand extends Command
 {
     protected static $defaultName = 'zicht:filemanager:create:mime';
@@ -27,24 +22,22 @@ class CreateMimeFileCommand extends Command
     const MIME_FILE = '/etc/mime.types';
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function configure()
     {
         $this
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to overwrite existing file')
             ->addOption('dry-run', 'd', InputOption::VALUE_NONE, 'Do a dry run')
-            ->setDescription("Makes a (yml) config file for available mime types")
+            ->setDescription('Makes a (yml) config file for available mime types')
             ->setHelp(
-                "Makes a (yml) config file for available mime types, it reads /etc/mime.types"
-                . " and creates from this file a yml file that can be used for the file_types option"
-                . " So it knows that jpg is image/jpeg and can check the mime types and limit input fields"
+                'Makes a (yml) config file for available mime types, it reads /etc/mime.types'
+                . ' and creates from this file a yml file that can be used for the file_types option'
+                . ' So it knows that jpg is image/jpeg and can check the mime types and limit input fields'
             );
     }
 
     /**
-     * Execute
-     *
      * @param InputInterface $input
      * @param OutputInterface $output
      */
@@ -55,7 +48,7 @@ class CreateMimeFileCommand extends Command
         $dumper = new Dumper();
         $file = sprintf('%s/../Resources/config/mime.yml', __DIR__);
 
-        $result = array();
+        $result = [];
 
         if (false !== $content = file_get_contents(self::MIME_FILE)) {
             foreach (explode("\n", $content) as $line) {
@@ -76,7 +69,6 @@ class CreateMimeFileCommand extends Command
             if (false === file_put_contents($file, $ymlDump)) {
                 throw new \RuntimeException(sprintf('could not write to file: %s', $file));
             } else {
-
                 $output->writeln(sprintf('Successful writing file: <info>%s</info>', realpath($file)));
             }
         } elseif (file_exists($file) && !$dryRun) {

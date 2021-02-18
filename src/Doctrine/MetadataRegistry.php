@@ -12,14 +12,12 @@ use Metadata\MetadataFactoryInterface;
 class MetadataRegistry
 {
     /**
-     * Constructor.
-     *
      * @param \Metadata\MetadataFactoryInterface $metadataFactory
      */
     public function __construct(MetadataFactoryInterface $metadataFactory)
     {
         $this->metadataFactory = $metadataFactory;
-        $this->managedFields = array();
+        $this->managedFields = [];
     }
 
 
@@ -35,12 +33,12 @@ class MetadataRegistry
 
         if (!isset($this->managedFields[$class])) {
             $entityClass = get_class($entity);
-            $this->managedFields[$class] = array();
+            $this->managedFields[$class] = [];
             do {
                 $metadata = $this->metadataFactory->getMetadataForClass($entityClass);
                 foreach ($metadata->propertyMetadata as $field => $metadata) {
                     if (isset($metadata->fileManager)) {
-                        $this->managedFields[$class][] =$field;
+                        $this->managedFields[$class][] = $field;
                     }
                 }
             } while ($entityClass = get_parent_class($entityClass));

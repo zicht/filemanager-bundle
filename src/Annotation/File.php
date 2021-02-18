@@ -14,8 +14,6 @@ class File
     public $settings = null;
 
     /**
-     * Constructor.
-     *
      * @param array $data
      */
     public function __construct(array $data)

@@ -26,8 +26,6 @@ class FileTransformer implements DataTransformerInterface
     private $property;
 
     /**
-     * Constructor.
-     *
      * @param callback $callback
      * @param string $property
      */

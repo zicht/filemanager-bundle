@@ -17,8 +17,6 @@ class FileManagerExtension extends AbstractExtension
     protected $fm;
 
     /**
-     * Constructor.
-     *
      * @param \Zicht\Bundle\FileManagerBundle\FileManager\FileManager $fm
      */
     public function __construct(FileManager $fm)
@@ -28,14 +26,14 @@ class FileManagerExtension extends AbstractExtension
 
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function getFunctions()
     {
-        return array(
+        return [
             'file_url' => new TwigFunction('file_url', [$this, 'getFileUrl']),
-            'file_urls' => new TwigFunction('file_urls', [$this, 'getFileUrls'])
-        );
+            'file_urls' => new TwigFunction('file_urls', [$this, 'getFileUrls']),
+        ];
     }
 
 
@@ -50,7 +48,7 @@ class FileManagerExtension extends AbstractExtension
      */
     public function getFileUrl($entity, $field, $value = null)
     {
-        return call_user_func_array(array($this->fm, 'getFileUrl'), func_get_args());
+        return call_user_func_array([$this->fm, 'getFileUrl'], func_get_args());
     }
 
     /**
@@ -62,7 +60,7 @@ class FileManagerExtension extends AbstractExtension
      */
     public function getFileUrls($entities, $field)
     {
-        $urls = array();
+        $urls = [];
         foreach ($entities as $entity) {
             $urls [] = $this->fm->getFileUrl($entity, $field);
         }
@@ -71,7 +69,7 @@ class FileManagerExtension extends AbstractExtension
 
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function getName()
     {

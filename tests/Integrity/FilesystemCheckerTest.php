@@ -18,12 +18,13 @@ class FilesystemCheckerTest extends AbstractCheckerTestCase
     }
 
 
-    function testChecker() {
+    function testChecker()
+    {
         $checker = new FilesystemChecker($this->fm, $this->mf, $this->doctrine);
         $this->fm->expects($this->at(0))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/foo'));
         $this->fm->expects($this->at(1))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/bar'));
         $logResult = '';
-        $checker->setLoggingCallback(function($d) use(&$logResult) {
+        $checker->setLoggingCallback(function ($d) use (&$logResult) {
             $logResult .= $d . "\n";
         });
         $checker->check('Foo');
@@ -31,12 +32,13 @@ class FilesystemCheckerTest extends AbstractCheckerTestCase
         $this->assertRegExp('!File does not exist:[^\n]+bar!', $logResult);
     }
 
-    function testChecker2() {
+    function testChecker2()
+    {
         $checker = new FilesystemChecker($this->fm, $this->mf, $this->doctrine);
         $this->fm->expects($this->at(0))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/foo'));
         $this->fm->expects($this->at(1))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/bar'));
         $logResult = '';
-        $checker->setLoggingCallback(function($d) use(&$logResult) {
+        $checker->setLoggingCallback(function ($d) use (&$logResult) {
             $logResult .= $d . "\n";
         });
 
@@ -49,11 +51,12 @@ class FilesystemCheckerTest extends AbstractCheckerTestCase
     }
 
 
-    function testPurge() {
+    function testPurge()
+    {
         $checker = new FilesystemChecker($this->fm, $this->mf, $this->doctrine);
         $checker->setPurge(true);
 
-        $manager = $this->getMockBuilder('Doctrine\ORM\EntityManager')->setMethods(array('persist', 'flush'))->disableOriginalConstructor()->getMock();
+        $manager = $this->getMockBuilder('Doctrine\ORM\EntityManager')->setMethods(['persist', 'flush'])->disableOriginalConstructor()->getMock();
         $this->doctrine->expects($this->any())->method('getManager')->will($this->returnValue($manager));
         $manager->expects($this->atLeastOnce())->method('persist');
         $manager->expects($this->atLeastOnce())->method('flush');
@@ -66,6 +69,5 @@ class FilesystemCheckerTest extends AbstractCheckerTestCase
         }
 
         $checker->check('Foo');
-
     }
 }

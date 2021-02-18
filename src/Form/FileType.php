@@ -5,6 +5,7 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Form;
 
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -20,24 +21,18 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Yaml\Yaml;
 use Zicht\Bundle\FileManagerBundle\FileManager\FileManager;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
-/**
- * Class FileType
- *
- * @package Zicht\Bundle\FileManagerBundle\Form
- */
 class FileType extends AbstractType
 {
     /**
      * The HTML-fieldname for the upload field
      */
-    const UPLOAD_FIELDNAME   = 'upload_file';
+    const UPLOAD_FIELDNAME = 'upload_file';
 
     /**
      * The HTML-fieldname for the (hidden) hash field
      */
-    const HASH_FIELDNAME     = 'hash';
+    const HASH_FIELDNAME = 'hash';
 
     /**
      * The HTML-fieldname for the (hidden) filename field
@@ -47,27 +42,27 @@ class FileType extends AbstractType
     /**
      * The HTML-fieldname for the remove checkbox field
      */
-    const REMOVE_FIELDNAME   = 'remove';
+    const REMOVE_FIELDNAME = 'remove';
 
     /**
      * Name of the 'select' part of the field
      */
-    const RADIO_FIELDNAME    = 'select';
+    const RADIO_FIELDNAME = 'select';
 
     /**
      * Name of the 'url' part of the field
      */
-    const URL_FIELDNAME      = 'url';
+    const URL_FIELDNAME = 'url';
 
     /**
      * Name of the 'url' value part of the field
      */
-    const FILE_URL           = 'url';
+    const FILE_URL = 'url';
 
     /**
      * Name of the 'upload' value part of the field
      */
-    const FILE_UPLOAD        = 'upload';
+    const FILE_UPLOAD = 'upload';
 
     /**
      * Will optionally save the new file using the name of the previous file
@@ -79,15 +74,13 @@ class FileType extends AbstractType
     protected $entities;
 
     /**
-     * Constructor.
-     *
      * @param FileManager $fileManager
      * @param \Symfony\Bundle\FrameworkBundle\Translation\Translator $translator
      */
     public function __construct(FileManager $fileManager, Translator $translator)
     {
         $this->fileManager = $fileManager;
-        $this->translator  = $translator;
+        $this->translator = $translator;
     }
 
     /**
@@ -97,21 +90,21 @@ class FileType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'entity'             => null,
-                'property'           => null,
-                'show_current_file'  => true,
-                'show_remove'        => true,
+                'entity' => null,
+                'property' => null,
+                'show_current_file' => true,
+                'show_remove' => true,
                 'show_keep_previous_filename' => true,
                 'translation_domain' => 'admin',
-                'file_types'         => [],
-                'allow_url'          => false,
+                'file_types' => [],
+                'allow_url' => false,
             ]
         );
     }
 
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -119,73 +112,74 @@ class FileType extends AbstractType
 
         $allowedTypes = $this->getAllowedTypes($options);
 
-        $fm    = $this->fileManager;
+        $fm = $this->fileManager;
 
         $builder
             ->add(
                 self::UPLOAD_FIELDNAME,
                 'Symfony\Component\Form\Extension\Core\Type\FileType',
-                array(
+                [
                     'translation_domain' => $options['translation_domain'],
-                    'label'              => 'zicht_filemanager.upload_file',
-                    'attr'               => array(
-                        'accept' => implode(', ', $allowedTypes)
-                    ),
-                    'required' => false
-                )
+                    'label' => 'zicht_filemanager.upload_file',
+                    'attr' => [
+                        'accept' => implode(', ', $allowedTypes),
+                    ],
+                    'required' => false,
+                ]
             )
             ->add(
                 self::HASH_FIELDNAME,
                 HiddenType::class,
-                array(
+                [
                     'mapped' => false,
-                    'attr' =>['read_only' => true],
-                    'translation_domain' => $options['translation_domain']
-                )
+                    'attr' => ['read_only' => true],
+                    'translation_domain' => $options['translation_domain'],
+                ]
             )
             ->add(
                 self::FILENAME_FIELDNAME,
                 HiddenType::class,
-                array(
+                [
                     'mapped' => false,
                     'attr' => ['read_only' => true],
-                    'translation_domain' => $options['translation_domain'])
+                    'translation_domain' => $options['translation_domain'],
+                ]
             )
             ->add(
                 self::RADIO_FIELDNAME,
                 ChoiceType::class,
-                array(
+                [
                     'mapped' => false,
                     'expanded' => true,
                     'multiple' => false,
-                    'choices' => array(
+                    'choices' => [
                         self::FILE_UPLOAD => self::FILE_UPLOAD,
-                        self::FILE_URL => self::FILE_URL
-                    ),
+                        self::FILE_URL => self::FILE_URL,
+                    ],
                     'data' => 'upload',
-                )
+                ]
             )
             ->add(
                 self::URL_FIELDNAME,
                 TextType::class,
-                array(
+                [
                     'mapped' => false,
                     'label' => 'zicht_filemanager.url_label',
                     'translation_domain' => $options['translation_domain'],
                     'required' => false,
-                )
+                ]
             );
 
         if ($options['show_remove']) {
             $builder->add(
                 self::REMOVE_FIELDNAME,
                 CheckboxType::class,
-                array(
+                [
                     'mapped' => false,
                     'label' => 'zicht_filemanager.remove_file',
                     'translation_domain' => $options['translation_domain'],
-                    'required' => false
-                )
+                    'required' => false,
+                ]
             );
         }
 
@@ -221,8 +215,8 @@ class FileType extends AbstractType
 
         $builder->addViewTransformer(
             new Transformer\FileTransformer(
-                array($this, 'transformCallback'),
-                array($builder->getAttribute('property'), $this->getId($builder->getFormConfig()))
+                [$this, 'transformCallback'],
+                [$builder->getAttribute('property'), $this->getId($builder->getFormConfig())]
             )
         );
 
@@ -247,8 +241,8 @@ class FileType extends AbstractType
         /** @var \Sonata\DoctrineORMAdminBundle\Admin\FieldDescription $fieldDescription */
         if ($fieldDescription = $formConfig->getAttribute('sonata_admin')['field_description']) {
             return sha1(
-                $fieldDescription->getType().
-                $fieldDescription->getName().
+                $fieldDescription->getType() .
+                $fieldDescription->getName() .
                 $fieldDescription->getAdmin()->getUniqid()
             );
         } else {
@@ -265,12 +259,12 @@ class FileType extends AbstractType
      */
     public function transformCallback($value, $property)
     {
-        list($property, $id) = $property;
+        [$property, $id] = $property;
         return $this->fileManager->getFilePath($this->entities[$id], $property, $value);
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
@@ -278,9 +272,9 @@ class FileType extends AbstractType
         //First we set some vars, like the entity, the property and if the current file should be shown
         $view->vars['entity'] = $entity;
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
-        $view->vars['show_current_file']= $form->getConfig()->getOption('show_current_file');
-        $view->vars['show_remove']= $form->getConfig()->getOption('show_remove');
-        $view->vars['allow_url']= $form->getConfig()->getOption('allow_url');
+        $view->vars['show_current_file'] = $form->getConfig()->getOption('show_current_file');
+        $view->vars['show_remove'] = $form->getConfig()->getOption('show_remove');
+        $view->vars['allow_url'] = $form->getConfig()->getOption('allow_url');
         $view->vars['multipart'] = true;
 
         //We check if there is a value. If there is a file uploaded, the $view->vars['value'] = null, so this is only valid when the value comes from the database.
@@ -324,7 +318,6 @@ class FileType extends AbstractType
         $types = null;
 
         if (isset($options['file_types'])) {
-
             $types = $options['file_types'];
             $self  = $this;
 
@@ -359,14 +352,14 @@ class FileType extends AbstractType
          * check and remove (*.)ext so we only got the extension
          * when wrong define for example *.jpg becomes jpg
          */
-        if (false != preg_match("#^.*\.(?P<EXTENSION>[a-z0-9]{2,4})$#i", $extension, $match)) {
+        if (false != preg_match('#^.*\.(?P<EXTENSION>[a-z0-9]{2,4})$#i', $extension, $match)) {
             $extension = $match['EXTENSION'];
         }
 
         $extension  = strtolower($extension);
 
         if (is_null($this->mimeTypes)) {
-            $file = __DIR__.'/../Resources/config/mime.yml';
+            $file = __DIR__ . '/../Resources/config/mime.yml';
             if (is_file($file)) {
                 $this->mimeTypes = Yaml::parse(file_get_contents($file));
             } else {

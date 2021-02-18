@@ -9,8 +9,6 @@ namespace Zicht\Bundle\FileManagerBundle\Helper;
  * Class PurgatoryHelper
  * Helper to centralize the hashing and postfixes
  *
- * @package Zicht\Bundle\FileManagerBundle\Helper
- *
  * @see FileType
  * @see FileTypeSubscriber
  */

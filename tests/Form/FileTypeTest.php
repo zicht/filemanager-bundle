@@ -18,7 +18,7 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
     function setUp()
     {
         $this->fm = $this->getMockBuilder('Zicht\Bundle\FileManagerBundle\FileManager\FileManager')
-            ->setMethods(array('getFilePath'))
+            ->setMethods(['getFilePath'])
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -30,7 +30,7 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
 
         $opt = new OptionsResolver();
         $type->configureOptions($opt);
-        $opt = $opt->resolve(array());
+        $opt = $opt->resolve([]);
 
         $this->assertEquals($opt['data_class'], 'Symfony\Component\HttpFoundation\File\File');
         $this->assertEquals($opt['show_current_file'], true);
@@ -48,40 +48,46 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
         $type = new \Zicht\Bundle\FileManagerBundle\Form\FileType($this->fm);
 
         $builder = $this->getMockBuilder('Symfony\Component\Form\FormBuilder')
-            ->setMethods(array('getName', 'getParent', 'getAttribute', 'setAttribute', 'addViewTransformer', 'addEventSubscriber'))
+            ->setMethods(['getName', 'getParent', 'getAttribute', 'setAttribute', 'addViewTransformer', 'addEventSubscriber'])
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $parentBuilder = $this->getMockBuilder('Symfony\Component\Form\FormBuilder')
-            ->setMethods(array('getDataClass'))
+            ->setMethods(['getDataClass'])
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $parentBuilder->expects($this->once())->method('getDataClass')->will($this->returnValue(get_class($entity)));
 
         $builder->expects($this->once())->method('getName')->will($this->returnValue($name));
-        $builder->expects($this->once())->method('getParent')->will($this->returnValue(
-            $parentBuilder
-        ));
-        $attributes = array();
-        $builder->expects($this->any())->method('setAttribute')->will($this->returnCallback(function($k, $v) use(&$attributes) {
-            $attributes[$k] = $v;
-        }));
+        $builder->expects($this->once())->method('getParent')->will(
+            $this->returnValue(
+                $parentBuilder
+            )
+        );
+        $attributes = [];
+        $builder->expects($this->any())->method('setAttribute')->will(
+            $this->returnCallback(function ($k, $v) use (&$attributes) {
+                $attributes[$k] = $v;
+            })
+        );
 
-        $builder->expects($this->any())->method('getAttribute')->will($this->returnCallback(function($k) use(&$attributes) {
-            return $attributes[$k];
-        }));
+        $builder->expects($this->any())->method('getAttribute')->will(
+            $this->returnCallback(function ($k) use (&$attributes) {
+                return $attributes[$k];
+            })
+        );
 
         $self = $this;
         $transformer = null;
-        $builder->expects($this->once())->method('addViewTransformer')->will($this->returnCallback(function($t) use($self, &$transformer) {
-            $self->assertInstanceOf('Zicht\Bundle\FileManagerBundle\Form\Transformer\FileTransformer', $t);
-            $transformer = $t;
-        }));
+        $builder->expects($this->once())->method('addViewTransformer')->will(
+            $this->returnCallback(function ($t) use ($self, &$transformer) {
+                $self->assertInstanceOf('Zicht\Bundle\FileManagerBundle\Form\Transformer\FileTransformer', $t);
+                $transformer = $t;
+            })
+        );
 
         $opt = new \Symfony\Component\OptionsResolver\OptionsResolver();
         $type->configureOptions($opt);
-        $opt = $opt->resolve(array());
+        $opt = $opt->resolve([]);
 
         $type->buildForm($builder, $opt);
 
@@ -103,34 +109,38 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
         $view = new \Symfony\Component\Form\FormView();
         $form = $this->getMockBuilder('Symfony\Component\Form\Form')
             ->disableOriginalConstructor()
-            ->setMethods(array_merge(array('getConfig'), $methods))
+            ->setMethods(array_merge(['getConfig'], $methods))
             ->getMock();
-        $config = $this->getMock('\stdClass', array('getAttribute', 'getOption'));
-        $attr = array(
+        $config = $this->getMock('\stdClass', ['getAttribute', 'getOption']);
+        $attr = [
             'entity' => rand(1, 100),
-            'property' => rand(1, 100)
-        );
-        $opt = array(
-            'show_current_file' => rand(1, 100)
-        );
-        $config->expects($this->any())->method('getAttribute')->will($this->returnCallback(function($n) use($attr) {
+            'property' => rand(1, 100),
+        ];
+        $opt = [
+            'show_current_file' => rand(1, 100),
+        ];
+        $config->expects($this->any())->method('getAttribute')->will(
+            $this->returnCallback(function ($n) use ($attr) {
                     return $attr[$n];
-                }));
-        $config->expects($this->any())->method('getOption')->will($this->returnCallback(function($n) use($opt) {
+            })
+        );
+        $config->expects($this->any())->method('getOption')->will(
+            $this->returnCallback(function ($n) use ($opt) {
                     return $opt[$n];
-                }));
+            })
+        );
 
         $form->expects($this->any())->method('getConfig')->will($this->returnValue($config));
 
-        return array($type, $view, $form, $config, $attr, $opt);
+        return [$type, $view, $form, $config, $attr, $opt];
     }
 
     function testFinishViewWithFormDataIsNull()
     {
-        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'), $this->fm);
+        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(['getData'], $this->fm);
 
         $form->expects($this->any())->method('getData')->will($this->returnValue(null));
-        $type->finishView($view, $form, array());
+        $type->finishView($view, $form, []);
 
         $this->assertEquals($opt['show_current_file'], $view->vars['show_current_file']);
         $this->assertEquals($attr['entity'], $view->vars['entity']);
@@ -146,11 +156,11 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
     function testFinishViewWithAlreadyUploadedFile()
     {
         $fm = $this->getMockBuilder('Zicht\Bundle\FileManagerBundle\FileManager\FileManager')
-            ->setMethods(array('getFilePath', 'getFileUrl'))
+            ->setMethods(['getFilePath', 'getFileUrl'])
             ->disableOriginalConstructor()
             ->getMock();
 
-        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'), $fm);
+        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(['getData'], $fm);
 
         $expectedFileName = 'foo.png';
         $expectedPath     = '/entity/path/' . $expectedFileName;
@@ -163,7 +173,7 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
 
         $form->expects($this->any())->method('getData')->will($this->returnValue(null));
 
-        $type->finishView($view, $form, array());
+        $type->finishView($view, $form, []);
 
         $this->assertEquals($opt['show_current_file'], $view->vars['show_current_file']);
         $this->assertEquals($attr['entity'], $view->vars['entity']);
@@ -183,16 +193,16 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
         $httpRoot = 'www.example.com';
 
         $fm = $this->getMockBuilder('Zicht\Bundle\FileManagerBundle\FileManager\FileManager')
-            ->setMethods(array('getFilePath', 'getFileUrl'))
+            ->setMethods(['getFilePath', 'getFileUrl'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $fm->setHttpRoot($httpRoot);
 
-        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(array('getData'), $fm);
+        list($type, $view, $form, $config, $attr, $opt) = $this->setupForm(['getData'], $fm);
 
         $formData = $this->getMockBuilder('\Symfony\Component\HttpFoundation\File\UploadedFile')
-            ->setMethods(array('getBaseName'))
+            ->setMethods(['getBaseName'])
             ->disableOriginalConstructor()
             ->getMock();
         $formData->expects($this->any())->method('getBaseName')->will($this->returnValue('foo.png'));
@@ -202,7 +212,7 @@ class FileTypeTest extends \PHPUnit_Framework_TestCase
             $this->returnValue($expectedPath)
         );
 
-        $type->finishView($view, $form, array());
+        $type->finishView($view, $form, []);
 
         $this->assertEquals($opt['show_current_file'], $view->vars['show_current_file']);
         $this->assertEquals($attr['entity'], $view->vars['entity']);

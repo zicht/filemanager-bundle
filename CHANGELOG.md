@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Changed
 - Changed the use of the deprecated `kernel.root_dir` into `kernel.project_dir` and web/ into public/
+- Autofixed linter errors
 ### Updated
 - Updated the docs to Symfony 4
 ### Added|Changed|Deprecated|Removed|Fixed|Security

@@ -19,8 +19,6 @@ class AnnotationDriver implements DriverInterface
     private $reader;
 
     /**
-     * Constructor.
-     *
      * @param \Doctrine\Common\Annotations\Reader $reader
      */
     public function __construct(Reader $reader)
@@ -30,8 +28,6 @@ class AnnotationDriver implements DriverInterface
 
 
     /**
-     * Loads the metadata for the class.
-     *
      * @param \ReflectionClass $class
      * @return \Metadata\MergeableClassMetadata
      */

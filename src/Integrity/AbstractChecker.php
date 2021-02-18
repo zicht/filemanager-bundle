@@ -47,8 +47,6 @@ abstract class AbstractChecker implements CheckerInterface
     protected $doctrine;
 
     /**
-     * Constructor.
-     *
      * @param \Zicht\Bundle\FileManagerBundle\FileManager\FileManager $fm
      * @param \Metadata\MetadataFactoryInterface $metadataFactory
      * @param \Doctrine\Bundle\DoctrineBundle\Registry $doctrine
@@ -99,13 +97,13 @@ abstract class AbstractChecker implements CheckerInterface
     public function setLoggingCallback($callable)
     {
         if (!is_callable($callable)) {
-            throw new \InvalidArgumentException("Not a callable");
+            throw new \InvalidArgumentException('Not a callable');
         }
         $this->logger = $callable;
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function setPurge($purge)
     {

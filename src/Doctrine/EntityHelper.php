@@ -14,8 +14,6 @@ use Zicht\Util\Str;
 class EntityHelper
 {
     /**
-     * Constructor.
-     *
      * @param \Metadata\MetadataFactory $registry
      * @param \Doctrine\Bundle\DoctrineBundle\Registry $doctrine
      * @param \Symfony\Component\HttpKernel\KernelInterface $kernel
@@ -35,7 +33,7 @@ class EntityHelper
      */
     public function getManagedEntities()
     {
-        $entities = array();
+        $entities = [];
         /** @var \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle */
         foreach ($this->kernel->getBundles() as $bundle) {
             $entityPath = $bundle->getPath() . '/Entity';

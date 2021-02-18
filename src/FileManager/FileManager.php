@@ -46,8 +46,6 @@ class FileManager
     private $namingStrategy;
 
     /**
-     * Construct the filemanager.
-     *
      * @param \Symfony\Component\Filesystem\Filesystem $fs
      * @param string $root
      * @param string $httpRoot
@@ -58,7 +56,7 @@ class FileManager
         $this->fs = $fs;
         $this->root = rtrim($root, '/');
         $this->httpRoot = rtrim($httpRoot, '/');
-        $this->preparedPaths = array();
+        $this->preparedPaths = [];
         $this->namingStrategy = $namingStrategy;
     }
 
@@ -105,7 +103,7 @@ class FileManager
             $this->fs->mkdir(dirname($pathname), 0777 & ~umask(), true);
             $this->fs->touch($pathname);
         }
-        $this->preparedPaths[]= $pathname;
+        $this->preparedPaths[] = $pathname;
         return $pathname;
     }
 

@@ -5,7 +5,6 @@
 
 namespace Zicht\Bundle\FileManagerBundle;
 
-
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -15,7 +14,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 class ZichtFileManagerBundle extends Bundle
 {
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function build(ContainerBuilder $container)
     {

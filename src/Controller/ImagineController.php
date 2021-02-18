@@ -13,8 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Provides some methods to communicate with Imagine e.g. Clear cache for a file
- *
- * @package Zicht\Bundle\FileManagerBundle\Controller
  */
 class ImagineController extends AbstractController
 {
@@ -32,7 +30,7 @@ class ImagineController extends AbstractController
         $filter = $request->get('filter');
         $response = [
             'error' => false,
-            'success' => false
+            'success' => false,
         ];
 
         if ($path && $filter) {

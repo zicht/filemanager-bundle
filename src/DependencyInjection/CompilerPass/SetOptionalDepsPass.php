@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Reference;
 class SetOptionalDepsPass implements CompilerPassInterface
 {
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function process(ContainerBuilder $container)
     {
@@ -33,7 +33,7 @@ class SetOptionalDepsPass implements CompilerPassInterface
                     'setImagineConfig',
                     [
                         new Reference('liip_imagine.cache.manager'),
-                        new Reference('liip_imagine.filter.configuration')
+                        new Reference('liip_imagine.filter.configuration'),
                     ]
                 );
         }

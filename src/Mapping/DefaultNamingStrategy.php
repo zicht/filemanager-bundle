@@ -5,11 +5,6 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Mapping;
 
-/**
- * Class DefaultNamingStrategy
- *
- * @package Zicht\Bundle\FileManagerBundle\Mapping
- */
 class DefaultNamingStrategy implements NamingStrategyInterface
 {
     /**
@@ -18,8 +13,6 @@ class DefaultNamingStrategy implements NamingStrategyInterface
     private $casePreservation;
 
     /**
-     * DefaultNamingStrategy constructor.
-     *
      * @param bool $casePreservation
      */
     public function __construct($casePreservation = self::LOWER_CASE)

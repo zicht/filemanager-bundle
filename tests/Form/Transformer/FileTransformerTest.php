@@ -14,7 +14,7 @@ class FileTransformerTest extends \PHPUnit_Framework_TestCase
     {
         $v = null;
         $transformer = new FileTransformer(
-            function($param) use(&$v) {
+            function ($param) use (&$v) {
                 $v = $param;
             }
         );
@@ -26,7 +26,7 @@ class FileTransformerTest extends \PHPUnit_Framework_TestCase
     function testTransformReturnsNullIfFileNotFound()
     {
         $transformer = new FileTransformer(
-            function() {
+            function () {
                 throw new FileNotFoundException('soz');
             }
         );
@@ -38,7 +38,8 @@ class FileTransformerTest extends \PHPUnit_Framework_TestCase
 
     function testReverseTransform()
     {
-        $transformer = new \Zicht\Bundle\FileManagerBundle\Form\Transformer\FileTransformer(function() {});
+        $transformer = new \Zicht\Bundle\FileManagerBundle\Form\Transformer\FileTransformer(function () {
+        });
         $value = rand(1, 100);
         $this->assertEquals($value, $transformer->reverseTransform($value));
     }

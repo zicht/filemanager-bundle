@@ -13,13 +13,13 @@ use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 class DatabaseChecker extends AbstractChecker
 {
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function check($entityClass)
     {
         $this->setEntity($entityClass);
 
-        $fileNames = array();
+        $fileNames = [];
         $records   = $this->repos->findAll();
 
         foreach ($this->classMetaData->propertyMetadata as $property => $metadata) {
@@ -34,7 +34,7 @@ class DatabaseChecker extends AbstractChecker
                     $fileNames[] = $value;
                 }
             }
-            $this->log("-> found " . count($fileNames) . " values to check", 1);
+            $this->log('-> found ' . count($fileNames) . ' values to check', 1);
 
             $fileDir = $this->fm->getDir($this->className, $property);
 

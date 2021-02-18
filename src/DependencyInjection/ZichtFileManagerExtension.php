@@ -18,14 +18,14 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension as DIExtension;
 class ZichtFileManagerExtension extends DIExtension
 {
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function load(array $config, ContainerBuilder $container)
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $config);
 
-        $loader = new XmlFileLoader($container, new FileLocator(array(__DIR__.'/../Resources/config/')));
+        $loader = new XmlFileLoader($container, new FileLocator([__DIR__ . '/../Resources/config/']));
         $loader->load('services.xml');
 
         $bundles = $container->getParameter('kernel.bundles');

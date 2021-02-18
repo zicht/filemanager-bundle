@@ -6,6 +6,7 @@
 namespace ZichtTest\Bundle\FileManagerBundle\Doctrine;
 
 use \Zicht\Bundle\FileManagerBundle\Doctrine\MetadataRegistry;
+
 class MyEntity
 {
     public $myField = null;
@@ -40,9 +41,9 @@ class MetadataRegistryTest extends \PHPUnit_Framework_TestCase
     }
     public function cases()
     {
-        return array(
-            array(true, array('myField')),
-            array(false, array()),
-        );
+        return [
+            [true, ['myField']],
+            [false, []],
+        ];
     }
 }

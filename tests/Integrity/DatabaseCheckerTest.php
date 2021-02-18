@@ -18,11 +18,12 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
     }
 
 
-    function testCheckerWhenDirDoesNotExist() {
+    function testCheckerWhenDirDoesNotExist()
+    {
         $this->tearDown();
         $checker = new DatabaseChecker($this->fm, $this->mf, $this->doctrine);
         $logResult = '';
-        $checker->setLoggingCallback(function($d) use(&$logResult) {
+        $checker->setLoggingCallback(function ($d) use (&$logResult) {
             $logResult .= $d . "\n";
         });
         $checker->check('Foo');
@@ -33,7 +34,7 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
     {
         $checker = new DatabaseChecker($this->fm, $this->mf, $this->doctrine);
         $logResult = '';
-        $checker->setLoggingCallback(function($d) use(&$logResult) {
+        $checker->setLoggingCallback(function ($d) use (&$logResult) {
             $logResult .= $d . "\n";
         });
 
@@ -49,7 +50,7 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
     {
         $checker = new DatabaseChecker($this->fm, $this->mf, $this->doctrine);
         $logResult = '';
-        $checker->setLoggingCallback(function($d) use(&$logResult) {
+        $checker->setLoggingCallback(function ($d) use (&$logResult) {
             $logResult .= $d . "\n";
         });
 
@@ -65,7 +66,7 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
         $checker = new DatabaseChecker($this->fm, $this->mf, $this->doctrine);
         $logResult = '';
         $checker->setPurge(false);
-        $checker->setLoggingCallback(function($d) use(&$logResult) {
+        $checker->setLoggingCallback(function ($d) use (&$logResult) {
             $logResult .= $d . "\n";
         });
 
@@ -78,7 +79,7 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
         $checker = new DatabaseChecker($this->fm, $this->mf, $this->doctrine);
         $logResult = '';
         $checker->setPurge(true);
-        $checker->setLoggingCallback(function($d) use(&$logResult) {
+        $checker->setLoggingCallback(function ($d) use (&$logResult) {
             $logResult .= $d . "\n";
         });
 

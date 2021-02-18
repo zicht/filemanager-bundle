@@ -7,7 +7,8 @@ namespace ZichtTest\Bundle\AdminBundle\DependencyInjection\Compiler;
 
 use Zicht\Bundle\FileManagerBundle\DependencyInjection\ZichtFileManagerExtension;
 
-class SomeEntity {
+class SomeEntity
+{
     public $someField;
 
     public function setSomeField($someField)
@@ -35,7 +36,7 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
 
     function setUp()
     {
-        $this->filesystem = $this->getMock('Symfony\Component\Filesystem\Filesystem', array('exists', 'mkdir', 'touch', 'remove'));
+        $this->filesystem = $this->getMock('Symfony\Component\Filesystem\Filesystem', ['exists', 'mkdir', 'touch', 'remove']);
         $this->fm = new \Zicht\Bundle\FileManagerBundle\FileManager\FileManager(
             $this->filesystem,
             '/media/',
@@ -57,7 +58,6 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
             $e,
             'someField'
         );
-
     }
 
     function testPrepareWillStubFileWithSuffixIfFirstOneExists()
@@ -92,7 +92,7 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
     function testDestructorWillNotRemoveStubsIfSaved()
     {
         $e = new SomeEntity();
-        $file = $this->getMock('Symfony\Component\HttpFoundation\File\File', array('move'), array('/tmp/foo.png', false));
+        $file = $this->getMock('Symfony\Component\HttpFoundation\File\File', ['move'], ['/tmp/foo.png', false]);
         $this->filesystem->expects($this->once())->method('touch')->with('/media/someentity/someField/foo.png');
         $this->filesystem->expects($this->once())->method('remove')->with('/media/someentity/someField/foo.png');
 
@@ -127,10 +127,9 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
     function testProposeFileNameWillUseClientNameIfUploadedFile()
     {
         $file = $this->getMockBuilder('Symfony\Component\HttpFoundation\File\UploadedFile')
-            ->setMethods(array('getClientOriginalName'))
+            ->setMethods(['getClientOriginalName'])
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $file->expects($this->once())->method('getClientOriginalName')->will($this->returnValue('Some exotic name.png'));
         $fn = $this->fm->proposeFilename($file, 123);
         $this->assertEquals('some-exotic-name-123.png', $fn);

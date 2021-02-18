@@ -4,7 +4,6 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle\Annotation;
 
-
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -26,17 +25,17 @@ class FileCheckCommandTest extends \PHPUnit_Framework_TestCase
         );
         $container->set(
             'zicht_filemanager.entity_helper',
-            $helper = $this->getMock('EntityHelper', array('getManagedEntities'))
+            $helper = $this->getMock('EntityHelper', ['getManagedEntities'])
         );
-        $helper->expects($this->any())->method('getManagedEntities')->will($this->returnValue(array('foo')));
+        $helper->expects($this->any())->method('getManagedEntities')->will($this->returnValue(['foo']));
     }
 
     function trueAndFalse()
     {
-        return array(
-            array(true),
-            array(false)
-        );
+        return [
+            [true],
+            [false],
+        ];
     }
 
     /**
@@ -53,9 +52,9 @@ class FileCheckCommandTest extends \PHPUnit_Framework_TestCase
         }
 
         $input = new ArrayInput(
-            array(
+            [
                 '--inverse' => $provided,
-            ),
+            ],
             $this->cmd->getDefinition()
         );
         $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
@@ -74,9 +73,9 @@ class FileCheckCommandTest extends \PHPUnit_Framework_TestCase
         }
 
         $input = new ArrayInput(
-            array(
+            [
                 '--purge' => $provided,
-            ),
+            ],
             $this->cmd->getDefinition()
         );
         $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
@@ -86,23 +85,27 @@ class FileCheckCommandTest extends \PHPUnit_Framework_TestCase
 
     function testLoggerCallback()
     {
-        $callback = function() {};
+        $callback = function () {
+        };
         $result = '';
 
-        $this->fschecker->expects($this->once())->method('setLoggingCallback')->will($this->returnCallback(function($fn) use(&$callback) {
-            $callback = $fn;
-            $fn('[test]', 0);
-        }));
+        $this->fschecker->expects($this->once())->method('setLoggingCallback')->will(
+            $this->returnCallback(function ($fn) use (&$callback) {
+                $callback = $fn;
+                $fn('[test]', 0);
+            })
+        );
 
         $input = new ArrayInput(
-            array(
-            ),
+            [],
             $this->cmd->getDefinition()
         );
-        $output = $this->getMock('Symfony\Component\Console\Output\ConsoleOutput', array('writeln'));
-        $output->expects($this->any())->method('writeln')->will($this->returnCallback(function($data) use(&$result) {
-            $result .= $data;
-        }));
+        $output = $this->getMock('Symfony\Component\Console\Output\ConsoleOutput', ['writeln']);
+        $output->expects($this->any())->method('writeln')->will(
+            $this->returnCallback(function ($data) use (&$result) {
+                $result .= $data;
+            })
+        );
         $this->cmd->run($input, $output);
         $this->assertRegExp('/\[test\]/', $result);
     }
@@ -111,8 +114,7 @@ class FileCheckCommandTest extends \PHPUnit_Framework_TestCase
     function testWithoutEntityArguments()
     {
         $input = new ArrayInput(
-            array(
-            ),
+            [],
             $this->cmd->getDefinition()
         );
         $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
@@ -123,12 +125,12 @@ class FileCheckCommandTest extends \PHPUnit_Framework_TestCase
     function testEntityArgument()
     {
         $input = new ArrayInput(
-            array(
-                'entity' => 'bar'
-            ),
+            [
+                'entity' => 'bar',
+            ],
             $this->cmd->getDefinition()
         );
-        $output = $this->getMock('Symfony\Component\Console\Output\ConsoleOutput', array('writeln'));
+        $output = $this->getMock('Symfony\Component\Console\Output\ConsoleOutput', ['writeln']);
         $this->fschecker->expects($this->once())->method('check')->with('bar');
         $this->cmd->run($input, $output);
     }

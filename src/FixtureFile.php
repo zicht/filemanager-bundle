@@ -32,7 +32,7 @@ class FixtureFile extends File
             throw new FileException(sprintf('Unable to write in the "%s" directory', $directory));
         }
 
-        $target = $directory.DIRECTORY_SEPARATOR.(null === $name ? $this->getBasename() : basename($name));
+        $target = $directory . DIRECTORY_SEPARATOR . (null === $name ? $this->getBasename() : basename($name));
 
         if (!@copy($this->getPathname(), $target)) {
             $error = error_get_last();

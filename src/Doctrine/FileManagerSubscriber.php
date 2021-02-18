@@ -20,8 +20,6 @@ use Zicht\Bundle\FileManagerBundle\FixtureFile;
 class FileManagerSubscriber implements EventSubscriber
 {
     /**
-     * Constructor.
-     *
      * @param FileManager $fileManager
      * @param MetadataRegistry $metadata
      */
@@ -29,8 +27,8 @@ class FileManagerSubscriber implements EventSubscriber
     {
         $this->fileManager = $fileManager;
         $this->metadata = $metadata;
-        $this->managedFields = array();
-        $this->unitOfWork = array();
+        $this->managedFields = [];
+        $this->unitOfWork = [];
     }
 
 
@@ -41,14 +39,14 @@ class FileManagerSubscriber implements EventSubscriber
      */
     public function getSubscribedEvents()
     {
-        return array(
+        return [
             'preUpdate',
             'preRemove',
             'prePersist',
             'postPersist',
             'postUpdate',
             'postRemove',
-        );
+        ];
     }
 
 
@@ -165,7 +163,7 @@ class FileManagerSubscriber implements EventSubscriber
             };
             return $fileName;
         } else {
-            throw new \InvalidArgumentException("Invalid argument to scheduleForUpload(): " . gettype($value));
+            throw new \InvalidArgumentException('Invalid argument to scheduleForUpload(): ' . gettype($value));
         }
     }
 

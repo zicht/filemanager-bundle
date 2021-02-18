@@ -42,7 +42,7 @@ class FileCheckCommand extends Command
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function configure()
     {
@@ -50,17 +50,17 @@ class FileCheckCommand extends Command
             ->addArgument('entity', InputArgument::OPTIONAL, 'The entity to check.', null)
             ->addOption('purge', '', InputOption::VALUE_NONE, 'Purge the values that do not exist')
             ->addOption('inverse', '', InputOption::VALUE_NONE, 'Inverse the check: check files against database')
-            ->setDescription("Checks if all managed files in the database exist on disk or vice versa.")
+            ->setDescription('Checks if all managed files in the database exist on disk or vice versa.')
             ->setHelp(
                 "Checks all of the values in the database and checks if the file exists on disk.\n\n"
                 . "Pass the --purge to reset the values to NULL in the database\n"
                 . "Pass --inverse to check if all files on disk are actually present in the database.\n"
-                . "Passing both --inverse and --purge will delete all files that are not present in the database"
+                . 'Passing both --inverse and --purge will delete all files that are not present in the database'
             );
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -71,7 +71,7 @@ class FileCheckCommand extends Command
         }
 
         if ($entityClass = $input->getArgument('entity')) {
-            $entityClasses = array($entityClass);
+            $entityClasses = [$entityClass];
         } else {
             $entityClasses = $this->entityHelper->getManagedEntities();
         }

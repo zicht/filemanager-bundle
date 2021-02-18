@@ -30,7 +30,7 @@ class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
             4 => 'overly-striped-document.jpg',
         ];
 
-        $result = array();
+        $result = [];
 
         // Act
         foreach ($given as $key => $value) {
@@ -64,7 +64,7 @@ class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
             4 => 'overly-striped-document-.jpg',
         ];
 
-        $result = array();
+        $result = [];
 
         // Act
         foreach ($given as $key => $value) {
@@ -98,7 +98,7 @@ class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
             4 => 'overly-striped-document.jpg',
         ];
 
-        $result = array();
+        $result = [];
 
         // Act
         foreach ($given as $key => $value) {
@@ -126,7 +126,7 @@ class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
             4 => 'spaced-and-cased-document-4.docx',
         ];
 
-        $result = array();
+        $result = [];
 
         // Act
         foreach ($expected as $key => $value) {

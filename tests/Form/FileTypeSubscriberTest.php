@@ -17,7 +17,7 @@ class FileTypeSubscriberTest extends \PHPUnit_Framework_TestCase
     function setUp()
     {
         $this->fm = $this->getMockBuilder('Zicht\Bundle\FileManagerBundle\FileManager\FileManager')
-            ->setMethods(array('getFilePath'))
+            ->setMethods(['getFilePath'])
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -37,6 +37,4 @@ class FileTypeSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey(FormEvents::POST_SET_DATA, $events);
         $this->assertArrayHasKey(FormEvents::SUBMIT, $events);
     }
-
-
 }

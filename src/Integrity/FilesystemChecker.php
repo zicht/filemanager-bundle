@@ -12,7 +12,7 @@ use Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 class FilesystemChecker extends AbstractChecker
 {
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public function check($entityClass)
     {

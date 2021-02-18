@@ -18,35 +18,33 @@ abstract class AbstractCheckerTestCase extends \PHPUnit_Framework_TestCase
         $this->mf = $this->getMock('Metadata\MetadataFactoryInterface');
         $this->doctrine = $this->getMockBuilder('Doctrine\Bundle\DoctrineBundle\Registry')
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->repo = $this->getMockBuilder('Doctrine\ORM\EntityRepository')
-            ->setMethods(array('getClassName', 'findAll'))
+            ->setMethods(['getClassName', 'findAll'])
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
         $this->repo->expects($this->any())->method('getClassName')->with()->will($this->returnValue('Ns\Foo'));
         $this->doctrine->expects($this->any())->method('getRepository')->with('Foo')->will(
             $this->returnValue($this->repo)
         );
-        $this->records = array(
+        $this->records = [
             $this->getMockEntity(''),
             $this->getMockEntity('foo'),
             $this->getMockEntity('bar'),
-        );
+        ];
         $this->repo->expects($this->any())->method('findAll')->will(
             $this->returnValue(
                 $this->records
             )
         );
-        $this->metadata = (object) array(
-            'propertyMetadata' => array(
-                'file' => (object) array(
-                    'fileManager' => true
-                ),
-                'someotherprop' => (object) array()
-            )
-        );
+        $this->metadata = (object)[
+            'propertyMetadata' => [
+                'file' => (object)[
+                    'fileManager' => true,
+                ],
+                'someotherprop' => (object)[],
+            ],
+        ];
         // TODO mock out fs with FileSystem
         @mkdir('/tmp/checker-test');
         $this->fm->expects($this->any())->method('getDir')->will($this->returnValue('/tmp/checker-test'));
@@ -66,9 +64,8 @@ abstract class AbstractCheckerTestCase extends \PHPUnit_Framework_TestCase
     protected function getMockEntity($fileValue)
     {
         $ret = $this->getMockBuilder('stdClass')
-            ->setMethods(array('getFile', 'setFile'))
-            ->getMock()
-        ;
+            ->setMethods(['getFile', 'setFile'])
+            ->getMock();
         $ret->expects($this->any())->method('getFile')->will($this->returnValue($fileValue));
         return $ret;
     }
