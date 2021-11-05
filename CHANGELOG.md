@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 5.0.3 - 2021-11-05
+### Fixed
+- Fix `FileManager::getFilePath()` to also only take the basename of the `$fileName` parameter when this is a string.
+
 ## 5.0.2 - 2018-09-14
 ### Added
 - Add english translations

@@ -279,12 +279,14 @@ class FileManager
 
         if ($fileName instanceof File) {
             $fileName = $fileName->getBasename();
+        } elseif ($fileName && strpos($fileName, '/') !== false) {
+            $fileName = basename($fileName);
         }
 
         if ($fileName) {
             return $this->getDir($entity, $field) . '/' . $fileName;
         }
-        
+
         return null;
     }
 
