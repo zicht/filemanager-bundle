@@ -1,4 +1,3 @@
-
 # Change Log
 All notable changes to this project will be documented in this file.
 
@@ -9,7 +8,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
-## 5.0.0
+## 5.0.2 - 2018-09-14
+### Added
+- Add english translations
+
+## 5.0.1 - 2018-05-02
+### Fixed
+- Forward merge of 4.6.5/4.6.6/4.6.7: clearing the cache for imagine for files outside the web root is disabled.
+
+## 5.0.0 - 2018-01-22
 ### Changed
 From this version on the minimal PHP requirement is `7.0`
 
