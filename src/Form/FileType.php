@@ -81,6 +81,7 @@ class FileType extends AbstractType
     {
         $this->fileManager = $fileManager;
         $this->translator = $translator;
+        $this->entities = [];
     }
 
     /**
@@ -268,7 +269,8 @@ class FileType extends AbstractType
      */
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
-        $entity = $this->entities[$this->getId($form->getConfig())];
+        $key = $this->getId($form->getConfig());
+        $entity = array_key_exists($key, $this->entities) ? $this->entities[$key] : null;
         //First we set some vars, like the entity, the property and if the current file should be shown
         $view->vars['entity'] = $entity;
         $view->vars['property'] = $form->getConfig()->getAttribute('property');
@@ -278,7 +280,7 @@ class FileType extends AbstractType
         $view->vars['multipart'] = true;
 
         //We check if there is a value. If there is a file uploaded, the $view->vars['value'] = null, so this is only valid when the value comes from the database.
-        if ($view->vars['value'] && is_array($view->vars['value'])  && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
+        if ($view->vars['value'] && is_array($view->vars['value']) && array_key_exists(FileType::UPLOAD_FIELDNAME, $view->vars['value'])) {
             foreach ($view->vars['value'] as $name => $value) {
                 $view->children[$name]->vars['value'] = $view->vars['value'][$name];
             }
@@ -319,7 +321,7 @@ class FileType extends AbstractType
 
         if (isset($options['file_types'])) {
             $types = $options['file_types'];
-            $self  = $this;
+            $self = $this;
 
             if (!is_array($types)) {
                 $types = explode(',', $types);
@@ -356,7 +358,7 @@ class FileType extends AbstractType
             $extension = $match['EXTENSION'];
         }
 
-        $extension  = strtolower($extension);
+        $extension = strtolower($extension);
 
         if (is_null($this->mimeTypes)) {
             $file = __DIR__ . '/../Resources/config/mime.yml';

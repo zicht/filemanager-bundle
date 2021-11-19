@@ -4,7 +4,9 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle\Twig;
 
-class FileManagerExtensionTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FileManagerExtensionTest extends TestCase
 {
     function testExtensionName()
     {

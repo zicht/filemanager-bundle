@@ -5,9 +5,10 @@
 
 namespace ZichtTest\Bundle\FileManagerBundle\Mapping;
 
+use PHPUnit\Framework\TestCase;
 use Zicht\Bundle\FileManagerBundle\Mapping\DefaultNamingStrategy;
 
-class DefaultNamingStrategyTest extends \PHPUnit_Framework_TestCase
+class DefaultNamingStrategyTest extends TestCase
 {
     public function testLowerCaseStrategy()
     {

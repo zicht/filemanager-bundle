@@ -4,18 +4,20 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle\Integrity;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * @property \Zicht\Bundle\FileManagerBundle\FileManager\FileManagerr $fm
  * @property \Metadata\MetaFactoryInterface $mf
  */
-abstract class AbstractCheckerTestCase extends \PHPUnit_Framework_TestCase
+abstract class AbstractCheckerTestCase extends TestCase
 {
-    function setUp()
+    public function setUp(): void
     {
         $this->fm = $this->getMockBuilder('Zicht\Bundle\FileManagerBundle\FileManager\FileManager')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->mf = $this->getMock('Metadata\MetadataFactoryInterface');
+        $this->mf = $this->createMock('Metadata\MetadataFactoryInterface');
         $this->doctrine = $this->getMockBuilder('Doctrine\Bundle\DoctrineBundle\Registry')
             ->disableOriginalConstructor()
             ->getMock();
@@ -54,7 +56,7 @@ abstract class AbstractCheckerTestCase extends \PHPUnit_Framework_TestCase
     }
 
 
-    function tearDown()
+    public function tearDown(): void
     {
         // TODO mock out fs with FileSystem
         shell_exec('rm -rf /tmp/checker-test');

@@ -5,9 +5,10 @@
 
 namespace ZichtTest\Bundle\FileManagerBundle\Annotation;
 
+use PHPUnit\Framework\TestCase;
 use Zicht\Bundle\FileManagerBundle\Annotation\File;
 
-class FileTest extends \PHPUnit_Framework_TestCase
+class FileTest extends TestCase
 {
     function testConstructor()
     {

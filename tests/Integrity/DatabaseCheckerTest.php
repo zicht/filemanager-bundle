@@ -8,11 +8,9 @@ use Zicht\Bundle\FileManagerBundle\Integrity\DatabaseChecker;
 
 class DatabaseCheckerTest extends AbstractCheckerTestCase
 {
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     function testSetLoggerCallbackWillFailIfNotCallable()
     {
+        $this->expectException('\InvalidArgumentException');
         $checker = new DatabaseChecker($this->fm, $this->mf, $this->doctrine);
         $checker->setLoggingCallback('not callable');
     }

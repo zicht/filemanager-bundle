@@ -5,6 +5,7 @@
 
 namespace ZichtTest\Bundle\FileManagerBundle\Metadata;
 
+use PHPUnit\Framework\TestCase;
 use Zicht\Bundle\FileManagerBundle\Annotation\File;
 
 class MyClass
@@ -14,9 +15,9 @@ class MyClass
 }
 
 
-class AnnotationDriverTest extends \PHPUnit_Framework_TestCase
+class AnnotationDriverTest extends TestCase
 {
-    function setUp()
+    public function setUp(): void
     {
         $this->reader = $this->getMockBuilder('Doctrine\Common\Annotations\Reader')
             ->disableOriginalConstructor()

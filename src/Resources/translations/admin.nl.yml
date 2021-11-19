@@ -1,10 +1,10 @@
 zicht_filemanager:
-    remove_file:        "Bestand verwijderen"
-    remove_file_note:   "Door een nieuw bestand te selecteren wordt de bestaande vervangen"
-    upload_file:        "Bestand uploaden"
-    wrong_type:         "Het bestand type (%this_type%) is niet toegestaan, toegestaande types: %allowed_types%"
-    value_table_header: "Selecteer bron"
-    url_label: "URL"
-    upload_label: "Upload"
-    keep_previous_filename: "Behoud bestandsnaam"
-    keep_previous_filename_note: "Het nieuwe bestand zal de bestandsnaam krijgen van het al aanwezige bestand"
+    keep_previous_filename: Behoud bestandsnaam
+    keep_previous_filename_note: Het nieuwe bestand zal de bestandsnaam krijgen van het al aanwezige bestand
+    remove_file: Bestand verwijderen
+    remove_file_note: Door een nieuw bestand te selecteren wordt de bestaande vervangen
+    upload_file: Bestand uploaden
+    upload_label: Upload
+    url_label: URL
+    value_table_header: Selecteer bron
+    wrong_type: 'Het bestand type (%this_type%) is niet toegestaan, toegestaande types: %allowed_types%'

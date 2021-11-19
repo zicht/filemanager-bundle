@@ -4,6 +4,7 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle\Doctrine;
 
+use PHPUnit\Framework\TestCase;
 use Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber;
 
 class MyModel
@@ -29,7 +30,7 @@ class FileManagerSubscriberTmp extends FileManagerSubscriber
 /**
  * @covers Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber
  */
-class FileManagerSubscriberTest extends \PHPUnit_Framework_TestCase
+class FileManagerSubscriberTest extends TestCase
 {
     protected $fmSubscriber;
 
@@ -97,7 +98,7 @@ class FileManagerSubscriberTest extends \PHPUnit_Framework_TestCase
         $file = $this->getMockBuilder('Symfony\Component\HttpFoundation\File\File')->disableOriginalConstructor()->getMock();
         $em = $this->getMockBuilder('Doctrine\ORM\EntityManager')->disableOriginalConstructor()->getMock();
         $values = ['foo' => [null, $file]];
-        $event = new \Doctrine\Common\Persistence\Event\PreUpdateEventArgs($object, $em, $values);
+        $event = new \Doctrine\Persistence\Event\PreUpdateEventArgs($object, $em, $values);
         $this->metadata->expects($this->once())->method('getManagedFields')->will($this->returnValue(['foo']));
         $this->fm->expects($this->once())->method('prepare')->with($file)->will($this->returnValue('/tmp/foo/somefile.bar'));
         $subscriber->preUpdate($event);
@@ -113,7 +114,7 @@ class FileManagerSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $em = $this->getMockBuilder('Doctrine\ORM\EntityManager')->disableOriginalConstructor()->getMock();
         $values = ['foo' => [$object->value, null]];
-        $event = new \Doctrine\Common\Persistence\Event\PreUpdateEventArgs($object, $em, $values);
+        $event = new \Doctrine\Persistence\Event\PreUpdateEventArgs($object, $em, $values);
         $this->metadata->expects($this->once())->method('getManagedFields')->will($this->returnValue(['foo']));
         $subscriber->preUpdate($event);
         $this->assertEquals('some previous value', $object->value);
@@ -140,7 +141,7 @@ class FileManagerSubscriberTest extends \PHPUnit_Framework_TestCase
         $em = $this->getMockBuilder('Doctrine\ORM\EntityManager')->disableOriginalConstructor()->getMock();
         $file = $this->getMockBuilder('Symfony\Component\HttpFoundation\File\File')->disableOriginalConstructor()->getMock();
         $values = ['foo' => [$object->value, $file]];
-        $event = new \Doctrine\Common\Persistence\Event\PreUpdateEventArgs($object, $em, $values);
+        $event = new \Doctrine\Persistence\Event\PreUpdateEventArgs($object, $em, $values);
         $this->metadata->expects($this->once())->method('getManagedFields')->will($this->returnValue(['foo']));
 
         $this->fm->expects($this->once())->method('prepare')->with($file)->will($this->returnValue('/tmp/foo/somefile.bar'));
@@ -161,7 +162,7 @@ class FileManagerSubscriberTest extends \PHPUnit_Framework_TestCase
         $file = $this->getMockBuilder('Symfony\Component\HttpFoundation\File\File')->disableOriginalConstructor()->getMock();
         $em = $this->getMockBuilder('Doctrine\ORM\EntityManager')->disableOriginalConstructor()->getMock();
         $values = ['foo' => [null, $file]];
-        $event = new \Doctrine\Common\Persistence\Event\PreUpdateEventArgs($object, $em, $values);
+        $event = new \Doctrine\Persistence\Event\PreUpdateEventArgs($object, $em, $values);
         $this->metadata->expects($this->once())->method('getManagedFields')->will($this->returnValue(['foo']));
         $this->fm->expects($this->once())->method('prepare')->with($file)->will($this->returnValue('/tmp/foo/somefile.bar'));
         $this->fm->expects($this->once())->method('save')->with($file, '/tmp/foo/somefile.bar');
