@@ -4,10 +4,13 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle;
 
-class ZichtFileManagerBundleTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ZichtFileManagerBundleTest extends TestCase
 {
     function testConstruction()
     {
+        $this->expectNotToPerformAssertions();
         new \Zicht\Bundle\FileManagerBundle\ZichtFileManagerBundle();
     }
 }

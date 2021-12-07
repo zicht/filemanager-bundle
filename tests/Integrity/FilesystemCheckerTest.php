@@ -8,11 +8,9 @@ use Zicht\Bundle\FileManagerBundle\Integrity\FilesystemChecker;
 
 class FilesystemCheckerTest extends AbstractCheckerTestCase
 {
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     function testSetLoggerCallbackWillFailIfNotCallable()
     {
+        $this->expectException('\InvalidArgumentException');
         $checker = new FilesystemChecker($this->fm, $this->mf, $this->doctrine);
         $checker->setLoggingCallback('not callable');
     }

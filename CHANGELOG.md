@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 8.1.0 - 2021-12-07
+### Added
+- Support for PHP 8
+
 ## 8.0.2 - 2021-02-18
 ### Changed
 - Changed the use of the deprecated `kernel.root_dir` into `kernel.project_dir` and web/ into public/

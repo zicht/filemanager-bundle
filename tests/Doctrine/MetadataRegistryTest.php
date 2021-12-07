@@ -5,6 +5,7 @@
 
 namespace ZichtTest\Bundle\FileManagerBundle\Doctrine;
 
+use PHPUnit\Framework\TestCase;
 use \Zicht\Bundle\FileManagerBundle\Doctrine\MetadataRegistry;
 
 class MyEntity
@@ -15,7 +16,7 @@ class MyEntity
 /**
  * @covers \Zicht\Bundle\FileManagerBundle\Doctrine\MetadataRegistry
  */
-class MetadataRegistryTest extends \PHPUnit_Framework_TestCase
+class MetadataRegistryTest extends TestCase
 {
     /**
      * @dataProvider cases
@@ -24,7 +25,7 @@ class MetadataRegistryTest extends \PHPUnit_Framework_TestCase
      */
     function testGetManagedFields($hasFileManager, $expectedArray)
     {
-        $factory = $this->getMock('Metadata\MetadataFactoryInterface');
+        $factory = $this->createMock('Metadata\MetadataFactoryInterface');
         $data = new \Metadata\ClassMetadata('ZichtTest\Bundle\FileManagerBundle\Doctrine\MyEntity');
         $prop = new \Zicht\Bundle\FileManagerBundle\Metadata\PropertyMetadata('ZichtTest\Bundle\FileManagerBundle\Doctrine\MyEntity', 'myField');
         $data->addPropertyMetadata($prop);

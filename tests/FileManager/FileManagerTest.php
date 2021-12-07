@@ -3,9 +3,11 @@
  * @copyright Zicht Online <http://zicht.nl>
  */
 
-namespace ZichtTest\Bundle\AdminBundle\DependencyInjection\Compiler;
+namespace ZichtTest\Bundle\FileManagerBundle\DependencyInjection\Compiler;
 
+use PHPUnit\Framework\TestCase;
 use Zicht\Bundle\FileManagerBundle\DependencyInjection\ZichtFileManagerExtension;
+use Zicht\Bundle\FileManagerBundle\Mapping\NamingStrategyInterface;
 
 class SomeEntity
 {
@@ -22,7 +24,7 @@ class SomeEntity
     }
 }
 
-class FileManagerTest extends \PHPUnit_Framework_TestCase
+class FileManagerTest extends TestCase
 {
     /**
      * @var \Symfony\Component\Filesystem\Filesystem
@@ -34,13 +36,18 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
      */
     protected $fm;
 
-    function setUp()
+    public function setUp(): void
     {
-        $this->filesystem = $this->getMock('Symfony\Component\Filesystem\Filesystem', ['exists', 'mkdir', 'touch', 'remove']);
+        $this->filesystem = $this->getMockBuilder('Symfony\Component\Filesystem\Filesystem')->setMethods(['exists', 'mkdir', 'touch', 'remove'])->disableOriginalConstructor()->getMock();
+
+        $naming = $this->getMockBuilder(NamingStrategyInterface::class)->getMock();
+        $naming->method('normalize')->willReturn('foo.png');
+
         $this->fm = new \Zicht\Bundle\FileManagerBundle\FileManager\FileManager(
             $this->filesystem,
             '/media/',
-            'http://assets/'
+            'http://assets/',
+            $naming
         );
     }
 
@@ -62,6 +69,17 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
 
     function testPrepareWillStubFileWithSuffixIfFirstOneExists()
     {
+        $naming = $this->getMockBuilder(NamingStrategyInterface::class)->getMock();
+        $naming->expects($this->at(0))->method('normalize')->willReturn('foo.png');
+        $naming->expects($this->at(1))->method('normalize')->willReturn('foo-1.png');
+
+        $fm = new \Zicht\Bundle\FileManagerBundle\FileManager\FileManager(
+            $this->filesystem,
+            '/media/',
+            'http://assets/',
+            $naming
+        );
+
         $e = new SomeEntity();
         $file = new \Symfony\Component\HttpFoundation\File\File('/tmp/foo.png', false);
         $this->filesystem->expects($this->once())->method('mkdir')->with('/media/someentity/someField')->will($this->returnValue(true));
@@ -69,7 +87,7 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
         $this->filesystem->expects($this->at(1))->method('exists')->with('/media/someentity/someField/foo-1.png')->will($this->returnValue(false));
         $this->filesystem->expects($this->once())->method('touch')->with('/media/someentity/someField/foo-1.png');
 
-        $this->fm->prepare(
+        $fm->prepare(
             $file,
             $e,
             'someField'
@@ -92,7 +110,7 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
     function testDestructorWillNotRemoveStubsIfSaved()
     {
         $e = new SomeEntity();
-        $file = $this->getMock('Symfony\Component\HttpFoundation\File\File', ['move'], ['/tmp/foo.png', false]);
+        $file = $this->getMockBuilder('Symfony\Component\HttpFoundation\File\File')->disableOriginalConstructor()->getMock();
         $this->filesystem->expects($this->once())->method('touch')->with('/media/someentity/someField/foo.png');
         $this->filesystem->expects($this->once())->method('remove')->with('/media/someentity/someField/foo.png');
 
@@ -104,11 +122,9 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    /**
-     * @expectedException \RuntimeException
-     */
     function testSaveIsGuardedByPreparedPathsCheck()
     {
+        $this->expectException('\RuntimeException');
         $file = new \Symfony\Component\HttpFoundation\File\File('/tmp/foo', false);
         $this->fm->save($file, '/etc/passwd');
     }
@@ -136,11 +152,9 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    /**
-     * @expectedException \RuntimeException
-     */
     function testDeleteWillThrowExceptionOnFileSmell()
     {
+        $this->expectException('\RuntimeException');
         $this->filesystem->expects($this->never())->method('remove');
         $this->fm->delete('/etc/passwd');
     }

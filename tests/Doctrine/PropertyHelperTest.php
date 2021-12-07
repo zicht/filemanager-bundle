@@ -5,6 +5,7 @@
 
 namespace ZichtTest\Bundle\FileManagerBundle\Doctrine;
 
+use PHPUnit\Framework\TestCase;
 use \Zicht\Bundle\FileManagerBundle\Doctrine\PropertyHelper;
 
 class Entity
@@ -23,7 +24,7 @@ class Entity
     }
 }
  
-class PropertyHelperTest extends \PHPUnit_Framework_TestCase
+class PropertyHelperTest extends TestCase
 {
     function testSetter()
     {

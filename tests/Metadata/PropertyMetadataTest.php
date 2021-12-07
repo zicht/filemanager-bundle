@@ -4,7 +4,9 @@
  */
 namespace ZichtTest\Bundle\FileManagerBundle\Metadata;
 
-class PropertyMetadataTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class PropertyMetadataTest extends TestCase
 {
     public $mockProp;
 

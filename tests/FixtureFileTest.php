@@ -2,17 +2,20 @@
 /**
  * @copyright Zicht Online <http://zicht.nl>
  */
+
 namespace ZichtTest\Bundle\FileManagerBundle;
 
-class FixtureFileTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FixtureFileTest extends TestCase
 {
-    function setUp()
+    public function setUp(): void
     {
         @file_put_contents('/tmp/foo', 'bar');
         @mkdir('/tmp/target');
     }
 
-    function tearDown()
+    public function tearDown(): void
     {
         @unlink('/tmp/foo');
         @unlink('/tmp/target/bar');
@@ -28,32 +31,25 @@ class FixtureFileTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(is_file('/tmp/target/bar'));
     }
 
-    /**
-     * @expectedException \Symfony\Component\HttpFoundation\File\Exception\FileException
-     */
     function testErrorOnDirCreation()
     {
+        $this->expectException('\Symfony\Component\HttpFoundation\File\Exception\FileException');
         $fixture = new \Zicht\Bundle\FileManagerBundle\FixtureFile('/tmp/foo', true);
         $fixture->move('/doesnotexist', 'bar');
     }
 
-    /**
-     * @expectedException \Symfony\Component\HttpFoundation\File\Exception\FileException
-     */
     function testErrorOnUnwritableDir()
     {
+        $this->expectException('\Symfony\Component\HttpFoundation\File\Exception\FileException');
         chmod('/tmp/target', 0);
         $fixture = new \Zicht\Bundle\FileManagerBundle\FixtureFile('/tmp/foo', true);
         $fixture->move('/tmp/target', 'bar');
         chmod('/tmp/target', 777);
     }
 
-
-    /**
-     * @expectedException \Symfony\Component\HttpFoundation\File\Exception\FileException
-     */
     function testCopyFail()
     {
+        $this->expectException('\Symfony\Component\HttpFoundation\File\Exception\FileException');
         touch('/tmp/target/bar');
         chmod('/tmp/target/bar', 0);
         $fixture = new \Zicht\Bundle\FileManagerBundle\FixtureFile('/tmp/foo', true);
