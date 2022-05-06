@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 8.1.1 - 2022-05-06
+### Fixed
+- Fixed deprecated template notations
+
 ## 8.1.0 - 2021-12-07
 ### Added
 - Support for PHP 8
