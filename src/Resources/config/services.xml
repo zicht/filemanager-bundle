@@ -70,6 +70,14 @@
             <argument type="service" id="kernel"/>
         </service>
 
+        <service id="Zicht\Bundle\FileManagerBundle\Controller\ImagineController">
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
+            <call method="setContainer">
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
+            </call>
+        </service>
+
         <service id="Zicht\Bundle\FileManagerBundle\Command\CreateMimeFileCommand">
             <tag name="console.command"/>
         </service>

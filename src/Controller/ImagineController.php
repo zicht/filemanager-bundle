@@ -16,12 +16,16 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ImagineController extends AbstractController
 {
+    public static function getSubscribedServices()
+    {
+        return ['liip_imagine.cache.manager' => CacheManager::class] + parent::getSubscribedServices();
+    }
+
     /**
      * Remove thumbnail for given path
      *
      * @param Request $request
      * @return JsonResponse
-     *
      * @Route("/clear-thumbnail")
      */
     public function clearThumbnailAction(Request $request)
