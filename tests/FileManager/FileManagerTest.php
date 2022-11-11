@@ -3,7 +3,7 @@
  * @copyright Zicht Online <http://zicht.nl>
  */
 
-namespace ZichtTest\Bundle\FileManagerBundle\DependencyInjection\Compiler;
+namespace ZichtTest\Bundle\FileManagerBundle\FileManager;
 
 use PHPUnit\Framework\TestCase;
 use Zicht\Bundle\FileManagerBundle\DependencyInjection\ZichtFileManagerExtension;
@@ -70,8 +70,7 @@ class FileManagerTest extends TestCase
     function testPrepareWillStubFileWithSuffixIfFirstOneExists()
     {
         $naming = $this->getMockBuilder(NamingStrategyInterface::class)->getMock();
-        $naming->expects($this->at(0))->method('normalize')->willReturn('foo.png');
-        $naming->expects($this->at(1))->method('normalize')->willReturn('foo-1.png');
+        $naming->expects($this->exactly(2))->method('normalize')->willReturnOnConsecutiveCalls('foo.png', 'foo-1.png');
 
         $fm = new \Zicht\Bundle\FileManagerBundle\FileManager\FileManager(
             $this->filesystem,
@@ -83,8 +82,9 @@ class FileManagerTest extends TestCase
         $e = new SomeEntity();
         $file = new \Symfony\Component\HttpFoundation\File\File('/tmp/foo.png', false);
         $this->filesystem->expects($this->once())->method('mkdir')->with('/media/someentity/someField')->will($this->returnValue(true));
-        $this->filesystem->expects($this->at(0))->method('exists')->with('/media/someentity/someField/foo.png')->will($this->returnValue(true));
-        $this->filesystem->expects($this->at(1))->method('exists')->with('/media/someentity/someField/foo-1.png')->will($this->returnValue(false));
+        $this->filesystem->expects($this->exactly(2))->method('exists')
+            ->withConsecutive(['/media/someentity/someField/foo.png'], ['/media/someentity/someField/foo-1.png'])
+            ->willReturnOnConsecutiveCalls($this->returnValue(true), $this->returnValue(false));
         $this->filesystem->expects($this->once())->method('touch')->with('/media/someentity/someField/foo-1.png');
 
         $fm->prepare(
