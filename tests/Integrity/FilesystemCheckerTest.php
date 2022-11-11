@@ -19,22 +19,22 @@ class FilesystemCheckerTest extends AbstractCheckerTestCase
     function testChecker()
     {
         $checker = new FilesystemChecker($this->fm, $this->mf, $this->doctrine);
-        $this->fm->expects($this->at(0))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/foo'));
-        $this->fm->expects($this->at(1))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/bar'));
+        $this->fm->expects($this->exactly(2))->method('getFilePath')
+            ->willReturnOnConsecutiveCalls($this->returnValue('/tmp/checker-test/foo'), $this->returnValue('/tmp/checker-test/bar'));
         $logResult = '';
         $checker->setLoggingCallback(function ($d) use (&$logResult) {
             $logResult .= $d . "\n";
         });
         $checker->check('Foo');
-        $this->assertRegExp('!File does not exist:[^\n]+foo!', $logResult);
-        $this->assertRegExp('!File does not exist:[^\n]+bar!', $logResult);
+        $this->assertMatchesRegularExpression('!File does not exist:[^\n]+foo!', $logResult);
+        $this->assertMatchesRegularExpression('!File does not exist:[^\n]+bar!', $logResult);
     }
 
     function testChecker2()
     {
         $checker = new FilesystemChecker($this->fm, $this->mf, $this->doctrine);
-        $this->fm->expects($this->at(0))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/foo'));
-        $this->fm->expects($this->at(1))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/bar'));
+        $this->fm->expects($this->exactly(2))->method('getFilePath')
+            ->willReturnOnConsecutiveCalls($this->returnValue('/tmp/checker-test/foo'), $this->returnValue('/tmp/checker-test/bar'));
         $logResult = '';
         $checker->setLoggingCallback(function ($d) use (&$logResult) {
             $logResult .= $d . "\n";
@@ -44,8 +44,8 @@ class FilesystemCheckerTest extends AbstractCheckerTestCase
         touch('/tmp/checker-test/bar');
         clearstatcache();
         $checker->check('Foo');
-        $this->assertRegExp('!File exists:[^\n]+foo!', $logResult);
-        $this->assertRegExp('!File exists:[^\n]+bar!', $logResult);
+        $this->assertMatchesRegularExpression('!File exists:[^\n]+foo!', $logResult);
+        $this->assertMatchesRegularExpression('!File exists:[^\n]+bar!', $logResult);
     }
 
 
@@ -59,8 +59,8 @@ class FilesystemCheckerTest extends AbstractCheckerTestCase
         $manager->expects($this->atLeastOnce())->method('persist');
         $manager->expects($this->atLeastOnce())->method('flush');
 
-        $this->fm->expects($this->at(0))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/foo'));
-        $this->fm->expects($this->at(1))->method('getFilePath')->will($this->returnValue('/tmp/checker-test/bar'));
+        $this->fm->expects($this->exactly(2))->method('getFilePath')
+            ->willReturnOnConsecutiveCalls($this->returnValue('/tmp/checker-test/foo'), $this->returnValue('/tmp/checker-test/bar'));
 
         foreach ($this->records as $rec) {
             $rec->expects($this->any())->method('setFile')->with(null);

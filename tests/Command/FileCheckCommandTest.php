@@ -112,7 +112,7 @@ class FileCheckCommandTest extends TestCase
             })
         );
         $this->cmd->run($input, $output);
-        $this->assertRegExp('/\[test\]/', $result);
+        $this->assertMatchesRegularExpression('/\[test\]/', $result);
     }
 
 

@@ -16,13 +16,8 @@ class FixtureFile extends File
 {
     /**
      * Overrides default behaviour only to copy the file in stead of moving it.
-     *
-     * @param string $directory
-     * @param null $name
-     * @return \Symfony\Component\HttpFoundation\File\File
-     * @throws \Symfony\Component\HttpFoundation\File\Exception\FileException
      */
-    public function move($directory, $name = null)
+    public function move(string $directory, string $name = null): File
     {
         if (!is_dir($directory)) {
             if (false === @mkdir($directory, 0777, true)) {

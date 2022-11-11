@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 9.0.0 - 2022-11-11
+### Added
+- Support for Symfony ^5.4
+### Removed
+- Support for Symfony 4
+- Support for PHP 7.2 & 7.3
+
 ## 8.1.1 - 2022-05-06
 ### Fixed
 - Fixed deprecated template notations

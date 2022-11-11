@@ -25,7 +25,7 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
             $logResult .= $d . "\n";
         });
         $checker->check('Foo');
-        $this->assertRegExp('!Dir does not exist:[^\n]+/tmp/checker-test!', $logResult);
+        $this->assertMatchesRegularExpression('!Dir does not exist:[^\n]+/tmp/checker-test!', $logResult);
     }
 
     function testChecker()
@@ -40,8 +40,8 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
         touch('/tmp/checker-test/bar');
         $checker->check('Foo');
 
-        $this->assertRegExp('/Exists:[^\n]+foo/', $logResult);
-        $this->assertRegExp('/Exists:[^\n]+bar/', $logResult);
+        $this->assertMatchesRegularExpression('/Exists:[^\n]+foo/', $logResult);
+        $this->assertMatchesRegularExpression('/Exists:[^\n]+bar/', $logResult);
     }
 
     function testChecker2()
@@ -55,8 +55,8 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
         touch('/tmp/checker-test/foo');
         $checker->check('Foo');
 
-        $this->assertRegExp('/Exists:[^\n]+foo/', $logResult);
-        $this->assertNotRegExp('/Exists:[^\n]+bar/', $logResult);
+        $this->assertMatchesRegularExpression('/Exists:[^\n]+foo/', $logResult);
+        $this->assertDoesNotMatchRegularExpression('/Exists:[^\n]+bar/', $logResult);
     }
 
     function testNotUsed()
@@ -70,7 +70,7 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
 
         touch('/tmp/checker-test/baz');
         $checker->check('Foo');
-        $this->assertRegExp('/Not used:[^\n]+baz/', $logResult);
+        $this->assertMatchesRegularExpression('/Not used:[^\n]+baz/', $logResult);
     }
     function testCheckerPurge()
     {
@@ -85,6 +85,6 @@ class DatabaseCheckerTest extends AbstractCheckerTestCase
         touch('/tmp/checker-test/baz');
         $checker->check('Foo');
         $this->assertFalse(file_exists('/tmp/chekcer-test/baz'));
-        $this->assertRegExp('/Deleted:[^\n]+baz/', $logResult);
+        $this->assertMatchesRegularExpression('/Deleted:[^\n]+baz/', $logResult);
     }
 }
