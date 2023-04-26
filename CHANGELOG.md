@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Support for Symfony 6
+- Support for Doctrine Persistence v3
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 

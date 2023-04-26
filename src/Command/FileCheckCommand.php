@@ -5,6 +5,7 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,21 +18,14 @@ use Zicht\Bundle\FileManagerBundle\Integrity\FilesystemChecker;
 /**
  * A command to check if the files in the database are in sync with the files on disk or vice versa.
  */
+#[AsCommand('zicht:filemanager:check')]
 class FileCheckCommand extends Command
 {
-    protected static $defaultName = 'zicht:filemanager:check';
-    /**
-     * @var DatabaseChecker
-     */
-    private $databaseChecker;
-    /**
-     * @var FilesystemChecker
-     */
-    private $filesystemChecker;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
+    private DatabaseChecker $databaseChecker;
+
+    private FilesystemChecker $filesystemChecker;
+
+    private EntityHelper $entityHelper;
 
     public function __construct(DatabaseChecker $databaseChecker, FilesystemChecker $filesystemChecker, EntityHelper $entityHelper, string $name = null)
     {
@@ -41,9 +35,6 @@ class FileCheckCommand extends Command
         $this->entityHelper = $entityHelper;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function configure()
     {
         $this
@@ -59,10 +50,7 @@ class FileCheckCommand extends Command
             );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('inverse')) {
             $checker = $this->databaseChecker;
@@ -90,5 +78,7 @@ class FileCheckCommand extends Command
             $output->writeln("Checking entity {$entityClass}");
             $checker->check($entityClass);
         }
+
+        return Command::SUCCESS;
     }
 }

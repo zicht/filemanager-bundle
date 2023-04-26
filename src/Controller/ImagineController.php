@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ImagineController extends AbstractController
 {
-    public static function getSubscribedServices()
+    public static function getSubscribedServices(): array
     {
         return ['liip_imagine.cache.manager' => CacheManager::class] + parent::getSubscribedServices();
     }

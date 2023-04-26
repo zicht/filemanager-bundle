@@ -302,7 +302,7 @@ class FileType extends AbstractType
     /**
      * {@inheritDoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'zicht_file';
     }

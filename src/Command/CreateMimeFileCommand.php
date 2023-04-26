@@ -5,25 +5,19 @@
 
 namespace Zicht\Bundle\FileManagerBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Dumper;
 
+#[AsCommand('zicht:filemanager:create:mime')]
 class CreateMimeFileCommand extends Command
 {
-    protected static $defaultName = 'zicht:filemanager:create:mime';
+    /** mime types */
+    private const MIME_FILE = '/etc/mime.types';
 
-    /**
-     * mime types
-     */
-    const MIME_FILE = '/etc/mime.types';
-
-    /**
-     * {@inheritDoc}
-     */
     public function configure()
     {
         $this
@@ -37,11 +31,7 @@ class CreateMimeFileCommand extends Command
             );
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $dryRun = $input->getOption('dry-run');
         $force = $input->getOption('force');
@@ -76,5 +66,7 @@ class CreateMimeFileCommand extends Command
         } elseif ($dryRun) {
             echo $ymlDump;
         }
+
+        return Command::SUCCESS;
     }
 }

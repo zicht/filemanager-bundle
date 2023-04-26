@@ -58,7 +58,7 @@ class FileManagerSubscriber implements EventSubscriber
      */
     public function preUpdate($eventArgs)
     {
-        $entity = $eventArgs->getEntity();
+        $entity = $eventArgs->getObject();
         $changeset = $eventArgs->getEntityChangeSet();
 
         foreach ($this->metadata->getManagedFields($entity) as $field) {
@@ -102,7 +102,7 @@ class FileManagerSubscriber implements EventSubscriber
      */
     public function preRemove($eventArgs)
     {
-        $entity = $eventArgs->getEntity();
+        $entity = $eventArgs->getObject();
         foreach ($this->metadata->getManagedFields($entity) as $field) {
             $file = PropertyHelper::getValue($entity, $field);
 
@@ -125,7 +125,7 @@ class FileManagerSubscriber implements EventSubscriber
      */
     public function prePersist($eventArgs)
     {
-        $entity = $eventArgs->getEntity();
+        $entity = $eventArgs->getObject();
 
         foreach ($this->metadata->getManagedFields($entity) as $field) {
             $value = PropertyHelper::getValue($entity, $field);
