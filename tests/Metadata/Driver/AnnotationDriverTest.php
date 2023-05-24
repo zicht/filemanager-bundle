@@ -5,6 +5,7 @@
 
 namespace ZichtTest\Bundle\FileManagerBundle\Metadata\Driver;
 
+use Doctrine\Common\Annotations\Reader;
 use PHPUnit\Framework\TestCase;
 use Zicht\Bundle\FileManagerBundle\Annotation\File;
 
@@ -19,8 +20,9 @@ class AnnotationDriverTest extends TestCase
 {
     public function setUp(): void
     {
-        $this->reader = $this->getMockBuilder('Doctrine\Common\Annotations\Reader')
+        $this->reader = $this->getMockBuilder(Reader::class)
             ->disableOriginalConstructor()
+            ->setMethods(['getPropertyAnnotation'])
             ->getMock();
 
         $this->driver = new \Zicht\Bundle\FileManagerBundle\Metadata\Driver\AnnotationDriver($this->reader);
