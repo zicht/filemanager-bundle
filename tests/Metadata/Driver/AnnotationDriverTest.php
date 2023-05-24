@@ -21,6 +21,7 @@ class AnnotationDriverTest extends TestCase
     {
         $this->reader = $this->getMockBuilder('Doctrine\Common\Annotations\Reader')
             ->disableOriginalConstructor()
+            ->addMethods(['getPropertyAnnotation'])
             ->getMock();
 
         $this->driver = new \Zicht\Bundle\FileManagerBundle\Metadata\Driver\AnnotationDriver($this->reader);
