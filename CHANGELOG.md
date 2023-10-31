@@ -16,6 +16,10 @@ Nothing so far
 - Support for Symfony 4
 - Support for PHP 7.2 & 7.3
 
+## 8.1.2 - 2023-10-31
+### Fixed
+- Pre set data array for FileType data to prevent "Trying to access array offset on value of type null" errors
+
 ## 8.1.1 - 2022-05-06
 ### Fixed
 - Fixed deprecated template notations
