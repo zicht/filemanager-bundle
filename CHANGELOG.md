@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 8.1.2 - 2023-10-31
+### Fixed
+- Pre set data array for FileType data to prevent "Trying to access array offset on value of type null" errors
+
 ## 8.1.1 - 2022-05-06
 ### Fixed
 - Fixed deprecated template notations

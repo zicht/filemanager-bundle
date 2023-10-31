@@ -21,6 +21,8 @@ use Zicht\Bundle\FileManagerBundle\Helper\PurgatoryHelper;
  *
  * This subscriber is used to keep the data preserved- which is possibly present in the FileType (when editing an entity).
  * When the form is saved (submitted) and there is no new file uploaded, the old filename is inserted in the form again.
+ *
+ * @psalm-type FileTypeData = array{FileType::UPLOAD_FIELDNAME: File|UploadedFile|null, FileType::HASH_FIELDNAME: string|null, FileType::FILENAME_FIELDNAME: string|null, FileType::RADIO_FIELDNAME: FileType::FILE_URL|FileType::FILE_UPLOAD|null, FileType::URL_FIELDNAME: string|null, FileType::REMOVE_FIELDNAME?: '0'|'1'|null, FileType::KEEP_PREVIOUS_FILENAME?: '0'|'1'|null}
  */
 class FileTypeSubscriber implements EventSubscriberInterface
 {
@@ -59,37 +61,35 @@ class FileTypeSubscriber implements EventSubscriberInterface
     /**
      * Get the File object from the form data.
      *
-     * @param array $data
+     * @param FileTypeData $data
      * @return null|File|UploadedFile
      */
     protected function getUploadedFile($data)
     {
         $file = null;
 
-        if ($data !== null && is_array($data) && isset($data[FileType::RADIO_FIELDNAME])) {
-            switch ($data[FileType::RADIO_FIELDNAME]) {
-                case FileType::FILE_URL:
-                    if (!empty($data[FileType::URL_FIELDNAME])) {
-                        $fileurl = $data[FileType::URL_FIELDNAME];
-                        $fileparts = explode('/', $fileurl);
+        switch ($data[FileType::RADIO_FIELDNAME]) {
+            case FileType::FILE_URL:
+                if (!empty($data[FileType::URL_FIELDNAME])) {
+                    $fileurl = $data[FileType::URL_FIELDNAME];
+                    $fileparts = explode('/', $fileurl);
 
-                        $filename = urldecode(array_pop($fileparts));
-                        $parsedFileName = parse_url($filename);
+                    $filename = urldecode(array_pop($fileparts));
+                    $parsedFileName = parse_url($filename);
 
-                        // We are only interested in the original file path, strip '?...' section
-                        $filePath = sprintf('%s/%s', sys_get_temp_dir(), $parsedFileName['path']);
+                    // We are only interested in the original file path, strip '?...' section
+                    $filePath = sprintf('%s/%s', sys_get_temp_dir(), $parsedFileName['path']);
 
-                        file_put_contents($filePath, file_get_contents($fileurl));
-                        $file = new File($filePath);
-                    }
-                    break;
-                case FileType::FILE_UPLOAD:
-                    if (isset($data[FileType::UPLOAD_FIELDNAME]) && $data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
-                        /** @var UploadedFile $file */
-                        $file = $data[FileType::UPLOAD_FIELDNAME];
-                    }
-                    break;
-            }
+                    file_put_contents($filePath, file_get_contents($fileurl));
+                    $file = new File($filePath);
+                }
+                break;
+            case FileType::FILE_UPLOAD:
+                if ($data[FileType::UPLOAD_FIELDNAME] instanceof UploadedFile) {
+                    /** @var UploadedFile $file */
+                    $file = $data[FileType::UPLOAD_FIELDNAME];
+                }
+                break;
         }
 
         return $file;
@@ -147,11 +147,12 @@ class FileTypeSubscriber implements EventSubscriberInterface
      */
     public function preSubmit(FormEvent $event)
     {
-        $data = $event->getData();
+        /** @var FileTypeData $data */
+        $data = array_merge(FileType::$defaultData, $event->getData() ?: []);
         $entity = $event->getForm()->getParent()->getConfig()->getDataClass();
 
         //if the remove checkbox is checked, clear the data
-        if (isset($data[FileType::REMOVE_FIELDNAME]) &&  $data[FileType::REMOVE_FIELDNAME] === '1') {
+        if (isset($data[FileType::REMOVE_FIELDNAME]) && $data[FileType::REMOVE_FIELDNAME] === '1') {
             $event->setData(null);
             $data = null;
             return;
