@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType as SymfonyFileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -73,6 +74,14 @@ class FileType extends AbstractType
 
     protected $entities;
 
+    public static $defaultData = [
+        self::UPLOAD_FIELDNAME => null,
+        self::HASH_FIELDNAME => null,
+        self::FILENAME_FIELDNAME => null,
+        self::RADIO_FIELDNAME => null,
+        self::URL_FIELDNAME => null,
+    ];
+
     /**
      * @param FileManager $fileManager
      * @param \Symfony\Bundle\FrameworkBundle\Translation\Translator $translator
@@ -118,7 +127,7 @@ class FileType extends AbstractType
         $builder
             ->add(
                 self::UPLOAD_FIELDNAME,
-                'Symfony\Component\Form\Extension\Core\Type\FileType',
+                SymfonyFileType::class,
                 [
                     'translation_domain' => $options['translation_domain'],
                     'label' => 'zicht_filemanager.upload_file',
