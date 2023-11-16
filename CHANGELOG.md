@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added|Changed|Deprecated|Removed|Fixed|Security
 Nothing so far
 
+## 9.1.0 - 2023-11-20
+### Added
+- Attribute implementation of File annotation
+
 ## 9.0.1 - 2023-10-31
 ### Fixed
 - Forward merge of v8.1.2: Pre set data array for FileType data to prevent "Trying to access array offset on value of type null" errors

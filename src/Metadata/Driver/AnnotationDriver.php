@@ -44,7 +44,7 @@ class AnnotationDriver implements DriverInterface
                 'Zicht\Bundle\FileManagerBundle\Annotation\File'
             );
             if (null !== $annotation) {
-                // a "@DefaultValue" annotation was found
+                // a "@File" annotation was found
                 $propertyMetadata->fileManager = $annotation->settings;
             }
 
