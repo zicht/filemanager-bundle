@@ -5,9 +5,6 @@
         <parameter key="zicht_filemanager.filemanager.class">Zicht\Bundle\FileManagerBundle\FileManager\FileManager</parameter>
         <parameter key="zicht_filemanager.root">%kernel.project_dir%/public/media</parameter>
         <parameter key="zicht_filemanager.http_root">media</parameter>
-        <parameter key="zicht_filemanager.metadata_factory.class">Metadata\MetadataFactory</parameter>
-        <parameter key="zicht_filemanager.metadata.class">Zicht\Bundle\FileManagerBundle\Doctrine\MetadataRegistry</parameter>
-        <parameter key="zicht_filemanager.metadata.annotation_driver.class">Zicht\Bundle\FileManagerBundle\Metadata\Driver\AnnotationDriver</parameter>
         <parameter key="zicht_filemanager.form.file_type.class">Zicht\Bundle\FileManagerBundle\Form\FileType</parameter>
         <parameter key="zicht_filemanager.integrity_checker.database.class">Zicht\Bundle\FileManagerBundle\Integrity\DatabaseChecker</parameter>
         <parameter key="zicht_filemanager.integrity_checker.filesystem.class">Zicht\Bundle\FileManagerBundle\Integrity\FilesystemChecker</parameter>
@@ -16,14 +13,13 @@
         <parameter key="zicht_filemanager.naming_strategy.case_preservation">false</parameter>
     </parameters>
     <services>
-
         <service id="zicht_filemanager.naming_strategy" class="%zicht_filemanager.naming_strategy.class%">
             <argument>%zicht_filemanager.naming_strategy.case_preservation%</argument>
         </service>
 
         <service id="zicht_filemanager.subscribe" class="Zicht\Bundle\FileManagerBundle\Doctrine\FileManagerSubscriber">
             <argument type="service" id="zicht_filemanager.filemanager"/>
-            <argument type="service" id="zicht_filemanager.metadata"/>
+            <argument type="service" id="Zicht\Bundle\FileManagerBundle\Doctrine\MetadataRegistry"/>
             <tag name="doctrine.event_subscriber" connection="default"/>
         </service>
         <service id="zicht_filemanager.filemanager" class="%zicht_filemanager.filemanager.class%">
@@ -37,29 +33,33 @@
             <argument type="service" id="zicht_filemanager.filemanager"/>
             <tag name="twig.extension"/>
         </service>
-        <service id="zicht_filemanager.metadata.annotation_driver"
-                 class="%zicht_filemanager.metadata.annotation_driver.class%">
+        <service id="Zicht\Bundle\FileManagerBundle\Metadata\Driver\AnnotationDriver">
             <argument type="service" id="annotation_reader"/>
         </service>
-        <service id="zicht_filemanager.metadata" class="%zicht_filemanager.metadata.class%">
+        <service id="Zicht\Bundle\FileManagerBundle\Metadata\Driver\AttributeDriver"/>
+        <service id="Zicht\Bundle\FileManagerBundle\Doctrine\MetadataRegistry">
             <argument type="service" id="zicht_filemanager.metadata_factory"/>
         </service>
-        <service id="zicht_filemanager.metadata_factory" class="%zicht_filemanager.metadata_factory.class%">
-            <argument type="service" id="zicht_filemanager.metadata.annotation_driver"/>
+        <service id="zicht_filemanager.metadata.driver_chain" class="Metadata\Driver\DriverChain">
+            <argument type="collection">
+                <argument type="service" id="Zicht\Bundle\FileManagerBundle\Metadata\Driver\AnnotationDriver"/>
+                <argument type="service" id="Zicht\Bundle\FileManagerBundle\Metadata\Driver\AttributeDriver"/>
+            </argument>
+        </service>
+        <service id="zicht_filemanager.metadata_factory" class="Metadata\MetadataFactory">
+            <argument type="service" id="zicht_filemanager.metadata.driver_chain"/>
         </service>
         <service id="zicht_filemanager.form.file_type" class="%zicht_filemanager.form.file_type.class%">
             <argument type="service" id="zicht_filemanager.filemanager"/>
             <argument type="service" id="translator.default"/>
             <tag name="form.type"/>
         </service>
-        <service id="zicht_filemanager.integrity_checker.database"
-                 class="%zicht_filemanager.integrity_checker.database.class%">
+        <service id="zicht_filemanager.integrity_checker.database" class="%zicht_filemanager.integrity_checker.database.class%">
             <argument type="service" id="zicht_filemanager.filemanager"/>
             <argument type="service" id="zicht_filemanager.metadata_factory"/>
             <argument type="service" id="doctrine"/>
         </service>
-        <service id="zicht_filemanager.integrity_checker.filesystem"
-                 class="%zicht_filemanager.integrity_checker.filesystem.class%">
+        <service id="zicht_filemanager.integrity_checker.filesystem" class="%zicht_filemanager.integrity_checker.filesystem.class%">
             <argument type="service" id="zicht_filemanager.filemanager"/>
             <argument type="service" id="zicht_filemanager.metadata_factory"/>
             <argument type="service" id="doctrine"/>
@@ -88,6 +88,5 @@
             <argument type="service" id="zicht_filemanager.integrity_checker.filesystem"/>
             <argument type="service" id="zicht_filemanager.entity_helper"/>
         </service>
-
     </services>
 </container>

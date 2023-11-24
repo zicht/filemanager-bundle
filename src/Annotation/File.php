@@ -1,7 +1,5 @@
 <?php
-/**
- * @copyright Zicht Online <http://zicht.nl>
- */
+
 namespace Zicht\Bundle\FileManagerBundle\Annotation;
 
 /**
@@ -9,14 +7,15 @@ namespace Zicht\Bundle\FileManagerBundle\Annotation;
  *
  * @Annotation
  */
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
 class File
 {
-    public $settings = null;
+    public ?array $settings = null;
 
     /**
      * @param array $data
      */
-    public function __construct(array $data)
+    public function __construct(?array $data = null)
     {
         $this->settings = $data;
     }

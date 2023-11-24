@@ -9,7 +9,7 @@ use Doctrine\Common\Annotations\Reader;
 use PHPUnit\Framework\TestCase;
 use Zicht\Bundle\FileManagerBundle\Annotation\File;
 
-class MyClass
+class MyClass1
 {
     public $file;
     public $noFile;
@@ -30,7 +30,7 @@ class AnnotationDriverTest extends TestCase
 
     function testLoadMetadataForClass()
     {
-        $refl = new \ReflectionClass(__NAMESPACE__ . '\\MyClass');
+        $refl = new \ReflectionClass(__NAMESPACE__ . '\\MyClass1');
         $prop1 = $refl->getProperty('file');
         $prop2 = $refl->getProperty('noFile');
         $this->reader->expects($this->exactly(2))->method('getPropertyAnnotation')
